@@ -17,7 +17,8 @@ On a public blockchain, every payment, balance and trade is visible to anyone, f
 | Private balance | NEAR Confidential Intents (private shard, TEE-secured) | *(planned)* |
 | Send privately | Confidential transfer between Lumen accounts | *(planned, under verification)* |
 | Invest in stocks and gold | Ondo Global Markets tokens via NEAR Intents 1Click | *(planned)* |
-| Passkey sign-in | WebAuthn P-256 intent signing, no seed phrase | *(planned)* |
+| Passkey sign-in | WebAuthn P-256 signs an empty intent; NEAR Intents returns a user session | **Working** (tested with a software authenticator; real device pending) |
+| Read private balance | `/v0/account/balances` with the user session | **Working** |
 | Demo mode | Simulated balance with real dry-run quotes | *(planned)* |
 
 ## What is private, and what isn't
@@ -40,7 +41,17 @@ Ondo tokens give economic exposure to the underlying stock or fund. They are not
 | `PLAN.md` | Build plan and feasibility findings |
 | `DESIGN.md` | Design system |
 
-## Run it *(planned)*
+## Run it
+
+```bash
+cd web
+npm install
+cp .env.example .env.local   # then set SESSION_SECRET (command in the file)
+npm run dev                  # http://localhost:3000
+```
+
+Open `/app` and create a passkey (Chrome, Safari or Edge; passkeys need HTTPS or localhost).
+`node scripts/sim-passkey.mjs http://localhost:3000` runs the whole sign-in with a software authenticator.
 
 ## Try it as a judge *(planned)*
 

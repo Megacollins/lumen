@@ -1,19 +1,18 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { MarketGrid, MarketGridFallback } from "@/components/landing/market-grid";
 import { SiteHeader } from "@/components/landing/site-header";
 import { StillLife } from "@/components/landing/still-life";
 import { AccountPreview } from "@/components/landing/account-preview";
 import { Reveal } from "@/components/motion/reveal";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Mark, Logo } from "@/components/brand/logo";
-import { AddIcon, SendIcon, InvestIcon, PrivateIcon, StatementIcon, PasskeyIcon, SwapIcon } from "@/components/brand/icons";
-import { getMarketRows } from "@/lib/markets";
+import { AddIcon, SendIcon, InvestIcon, PrivateIcon, StatementIcon, PasskeyIcon } from "@/components/brand/icons";
 
 const H2 = "text-[clamp(32px,4.2vw,60px)] font-normal leading-[1.08] tracking-[-0.035em]";
 const BODY = "text-base leading-relaxed text-ink-70";
 
-export default async function Home() {
-  const { rows, live } = await getMarketRows();
-
+export default function Home() {
   return (
     <>
       <SiteHeader />
@@ -142,34 +141,11 @@ export default async function Home() {
                   balance. Each token gives economic exposure to the underlying asset; it is not direct share
                   ownership.
                 </p>
-                <p className="mt-4 text-xs text-ink-45">
-                  {live ? "Live prices from NEAR Intents, refreshed every minute." : "Prices unavailable right now."} Trading
-                  opens per asset once its route is verified.
-                </p>
               </Reveal>
               <div className="grid min-w-0 flex-[2_1_560px] gap-4 sm:grid-cols-2">
-                {rows.map((a, i) => (
-                  <Reveal key={a.symbol} delay={i * 0.05}>
-                    <div className="border border-hairline bg-paper px-7 pb-6 pt-7">
-                      <div className="flex justify-between text-[13px] text-ink-60">
-                        <span>{a.symbol}</span>
-                        <span>{a.kind}</span>
-                      </div>
-                      <div className="mt-2.5 text-xl tracking-[-0.015em]">{a.name}</div>
-                      <div className="tabular mt-7 text-[30px] tracking-[-0.03em]">
-                        {a.price == null ? "—" : `$${a.price.toFixed(2)}`}
-                      </div>
-                    </div>
-                  </Reveal>
-                ))}
-                <Reveal delay={0.25}>
-                  <div className="flex h-full flex-col justify-between gap-6 border border-hairline bg-ink px-7 pb-6 pt-7 text-white">
-                    <SwapIcon size={28} />
-                    <p className="text-[15px] leading-relaxed text-white/75">
-                      Independent solvers compete to fill every order. Minimum order about $30.
-                    </p>
-                  </div>
-                </Reveal>
+                <Suspense fallback={<MarketGridFallback />}>
+                  <MarketGrid />
+                </Suspense>
               </div>
             </div>
           </section>
