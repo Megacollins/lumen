@@ -1,0 +1,24 @@
+import type { Metadata } from "next";
+import { Inter_Tight } from "next/font/google";
+import "./globals.css";
+
+const interTight = Inter_Tight({
+  variable: "--font-inter-tight",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+});
+
+export const metadata: Metadata = {
+  title: "Lumen — private money, private markets",
+  description:
+    "A private financial account on NEAR. Hold dollars, pay people by username, and invest in tokenized stocks and gold from one balance the public can't see.",
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    <html lang="en" className={`${interTight.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col">{children}</body>
+    </html>
+  );
+}

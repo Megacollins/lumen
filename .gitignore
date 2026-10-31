@@ -1,0 +1,10 @@
+node_modules/
+.env
+.env*.local
+.next/
+out/
+.vercel/
+*.log
+.DS_Store
+spikes/.passkey.json
+spikes/.session-*.json

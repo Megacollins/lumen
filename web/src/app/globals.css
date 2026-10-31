@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+/* Lumen design tokens — see DESIGN.md. Square corners, hairlines instead of shadows, gold only for privacy. */
+:root {
+  --ink: #141413;
+  --ink-70: rgba(20, 20, 19, 0.7);
+  --ink-60: rgba(20, 20, 19, 0.62);
+  --ink-45: rgba(20, 20, 19, 0.5);
+  --hairline: rgba(20, 20, 19, 0.1);
+  --paper: #ffffff;
+  --mist: #f5f5f4;
+  --studio: #ecebe8;
+  --stone: #d8d6d0;
+  --gold: #c9a24a;
+  --gold-light: #e2c374;
+  --glow: #f0dfae;
+  --up: #2f7d5b;
+  --down: #a9472f;
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-70: var(--ink-70);
+  --color-ink-60: var(--ink-60);
+  --color-ink-45: var(--ink-45);
+  --color-hairline: var(--hairline);
+  --color-paper: var(--paper);
+  --color-mist: var(--mist);
+  --color-studio: var(--studio);
+  --color-stone: var(--stone);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-glow: var(--glow);
+  --color-up: var(--up);
+  --color-down: var(--down);
+  --font-sans: var(--font-inter-tight), system-ui, sans-serif;
+  --radius-*: initial;
+  --radius-none: 0;
+  --radius-full: 9999px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--mist);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Privacy veil: balances stay blurred until revealed */
+.veil {
+  filter: blur(8px);
+  transition: filter 400ms var(--ease-out-soft);
+}
+.veil[data-revealed="true"] {
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}
