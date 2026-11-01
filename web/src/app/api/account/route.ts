@@ -7,6 +7,7 @@ export type Balance = { tokenId: string; available: string; source: "private" };
 export async function GET() {
   const s = await getSession().catch(() => null);
   if (!s) return Response.json({ signedIn: false });
+  if (s.demo) return Response.json({ signedIn: true, demo: true, signerId: s.signerId, balances: [], balancesAvailable: true });
 
   try {
     const { balances } = await oneclick<{ balances: Balance[] }>("/v0/account/balances", { userToken: s.accessToken });

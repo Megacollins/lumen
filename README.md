@@ -21,7 +21,7 @@ On a public blockchain, every payment, balance and trade is visible to anyone, f
 | Invest: execute orders | Signed `swap_transfer` intents from the confidential balance | *(planned; enabled per asset only after a live mainnet test)* |
 | Passkey sign-in | WebAuthn P-256 signs an empty intent; NEAR Intents returns a user session | **Working** (tested with a software authenticator; real device pending) |
 | Read private balance | `/v0/account/balances` with the user session | **Working** |
-| Demo mode | Simulated balance with real dry-run quotes | *(planned)* |
+| Demo mode | Simulated balance and activity in the browser; every flow uses real dry-run quotes | **Working** |
 
 ## What is private, and what isn't
 
@@ -55,7 +55,15 @@ npm run dev                  # http://localhost:3000
 Open `/app` and create a passkey (Chrome, Safari or Edge; passkeys need HTTPS or localhost).
 `node scripts/sim-passkey.mjs http://localhost:3000` runs the whole sign-in with a software authenticator.
 
-## Try it as a judge *(planned)*
+## Try it as a judge
+
+1. Open `/demo` (or click **Try the demo** on the landing page or sign-in screen). No passkey or funds needed. A black banner marks demo mode.
+2. **Overview** shows a simulated net worth split between cash and investments. Click **Reveal balances** to un-blur.
+3. **Invest → NVIDIA → Buy**, enter $30 or more. The quote comes live from NEAR Intents. Click **Simulate buying NVDA** and see the holding and receipt update.
+4. **Cash → Send**, enter any account id (e.g. `0x055f2e87d74ffda9e7bc2646ba76a5938d75679b`) and an amount. Simulate it and see it in Recent activity.
+5. **Exit demo** clears everything.
+
+Outside demo mode, the same screens show real balances from NEAR Intents and say "Preview only" until each flow has passed a live mainnet test.
 
 ## Built with
 

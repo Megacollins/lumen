@@ -40,9 +40,12 @@ export default function Home() {
               stocks and gold, with balances the public can&apos;t see.
             </p>
             <p className="mt-3 text-[15px] italic text-ink-60">Your money. Your investments. Your privacy.</p>
-            <ButtonLink href="/app" className="mt-9">
-              Open Lumen
-            </ButtonLink>
+            <div className="mt-9 flex flex-wrap justify-center gap-3">
+              <ButtonLink href="/app">Open Lumen</ButtonLink>
+              <ButtonLink href="/demo" variant="secondary">
+                Try the demo
+              </ButtonLink>
+            </div>
           </Reveal>
         </section>
 

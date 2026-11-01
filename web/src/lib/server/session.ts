@@ -8,6 +8,8 @@ const COOKIE = "lumen_session";
 export type Session = {
   signerId: string;
   standard: "webauthn";
+  /** Demo sessions have no NEAR Intents tokens: balances are simulated in the browser, quotes are real. */
+  demo?: boolean;
   accessToken: string;
   accessExpiresAt: number; // ms
   refreshToken: string;
@@ -50,6 +52,14 @@ export function sessionFromTokens(signerId: string, t: UserTokens): Session {
   };
 }
 
+/** A recognisable, unowned account id used as the quote recipient in demo mode. */
+export const DEMO_SIGNER_ID = "0x000000000000000000000000000000000000d3a0";
+
+export function demoSession(): Session {
+  const day = Date.now() + 24 * 60 * 60 * 1000;
+  return { signerId: DEMO_SIGNER_ID, standard: "webauthn", demo: true, accessToken: "", accessExpiresAt: day, refreshToken: "", refreshExpiresAt: day };
+}
+
 export async function writeSession(s: Session) {
   (await cookies()).set(COOKIE, seal(s), {
     httpOnly: true,
@@ -71,7 +81,7 @@ export async function getSession(): Promise<Session | null> {
   if (!s) return null;
   const now = Date.now();
   if (s.refreshExpiresAt <= now) return null;
-  if (s.accessExpiresAt - 60_000 > now) return s;
+  if (s.demo || s.accessExpiresAt - 60_000 > now) return s;
   const r = await oneclick<{ accessToken: string; expiresIn: number }>("/v0/auth/refresh", {
     body: { refreshToken: s.refreshToken },
   });

@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Asset } from "@/lib/markets";
+import { USDC, type Asset } from "@/lib/markets";
+import { useAccount } from "./account-app";
 import { PreviewNotice, Row, Sheet } from "./sheet";
+import { SimulateButton } from "./simulate";
 import { usd } from "./use-markets";
 
 type Quote = {
@@ -43,7 +45,7 @@ export function TradeSheet({
 }) {
   return (
     <Sheet open={open} title={`${side === "buy" ? "Buy" : "Sell"} ${asset.name}`} onClose={onClose}>
-      <TradeForm side={side} asset={asset} holding={holding} minOrderUsd={minOrderUsd} />
+      <TradeForm side={side} asset={asset} holding={holding} minOrderUsd={minOrderUsd} onDone={onClose} />
     </Sheet>
   );
 }
@@ -53,12 +55,15 @@ function TradeForm({
   asset,
   holding,
   minOrderUsd,
+  onDone,
 }: {
   side: "buy" | "sell";
   asset: Asset;
   holding: number;
   minOrderUsd: number;
+  onDone: () => void;
 }) {
+  const { account, simulate } = useAccount();
   const [amount, setAmount] = useState(side === "buy" ? String(minOrderUsd) : "");
   const [eligible, setEligible] = useState(readEligible);
   const [quote, setQuote] = useState<Quote | null>(null);
@@ -185,7 +190,23 @@ function TradeForm({
       </div>
       {error && canQuote && <p className="mt-3 text-sm text-down">{error}</p>}
 
-      {shown?.executable ? (
+      {account.demo && shown ? (
+        <SimulateButton
+          label={`Simulate ${side === "buy" ? "buying" : "selling"} ${asset.symbol}`}
+          onDone={onDone}
+          run={() => {
+            const out = Number(shown.amountOut);
+            const deltas =
+              side === "buy" ? { [USDC.assetId]: -Number(amount), [asset.assetId]: out } : { [asset.assetId]: -Number(amount), [USDC.assetId]: out };
+            return simulate(deltas, {
+              kind: side,
+              title: `${side === "buy" ? "Bought" : "Sold"} ${asset.name}`,
+              detail: side === "buy" ? `${out.toFixed(4)} ${asset.symbol}` : `${Number(amount).toFixed(4)} ${asset.symbol}`,
+              cashDelta: side === "buy" ? -Number(amount) : out,
+            });
+          }}
+        />
+      ) : shown?.executable ? (
         <button type="button" className="mt-6 h-[52px] w-full bg-ink font-medium text-white transition-opacity hover:opacity-70">
           Confirm with passkey
         </button>

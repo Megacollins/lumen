@@ -14,14 +14,31 @@ import {
   storedPasskey,
   type StoredPasskey,
 } from "@/lib/passkey-client";
+import {
+  applyToLedger,
+  clearLedger,
+  freshLedger,
+  ledgerBalances,
+  loadLedger,
+  saveLedger,
+  type Ledger,
+  type Receipt,
+} from "@/lib/demo-ledger";
 
 export type Account = {
   signerId: string;
   balances: { tokenId: string; available: string }[];
   balancesAvailable: boolean;
+  demo?: boolean;
 };
 
-type AccountCtx = { account: Account; reload: () => Promise<void> };
+type AccountCtx = {
+  account: Account;
+  reload: () => Promise<void>;
+  /** Demo mode only: simulated activity, and a way to apply a simulated transaction. */
+  activity: Receipt[];
+  simulate: (deltas: Record<string, number>, receipt: Omit<Receipt, "id" | "at">) => boolean;
+};
 const Ctx = createContext<AccountCtx | null>(null);
 
 export function useAccount() {
@@ -58,12 +75,54 @@ export function AccountGate({ children }: { children: ReactNode }) {
   if (!account) return <SignIn onSignedIn={reload} />;
 
   return (
-    <Ctx.Provider value={{ account, reload }}>
+    <SignedIn account={account} reload={reload} onSignedOut={() => setAccount(null)}>
+      {children}
+    </SignedIn>
+  );
+}
+
+function SignedIn({
+  account,
+  reload,
+  onSignedOut,
+  children,
+}: {
+  account: Account;
+  reload: () => Promise<void>;
+  onSignedOut: () => void;
+  children: ReactNode;
+}) {
+  // Demo accounts read balances from the simulated ledger; real accounts from NEAR Intents.
+  const [ledger, setLedger] = useState<Ledger | null>(() => (account.demo ? loadLedger() : null));
+
+  const simulate = useCallback<AccountCtx["simulate"]>(
+    (deltas, receipt) => {
+      if (!ledger) return false;
+      const next = applyToLedger(ledger, deltas, receipt);
+      if (!next) return false;
+      saveLedger(next);
+      setLedger(next);
+      return true;
+    },
+    [ledger],
+  );
+
+  const shown: Account = ledger ? { ...account, balances: ledgerBalances(ledger) } : account;
+
+  return (
+    <Ctx.Provider value={{ account: shown, reload, activity: ledger?.activity ?? [], simulate }}>
       <Shell
         signerId={account.signerId}
+        demo={!!account.demo}
+        onResetDemo={() => {
+          const fresh = freshLedger();
+          saveLedger(fresh);
+          setLedger(fresh);
+        }}
         onSignOut={async () => {
           await signOut();
-          setAccount(null);
+          if (account.demo) clearLedger();
+          onSignedOut();
         }}
       >
         {children}
@@ -78,12 +137,40 @@ const TABS = [
   { href: "/app/invest", label: "Invest", Icon: InvestIcon },
 ];
 
-function Shell({ signerId, onSignOut, children }: { signerId: string; onSignOut: () => void; children: ReactNode }) {
+function Shell({
+  signerId,
+  demo,
+  onResetDemo,
+  onSignOut,
+  children,
+}: {
+  signerId: string;
+  demo: boolean;
+  onResetDemo: () => void;
+  onSignOut: () => void;
+  children: ReactNode;
+}) {
   const path = usePathname();
   const active = (href: string) => (href === "/app" ? path === "/app" : path.startsWith(href));
 
   return (
     <div className="flex flex-1 flex-col pb-20 md:pb-0">
+      {demo && (
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 bg-ink px-4 py-2 text-center text-[13px] text-white">
+          <span>
+            <b className="font-medium">Demo mode.</b> Balances and transactions are simulated; prices and quotes are
+            real.
+          </span>
+          <span className="flex gap-3">
+            <button type="button" onClick={onResetDemo} className="underline underline-offset-4 hover:opacity-70">
+              Reset
+            </button>
+            <button type="button" onClick={onSignOut} className="underline underline-offset-4 hover:opacity-70">
+              Exit demo
+            </button>
+          </span>
+        </div>
+      )}
       <header className="sticky top-0 z-40 border-b border-hairline bg-mist/85 backdrop-blur-[6px]">
         <div className="mx-auto flex h-16 max-w-[960px] items-center justify-between px-5">
           <Link href="/app" aria-label="Overview">
@@ -103,10 +190,10 @@ function Shell({ signerId, onSignOut, children }: { signerId: string; onSignOut:
           </nav>
           <div className="flex items-center gap-3 text-sm">
             <span className="tabular hidden text-ink-60 sm:inline" title={signerId}>
-              {signerId.slice(0, 6)}…{signerId.slice(-4)}
+              {demo ? "Demo account" : `${signerId.slice(0, 6)}…${signerId.slice(-4)}`}
             </span>
             <button type="button" onClick={onSignOut} className="border border-hairline bg-paper px-3 py-1.5 transition-opacity hover:opacity-70">
-              Sign out
+              {demo ? "Exit demo" : "Sign out"}
             </button>
           </div>
         </div>
@@ -205,6 +292,25 @@ function SignIn({ onSignedIn }: { onSignedIn: () => void }) {
             {error}
           </p>
         )}
+        <div className="mt-2 flex items-center gap-3 text-xs text-ink-45">
+          <span className="h-px flex-1 bg-hairline" />
+          or
+          <span className="h-px flex-1 bg-hairline" />
+        </div>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            await fetch("/api/demo", { method: "POST" });
+            setBusy(false);
+            onSignedIn();
+          }}
+          className="h-[52px] border border-hairline bg-mist font-medium transition-opacity hover:opacity-70 disabled:opacity-50"
+        >
+          Try the demo
+        </button>
+        <p className="text-center text-xs text-ink-45">No passkey needed. Simulated balances, real quotes.</p>
         <p className="mt-2 text-center text-xs leading-relaxed text-ink-45">
           Your passkey never leaves your device. Lumen never holds your keys or funds.
         </p>

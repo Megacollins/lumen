@@ -7,6 +7,7 @@ import { CHAINS, type CashKind, type ChainId } from "@/lib/cash";
 import { USDC } from "@/lib/markets";
 import { useAccount } from "./account-app";
 import { PreviewNotice, Row, Sheet } from "./sheet";
+import { SimulateButton } from "./simulate";
 import { usd } from "./use-markets";
 import { useQuote } from "./use-quote";
 
@@ -80,7 +81,11 @@ export function Cash() {
       </section>
 
       <Sheet open={flow !== null} title={flow ? TITLES[flow] : ""} onClose={() => setFlow(null)}>
-        {flow === "receive" ? <ReceiveBody signerId={account.signerId} /> : flow ? <CashForm kind={flow} balance={cash} /> : null}
+        {flow === "receive" ? (
+          <ReceiveBody signerId={account.signerId} />
+        ) : flow ? (
+          <CashForm kind={flow} balance={cash} onDone={() => setFlow(null)} />
+        ) : null}
       </Sheet>
     </div>
   );
@@ -113,7 +118,8 @@ function ReceiveBody({ signerId }: { signerId: string }) {
   );
 }
 
-function CashForm({ kind, balance }: { kind: CashKind; balance: number }) {
+function CashForm({ kind, balance, onDone }: { kind: CashKind; balance: number; onDone: () => void }) {
+  const { account, simulate } = useAccount();
   const [amount, setAmount] = useState("");
   const [chain, setChain] = useState<ChainId>(kind === "add" ? "base" : "near");
   const [recipient, setRecipient] = useState("");
@@ -210,7 +216,25 @@ function CashForm({ kind, balance }: { kind: CashKind; balance: number }) {
           `This leaves your private balance. The receiving address and amount will be public on ${chainInfo.name}, but not linked to your Lumen balance.`}
       </p>
 
-      {data?.executable && !overBalance ? (
+      {account.demo && data ? (
+        <SimulateButton
+          label={kind === "add" ? "Simulate adding money" : kind === "send" ? "Simulate sending" : "Simulate moving out"}
+          onDone={onDone}
+          run={() => {
+            const delta = kind === "add" ? Number(data.amountOut) : -Number(amount);
+            const short = recipient.trim().length > 16 ? `${recipient.trim().slice(0, 8)}…${recipient.trim().slice(-4)}` : recipient.trim();
+            return simulate(
+              { [USDC.assetId]: delta },
+              {
+                kind,
+                title: kind === "add" ? `Added from ${chainInfo.name}` : kind === "send" ? `Sent to ${short}` : `Moved out to ${chainInfo.name}`,
+                detail: kind === "send" ? "Private payment" : kind === "add" ? "Deposit, unlinked" : short,
+                cashDelta: delta,
+              },
+            );
+          }}
+        />
+      ) : data?.executable && !overBalance ? (
         <button type="button" className="mt-6 h-[52px] w-full bg-ink font-medium text-white transition-opacity hover:opacity-70">
           {kind === "add" ? "Get deposit address" : "Confirm with passkey"}
         </button>
