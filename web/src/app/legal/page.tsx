@@ -16,8 +16,14 @@ export default function Legal() {
           only small amounts you can afford to lose.
         </p>
         <p>
-          <b>Non-custodial.</b> You sign every transaction with your own key. Lumen never holds your keys or funds and
-          cannot recover them.
+          <b>Preview status.</b> Lumen reads real balances, prices and quotes from NEAR Intents. Adding money, payments,
+          withdrawals and orders are switched on one by one, only after each has passed a live test on mainnet. Until
+          then the app labels them &ldquo;Preview only&rdquo; and moves no money. Prices shown outside a quote are
+          indicative.
+        </p>
+        <p>
+          <b>Self-custodial.</b> Your account is controlled by a passkey on your device. Lumen never sees its private
+          key, never holds your funds, and cannot recover your account if you lose access to your passkey.
         </p>
         <p>
           <b>Privacy model.</b> Lumen uses NEAR Confidential Intents, which processes transactions on a private NEAR
@@ -26,8 +32,9 @@ export default function Legal() {
           order details when quoting.
         </p>
         <p>
-          <b>Tokenized assets.</b> Stock, fund and gold tokens are issued by Ondo Global Markets. They give economic
-          exposure to the underlying asset and are not direct ownership of shares or physical gold. They are not
+          <b>Tokenized assets.</b> Stock and ETF tokens are issued by Ondo Global Markets. They give economic exposure to
+          the underlying asset and are not direct ownership of shares. The gold token tracks SPDR Gold Shares (GLD), an
+          exchange-traded fund that holds gold; it is not ownership of physical gold. They are not
           available to US persons, and may require professional-investor status in some jurisdictions. Prices can fall
           as well as rise.
         </p>

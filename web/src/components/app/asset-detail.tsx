@@ -47,7 +47,7 @@ export function AssetDetail({ symbol }: { symbol: string }) {
       <div className="tabular mt-8 text-[48px] leading-none tracking-[-0.04em]">
         {row?.price == null ? "—" : usd(row.price)}
       </div>
-      <p className="mt-2 text-[13px] text-ink-45">Live price from NEAR Intents</p>
+      <p className="mt-2 text-[13px] text-ink-45">Indicative price from NEAR Intents. Your order gets its own quote.</p>
 
       <div className="mt-8 grid grid-cols-2 gap-2 md:max-w-[420px]">
         <button type="button" onClick={() => setSheet("buy")} className="h-[52px] bg-ink font-medium text-white transition-opacity hover:opacity-70">
@@ -79,7 +79,7 @@ export function AssetDetail({ symbol }: { symbol: string }) {
         <h2 className="text-base text-ink">What you&apos;re buying</h2>
         <p className="mt-2">
           {asset.symbol}on is a token issued by Ondo Global Markets that tracks the price of {asset.name}
-          {asset.kind === "Gold fund" ? " (a gold fund, not physical gold)" : ""}. It gives economic exposure only: no
+          {asset.kind === "Gold ETF" ? " (an exchange-traded fund that holds gold; the token is not physical gold)" : asset.kind === "ETF" ? " (an exchange-traded fund)" : ""}. It gives economic exposure only: no
           voting rights and no direct ownership of the underlying asset. The token lives on BNB Chain and is held in
           your NEAR Intents account.
         </p>

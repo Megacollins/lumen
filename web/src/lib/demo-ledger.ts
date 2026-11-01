@@ -29,7 +29,7 @@ export function freshLedger(): Ledger {
   return {
     balances: { [USDC.assetId]: 2480.2, [nvda.assetId]: 3.2, [gld.assetId]: 4 },
     activity: [
-      { id: "seed-2", at: now - 3 * 3600_000, kind: "buy", title: "Bought Gold", detail: "4.0000 GLD", cashDelta: -1420.0 },
+      { id: "seed-2", at: now - 3 * 3600_000, kind: "buy", title: "Bought SPDR Gold Shares", detail: "4.0000 GLD", cashDelta: -1420.0 },
       { id: "seed-1", at: now - 26 * 3600_000, kind: "receive", title: "Received from 0x7c1e…a42f", detail: "Private payment", cashDelta: 250 },
     ],
   };

@@ -13,13 +13,13 @@ export function InvestList() {
         Invest, <i>quietly</i>.
       </h1>
       <p className="mt-3 max-w-[560px] text-[15px] leading-relaxed text-ink-60">
-        Tokenized stocks and funds from Ondo Global Markets, bought with your private cash through NEAR Intents. Each
+        Tokenized stocks and ETFs from Ondo Global Markets, bought with your private cash through NEAR Intents. Each
         token gives economic exposure to the underlying asset; it is not direct share ownership.
       </p>
 
       <div className="mt-6 flex items-start gap-3 border border-[#EBDDB4] bg-[#FBF5E4] p-4 text-sm text-[#6B5318]">
         <span className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-gold" />
-        <span>Quotes here are live from NEAR Intents. Orders open per asset once its route passes a real test on mainnet.</span>
+        <span>Prices below are indicative. Buy and sell quotes come live from NEAR Intents; orders open per asset once its route passes a real test on mainnet.</span>
       </div>
 
       <div className="mt-8 border border-hairline bg-paper">

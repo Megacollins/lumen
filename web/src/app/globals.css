@@ -3,9 +3,9 @@
 /* Lumen design tokens — see DESIGN.md. Square corners, hairlines instead of shadows, gold only for privacy. */
 :root {
   --ink: #141413;
-  --ink-70: rgba(20, 20, 19, 0.7);
-  --ink-60: rgba(20, 20, 19, 0.62);
-  --ink-45: rgba(20, 20, 19, 0.5);
+  --ink-70: rgba(20, 20, 19, 0.74);
+  --ink-60: rgba(20, 20, 19, 0.66);
+  --ink-45: rgba(20, 20, 19, 0.6);
   --hairline: rgba(20, 20, 19, 0.1);
   --paper: #ffffff;
   --mist: #f5f5f4;

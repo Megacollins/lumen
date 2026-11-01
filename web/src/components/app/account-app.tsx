@@ -318,7 +318,7 @@ function SignIn({ onSignedIn }: { onSignedIn: () => void }) {
         </button>
         <p className="text-center text-xs text-ink-45">No passkey needed. Simulated balances, real quotes.</p>
         <p className="mt-2 text-center text-xs leading-relaxed text-ink-45">
-          Your passkey never leaves your device. Lumen never holds your keys or funds.
+          Lumen never sees your passkey&apos;s private key, and never holds your funds.
         </p>
       </div>
     </div>

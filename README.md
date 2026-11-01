@@ -19,12 +19,12 @@ On a public blockchain, every payment, balance and trade is visible to anyone, f
 | Private balance | NEAR Confidential Intents (private shard, TEE-secured) | **Working** (read live) |
 | Add, send, move out, receive | USDC from/to NEAR, Base, Ethereum, Arbitrum, Solana; sends between Intents accounts | **Working** (real dry-run quotes, preview only) |
 | Execute cash movements | Signed intents from the confidential balance | *(planned; each flow enabled only after a live mainnet test)* |
-| Invest: browse and quote | Ondo Global Markets tokens via NEAR Intents 1Click; live prices and real dry-run buy/sell quotes | **Working** (preview only) |
+| Invest: browse and quote | Ondo Global Markets tokens via NEAR Intents 1Click; indicative prices from the token list and real dry-run buy/sell quotes | **Working** (preview only) |
 | Invest: execute orders | Signed `swap_transfer` intents from the confidential balance | *(planned; enabled per asset only after a live mainnet test)* |
-| Passkey sign-in | WebAuthn P-256 signs an empty intent; NEAR Intents returns a user session | **Working** (tested with a software authenticator; real device pending) |
+| Passkey sign-in | WebAuthn P-256 signs an empty intent; NEAR Intents returns a user session | **Working** (tested on a real phone and with a software authenticator) |
 | Read private balance | `/v0/account/balances` with the user session | **Working** |
 | Activity | Transaction history from NEAR Intents (`/v0/account/history`); demo receipts in demo mode | **Working** (real history is invite-only at NEAR Intents, so real accounts see an explanation instead) |
-| Signed statement | Balances and activity exported as JSON, signed by the account's passkey (WebAuthn P-256) | **Built** (real-device signing untested) |
+| Signed statement | Balances and activity exported as JSON, signed by the account's passkey (WebAuthn P-256) | **Working** (tested on a real phone) |
 | Demo mode | Simulated balance and activity in the browser; every flow uses real dry-run quotes | **Working** |
 
 ## What is private, and what isn't
@@ -36,7 +36,7 @@ On a public blockchain, every payment, balance and trade is visible to anyone, f
 | Order details (asset, amount, recipient) | Seen by Lumen's server and the 1Click API when quoting. |
 | Blurred balances in the app | A screen-privacy feature only, not cryptography. |
 
-Ondo tokens give economic exposure to the underlying stock or fund. They are not direct share ownership, and gold tokens track gold funds, not physical gold. Not available to US persons.
+Ondo tokens give economic exposure to the underlying stock or fund. They are not direct share ownership, and the gold token tracks SPDR Gold Shares (GLD), an ETF that holds gold, not physical gold. Not available to US persons.
 
 ## Repository layout
 

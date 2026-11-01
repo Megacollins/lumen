@@ -31,7 +31,7 @@ export default function Home() {
               sizes="(min-width: 1212px) 1180px, 100vw"
               className="block h-[300px] w-full object-cover sm:h-auto"
             />
-            <div className="mx-auto -mt-6 flex justify-center sm:absolute sm:bottom-[8%] sm:right-[2%] sm:mt-0">
+            <div className="relative mx-auto -mt-10 flex justify-center xl:absolute xl:bottom-[6%] xl:right-[1.5%] xl:mt-0">
               <Reveal delay={0.2}>
                 <AccountPreview />
               </Reveal>
@@ -45,17 +45,20 @@ export default function Home() {
             <h1 className="text-[clamp(38px,5.2vw,68px)] font-normal leading-[1.05] tracking-[-0.04em]">
               Private money. Private <i>markets</i>.
             </h1>
-            <p className="mx-auto mt-6 max-w-[620px] text-lg leading-relaxed text-ink-70">
-              Lumen is a confidential account on NEAR. Hold dollars, send money privately, and invest in tokenized
-              stocks and gold, with balances the public can&apos;t see.
+            <p className="mx-auto mt-6 max-w-[640px] text-lg leading-relaxed text-ink-70">
+              A self-custodial account on NEAR for your dollars and your investments. Hold USDC, pay people and buy
+              tokenized stocks and ETFs, with balances and payments kept off the public ledger.
             </p>
-            <p className="mt-3 text-[15px] italic text-ink-60">Your money. Your investments. Your privacy.</p>
             <div className="mt-9 flex flex-wrap justify-center gap-3">
-              <ButtonLink href="/app">Open Lumen</ButtonLink>
+              <ButtonLink href="/app">Open your account</ButtonLink>
               <ButtonLink href="/demo" variant="secondary">
                 Try the demo
               </ButtonLink>
             </div>
+            <p className="mx-auto mt-6 max-w-[560px] text-[13px] leading-relaxed text-ink-45">
+              Early preview on NEAR mainnet. Balances, prices and quotes are real; payments and orders switch on one by
+              one after each passes a live test. The demo needs no sign-up.
+            </p>
           </Reveal>
         </section>
 
@@ -69,8 +72,9 @@ export default function Home() {
           <Reveal className="relative mx-auto max-w-[860px]">
             <p className="text-[13px] tracking-[0.12em] text-ink-45">THE PROBLEM</p>
             <p className="mt-5 text-[clamp(24px,3vw,36px)] leading-[1.35] tracking-[-0.02em]">
-              On a public blockchain, every payment becomes a public record: your salary, your savings, your trades.
-              Lumen keeps what&apos;s good about crypto and gives back the <i>privacy</i> a bank account always had.
+              On a public blockchain, every payment is permanent and searchable. Anyone who learns your address can see
+              what you earn, what you hold and every trade you make. Lumen keeps the self-custody of crypto and takes
+              your finances off the <i>public record</i>.
             </p>
           </Reveal>
         </section>
@@ -85,9 +89,9 @@ export default function Home() {
             </Reveal>
             <div className="mt-16 grid gap-6 md:grid-cols-3">
               {[
-                { Art: StepAdd, title: "Add", text: "Move USDC from any chain into your private balance." },
-                { Art: StepSend, title: "Send", text: "Pay another NEAR Intents account. The amount stays off the public record." },
-                { Art: StepInvest, title: "Invest", text: "Buy tokenized stocks and gold from the same balance." },
+                { Art: StepAdd, title: "Add", text: "Bring USDC from NEAR, Base, Ethereum, Arbitrum or Solana into your private balance." },
+                { Art: StepSend, title: "Send", text: "Pay any NEAR Intents account. The amount and recipient stay off the public ledger." },
+                { Art: StepInvest, title: "Invest", text: "Buy tokenized stocks and ETFs, including a gold ETF, from the same balance." },
               ].map(({ Art, title, text }, i) => (
                 <Reveal key={title} delay={i * 0.06}>
                   <div className="flex h-full flex-col items-center gap-3 border border-hairline bg-paper px-8 pb-10 pt-12 text-center">
@@ -111,9 +115,9 @@ export default function Home() {
                   Money that stays <i>yours</i>.
                 </h2>
                 <p className={`${BODY} mt-5 max-w-[460px]`}>
-                  Hold dollars in a confidential balance and pay other accounts privately. Amounts and balances stay off the
-                  public record. Deposits and withdrawals are still visible on their own chains, but not linked to
-                  each other.
+                  Your dollars sit in a confidential USDC balance. Payments to other NEAR Intents accounts settle there, so
+                  amounts and recipients never appear on a public block explorer. Money coming in or going out is still
+                  visible on its own chain.
                 </p>
               </Reveal>
               <Reveal className="min-w-0 flex-[1_1_420px]" delay={0.1}>
@@ -148,9 +152,9 @@ export default function Home() {
                   Wall Street, <i>discreetly</i>.
                 </h2>
                 <p className={`${BODY} mt-5 max-w-[380px]`}>
-                  Tokenized stocks and funds from Ondo Global Markets, bought through NEAR Intents from your private
-                  balance. Each token gives economic exposure to the underlying asset; it is not direct share
-                  ownership.
+                  Tokenized US stocks and ETFs from Ondo Global Markets, bought from your private cash through NEAR
+                  Intents. Each token tracks its underlying asset and gives economic exposure only: no voting rights, and
+                  no direct ownership of shares or gold.
                 </p>
                 <Image
                   src="/images/certificate.jpg"
@@ -177,36 +181,67 @@ export default function Home() {
               <h2 className={`${H2} text-center`}>
                 One account. The <i>whole</i> picture.
               </h2>
-              <p className="mx-auto mt-5 max-w-[560px] text-center text-[17px] text-ink-60">
-                Cash and investments side by side, with every transaction and its status in one place.
+              <p className="mx-auto mt-5 max-w-[560px] text-center text-[17px] leading-relaxed text-ink-60">
+                Cash and investments in one place, valued at current prices. You pay from the same balance you invest
+                from.
               </p>
             </Reveal>
             <Reveal delay={0.1}>
               <div className="mt-14 border border-hairline bg-paper p-6 sm:p-10">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                   <div>
-                    <div className="text-[13px] text-ink-60">Net worth · example</div>
+                    <div className="text-[13px] text-ink-60">Net worth</div>
                     <div className="tabular mt-1 text-[44px] leading-none tracking-[-0.04em]">$12,480.20</div>
                   </div>
-                  <div className="text-sm text-up">▲ $142.10 today</div>
+                  <span className="border border-hairline px-1.5 py-0.5 text-[11px] uppercase tracking-[0.08em] text-ink-45">
+                    Example
+                  </span>
                 </div>
-                <div className="mt-8 flex h-2 w-full">
-                  <span className="bg-ink" style={{ width: "34%" }} />
-                  <span className="bg-stone" style={{ width: "25%" }} />
-                  <span className="bg-gold" style={{ width: "41%" }} />
+                <div className="mt-8 flex h-2 w-full" aria-hidden>
+                  <span className="bg-ink" style={{ width: "33.7%" }} />
+                  <span className="bg-gold" style={{ width: "66.3%" }} />
                 </div>
-                <div className="mt-6 grid gap-4 text-sm sm:grid-cols-3">
+                <div className="mt-8 grid gap-8 text-sm md:grid-cols-2">
                   {[
-                    ["bg-ink", "Cash", "34%"],
-                    ["bg-stone", "Stocks and funds", "25%"],
-                    ["bg-gold", "Gold", "41%"],
-                  ].map(([dot, label, pct]) => (
-                    <div key={label} className="flex items-center justify-between border-t border-hairline pt-3">
-                      <span className="flex items-center gap-2">
-                        <span className={`h-2 w-2 ${dot}`} />
-                        {label}
+                    { title: "Cash", dot: "bg-ink", rows: [["USDC", "Private balance", "$4,210.00"]] },
+                    {
+                      title: "Investments",
+                      dot: "bg-gold",
+                      rows: [
+                        ["NVIDIA", "NVDA · stock", "$3,120.40"],
+                        ["SPDR Gold Shares", "GLD · gold ETF", "$5,149.80"],
+                      ],
+                    },
+                  ].map((g) => (
+                    <div key={g.title}>
+                      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.08em] text-ink-45">
+                        <span className={`h-1.5 w-1.5 ${g.dot}`} />
+                        {g.title}
+                      </div>
+                      {g.rows.map(([name, sub, value]) => (
+                        <div key={name} className="mt-2 flex items-baseline justify-between gap-4 border-t border-hairline pt-3">
+                          <span>
+                            {name}
+                            <span className="block text-xs text-ink-45">{sub}</span>
+                          </span>
+                          <span className="tabular">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-8 border-t border-hairline pt-4 text-sm">
+                  <div className="text-[11px] uppercase tracking-[0.08em] text-ink-45">Recent</div>
+                  {[
+                    ["Received from 0x7c1e…a42f", "Private payment", "+$250.00"],
+                    ["Bought NVIDIA", "NVDA · settled confidentially", "−$3,120.40"],
+                  ].map(([title, sub, amount], i) => (
+                    <div key={title} className={`mt-2 flex items-baseline justify-between gap-4 pt-3 ${i ? "border-t border-hairline" : ""}`}>
+                      <span>
+                        {title}
+                        <span className="block text-xs text-ink-45">{sub}</span>
                       </span>
-                      <span className="tabular text-ink-60">{pct}</span>
+                      <span className={`tabular ${amount.startsWith("+") ? "text-up" : ""}`}>{amount}</span>
                     </div>
                   ))}
                 </div>
@@ -224,44 +259,86 @@ export default function Home() {
                 Private, not <i>hidden</i>.
               </h2>
               <p className={`${BODY} mt-5 max-w-[420px]`}>
-                Privacy you can explain to your accountant. Here is exactly what Lumen protects, and what it
-                doesn&apos;t.
+                Privacy you can explain to your accountant. Here is exactly what stays confidential, what is still
+                public, and who else sees your details.
               </p>
-              <ul className="mt-8 flex flex-col gap-4 text-[15px] text-ink-70">
-                <li className="flex gap-3"><PasskeyIcon size={20} className="mt-0.5 flex-none" /><span><b><i>Non-custodial.</i></b> You sign every action with your passkey. Lumen never holds your keys or money.</span></li>
-                <li className="flex gap-3"><PrivateIcon size={20} className="mt-0.5 flex-none" /><span><b><i>Confidential Intents.</i></b> Transactions run on a private NEAR shard secured by trusted hardware (TEE).</span></li>
-                <li className="flex gap-3"><StatementIcon size={20} className="mt-0.5 flex-none" /><span><b><i>Statements on demand.</i></b> Export a signed record for an accountant or a tax filing.</span></li>
+              <ul className="mt-8 flex flex-col gap-4 text-[15px] leading-relaxed text-ink-70">
+                <li className="flex gap-3">
+                  <PasskeyIcon size={20} className="mt-0.5 flex-none" />
+                  <span>
+                    <b className="font-medium text-ink">Self-custodial.</b> Your account is controlled by a passkey on your
+                    device. Lumen never sees its private key, and never holds your funds.
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <PrivateIcon size={20} className="mt-0.5 flex-none" />
+                  <span>
+                    <b className="font-medium text-ink">Confidential Intents.</b> Balances and transfers are kept on a
+                    private NEAR shard, run by permissioned validators on trusted hardware (TEE).
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <StatementIcon size={20} className="mt-0.5 flex-none" />
+                  <span>
+                    <b className="font-medium text-ink">Signed statements.</b> Export your balances as a file signed with
+                    your passkey, for an accountant or a tax filing.
+                  </span>
+                </li>
               </ul>
             </Reveal>
             <Reveal className="min-w-0 flex-[1.3_1_480px]" delay={0.1}>
               <div className="border border-hairline">
                 {[
-                  ["Your balance and holdings", "Private", "Kept on a confidential shard, not on the public ledger."],
-                  ["Payments between Lumen accounts", "Private", "Amounts and parties stay off the public record."],
-                  ["Deposits in, withdrawals out", "Public", "Visible on their own chains. The link between them is hidden."],
-                  ["Order details when quoting", "Seen by Lumen", "Lumen's server and the NEAR Intents API see asset, amount and recipient."],
-                  ["Blurred balances in the app", "Screen only", "Protects you from someone looking over your shoulder. Not cryptography."],
-                ].map(([what, level, detail]) => (
-                  <div key={what} className="grid gap-1 border-b border-hairline p-5 last:border-b-0 sm:grid-cols-[1fr_120px] sm:gap-6">
-                    <div>
-                      <div>{what}</div>
-                      <div className="mt-1 text-sm text-ink-60">{detail}</div>
-                    </div>
-                    <div className="flex items-start sm:justify-end">
+                  {
+                    group: "Confidential on NEAR",
+                    rows: [
+                      ["Your balances and holdings", "Not visible on any public block explorer."],
+                      ["Payments to other NEAR Intents accounts", "Amount and recipient aren't published."],
+                    ],
+                  },
+                  {
+                    group: "Public on-chain",
+                    rows: [
+                      [
+                        "Money in and money out",
+                        "Deposits and withdrawals are visible on the chain they use. They aren't directly tied to your balance, but matching amounts and timing can reveal the link.",
+                      ],
+                    ],
+                  },
+                  {
+                    group: "Seen by services",
+                    rows: [
+                      ["Lumen's server", "Reads your balances to show them to you, and sees the asset, amount and recipient of every quote."],
+                      ["NEAR Intents", "Processes every quote and transfer, and runs the confidential shard."],
+                    ],
+                  },
+                  {
+                    group: "On your screen only",
+                    rows: [["Blurred balances", "Hides numbers from someone looking over your shoulder. It is not encryption."]],
+                  },
+                ].map(({ group, rows }) => (
+                  <div key={group} className="border-b border-hairline last:border-b-0">
+                    <div className="flex items-center gap-2 bg-mist px-5 py-2.5 text-[11px] uppercase tracking-[0.08em] text-ink-60">
                       <span
-                        className={`px-2.5 py-1 text-xs ${
-                          level === "Private" ? "bg-[#FBF5E4] text-[#6B5318]" : level === "Public" ? "bg-studio text-ink" : "border border-hairline text-ink-60"
+                        className={`h-1.5 w-1.5 ${
+                          group === "Confidential on NEAR" ? "bg-gold" : group === "Public on-chain" ? "bg-ink" : "border border-ink-45"
                         }`}
-                      >
-                        {level}
-                      </span>
+                      />
+                      {group}
                     </div>
+                    {rows.map(([what, detail]) => (
+                      <div key={what} className="border-t border-hairline px-5 py-4">
+                        <div>{what}</div>
+                        <div className="mt-1 text-sm leading-relaxed text-ink-60">{detail}</div>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
               <p className="mt-4 text-xs leading-relaxed text-ink-45">
-                Confidential Intents relies on trusted hardware and NEAR&apos;s permissioned validator set. It is not
-                zero-knowledge cryptography.
+                Confidential Intents relies on trusted hardware and NEAR&apos;s permissioned validators. It is not
+                zero-knowledge cryptography. In this preview, Lumen reads real balances and quotes; confidential payments
+                and orders switch on after each passes a live test on mainnet.
               </p>
             </Reveal>
           </div>
@@ -278,9 +355,9 @@ export default function Home() {
             <div className="mt-14 grid gap-4 md:grid-cols-2">
               {[
                 ["Freelancers paid in stablecoins", "Get paid in USDC without publishing your income to the world."],
-                ["Savers in high-inflation economies", "Hold dollars and gold without broadcasting what you have."],
+                ["Savers in high-inflation economies", "Hold dollars and a gold ETF without broadcasting what you have."],
                 ["Founders and small teams", "Pay contractors and suppliers without exposing your runway."],
-                ["Investors", "Build positions without being tracked or copy-traded."],
+                ["Investors", "Build positions without your wallet being tracked or copy-traded."],
               ].map(([title, text], i) => (
                 <Reveal key={title} delay={i * 0.05}>
                   <div className="h-full border border-hairline bg-paper p-8">
@@ -311,10 +388,13 @@ export default function Home() {
             <h2 className={`${H2} mt-7`}>
               Your finances, finally <i>yours</i>.
             </h2>
-            <p className="mt-4 text-[17px] text-ink-60">Sign in with a passkey. No seed phrase.</p>
-            <ButtonLink href="/app" className="mt-9">
-              Open Lumen
-            </ButtonLink>
+            <p className="mt-4 text-[17px] text-ink-60">Create a passkey on your device and you&apos;re in. No seed phrase, nothing to install.</p>
+            <div className="mt-9 flex flex-wrap justify-center gap-3">
+              <ButtonLink href="/app">Open your account</ButtonLink>
+              <ButtonLink href="/demo" variant="secondary">
+                Try the demo
+              </ButtonLink>
+            </div>
           </Reveal>
         </section>
       </main>
@@ -332,7 +412,7 @@ export default function Home() {
           </nav>
         </div>
         <p className="mx-auto mt-6 max-w-[1280px] text-xs leading-relaxed text-ink-45">
-          Tokenized stocks and funds are issued by Ondo Global Markets, give economic exposure only, and are not
+          Tokenized stocks and ETFs are issued by Ondo Global Markets, give economic exposure only, and are not
           available to US persons or in restricted jurisdictions. Prices can fall as well as rise. Lumen does not
           provide investment advice and never holds your funds.
         </p>
