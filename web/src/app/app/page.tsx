@@ -1,11 +1,8 @@
-import { AccountApp } from "@/components/app/account-app";
+import { Overview } from "@/components/app/overview";
 
-export const metadata = { title: "Lumen — your account" };
+export const metadata = { title: "Lumen — overview" };
+export const instant = false; // session-gated, see app/app/layout.tsx
 
-export default function AppHome() {
-  return (
-    <main className="flex flex-1 flex-col">
-      <AccountApp />
-    </main>
-  );
+export default function OverviewPage() {
+  return <Overview />;
 }

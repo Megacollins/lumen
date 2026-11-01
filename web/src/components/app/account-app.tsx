@@ -1,8 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { Logo, Mark } from "@/components/brand/logo";
-import { PasskeyIcon, RevealIcon } from "@/components/brand/icons";
+import { InvestIcon, PasskeyIcon, PrivateIcon } from "@/components/brand/icons";
 import {
   createPasskey,
   forgetPasskey,
@@ -13,9 +15,20 @@ import {
   type StoredPasskey,
 } from "@/lib/passkey-client";
 
-const USDC = "nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1";
+export type Account = {
+  signerId: string;
+  balances: { tokenId: string; available: string }[];
+  balancesAvailable: boolean;
+};
 
-type Account = { signerId: string; balances: { tokenId: string; available: string }[]; balancesAvailable: boolean };
+type AccountCtx = { account: Account; reload: () => Promise<void> };
+const Ctx = createContext<AccountCtx | null>(null);
+
+export function useAccount() {
+  const c = useContext(Ctx);
+  if (!c) throw new Error("useAccount outside AccountGate");
+  return c;
+}
 
 async function fetchAccount(): Promise<Account | null> {
   const res = await fetch("/api/account", { cache: "no-store" });
@@ -23,9 +36,10 @@ async function fetchAccount(): Promise<Account | null> {
   return data?.signedIn ? data : null;
 }
 
-export function AccountApp() {
+/** Shows sign-in until there is a NEAR Intents session, then the app shell around the page. */
+export function AccountGate({ children }: { children: ReactNode }) {
   const [account, setAccount] = useState<Account | null | undefined>(undefined); // undefined = loading
-  const load = useCallback(() => fetchAccount().then(setAccount), []);
+  const reload = useCallback(() => fetchAccount().then(setAccount), []);
 
   useEffect(() => {
     let alive = true;
@@ -41,15 +55,78 @@ export function AccountApp() {
         <Mark size={32} className="animate-pulse" />
       </div>
     );
-  if (!account) return <SignIn onSignedIn={load} />;
+  if (!account) return <SignIn onSignedIn={reload} />;
+
   return (
-    <Overview
-      account={account}
-      onSignOut={async () => {
-        await signOut();
-        setAccount(null);
-      }}
-    />
+    <Ctx.Provider value={{ account, reload }}>
+      <Shell
+        signerId={account.signerId}
+        onSignOut={async () => {
+          await signOut();
+          setAccount(null);
+        }}
+      >
+        {children}
+      </Shell>
+    </Ctx.Provider>
+  );
+}
+
+const TABS = [
+  { href: "/app", label: "Overview", Icon: PrivateIcon },
+  { href: "/app/invest", label: "Invest", Icon: InvestIcon },
+];
+
+function Shell({ signerId, onSignOut, children }: { signerId: string; onSignOut: () => void; children: ReactNode }) {
+  const path = usePathname();
+  const active = (href: string) => (href === "/app" ? path === "/app" : path.startsWith(href));
+
+  return (
+    <div className="flex flex-1 flex-col pb-20 md:pb-0">
+      <header className="sticky top-0 z-40 border-b border-hairline bg-mist/85 backdrop-blur-[6px]">
+        <div className="mx-auto flex h-16 max-w-[960px] items-center justify-between px-5">
+          <Link href="/app" aria-label="Overview">
+            <Logo size={18} />
+          </Link>
+          <nav className="hidden gap-1 md:flex">
+            {TABS.map((t) => (
+              <Link
+                key={t.href}
+                href={t.href}
+                className={`px-3 py-2 text-sm transition-opacity hover:opacity-70 ${active(t.href) ? "text-ink" : "text-ink-45"}`}
+                aria-current={active(t.href) ? "page" : undefined}
+              >
+                {t.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="tabular hidden text-ink-60 sm:inline" title={signerId}>
+              {signerId.slice(0, 6)}…{signerId.slice(-4)}
+            </span>
+            <button type="button" onClick={onSignOut} className="border border-hairline bg-paper px-3 py-1.5 transition-opacity hover:opacity-70">
+              Sign out
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto flex w-full max-w-[960px] flex-1 flex-col px-5">{children}</div>
+
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 border-t border-hairline bg-paper pb-[env(safe-area-inset-bottom)] md:hidden">
+        {TABS.map(({ href, label, Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`flex flex-col items-center gap-1 py-2.5 text-[11px] ${active(href) ? "text-ink" : "text-ink-45"}`}
+            aria-current={active(href) ? "page" : undefined}
+          >
+            <Icon size={22} />
+            {label}
+          </Link>
+        ))}
+      </nav>
+    </div>
   );
 }
 
@@ -131,81 +208,6 @@ function SignIn({ onSignedIn }: { onSignedIn: () => void }) {
           Your passkey never leaves your device. Lumen never holds your keys or funds.
         </p>
       </div>
-    </div>
-  );
-}
-
-function formatUsd(base: string) {
-  const n = Number(base) / 1e6;
-  return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
-
-function Overview({ account, onSignOut }: { account: Account; onSignOut: () => void }) {
-  const [revealed, setRevealed] = useState(false);
-  const cash = account.balances.find((b) => b.tokenId === USDC);
-  const other = account.balances.filter((b) => b.tokenId !== USDC);
-  const short = `${account.signerId.slice(0, 6)}…${account.signerId.slice(-4)}`;
-
-  return (
-    <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col px-5 pb-16">
-      <header className="flex items-center justify-between py-5">
-        <Logo size={18} />
-        <div className="flex items-center gap-3 text-sm">
-          <span className="tabular text-ink-60" title={account.signerId}>
-            {short}
-          </span>
-          <button type="button" onClick={onSignOut} className="border border-hairline bg-paper px-3 py-1.5 transition-opacity hover:opacity-70">
-            Sign out
-          </button>
-        </div>
-      </header>
-
-      <section className="pt-6">
-        <div className="flex items-center gap-2 text-[13px] text-ink-60">
-          <span className="h-[7px] w-[7px] rounded-full bg-gold" />
-          Private balance
-        </div>
-        <div className="veil tabular mt-1.5 text-[56px] leading-none tracking-[-0.045em]" data-revealed={revealed}>
-          {formatUsd(cash?.available ?? "0")}
-        </div>
-        <button
-          type="button"
-          onClick={() => setRevealed((r) => !r)}
-          aria-pressed={revealed}
-          className="mt-2 flex items-center gap-1.5 text-[13px] text-ink-60 transition-opacity hover:opacity-70"
-        >
-          <RevealIcon size={16} />
-          {revealed ? "Hide balance" : "Reveal balance"}
-        </button>
-        {!account.balancesAvailable && (
-          <p className="mt-3 text-sm text-down">Balances couldn&apos;t be loaded from NEAR Intents just now.</p>
-        )}
-      </section>
-
-      {other.length > 0 && (
-        <section className="mt-8 border border-hairline bg-paper">
-          <div className="px-4 pb-1.5 pt-3.5 text-[13px] text-ink-60">Other holdings</div>
-          {other.map((b) => (
-            <div key={b.tokenId} className="flex justify-between gap-4 border-t border-hairline px-4 py-3 text-sm">
-              <span className="truncate">{b.tokenId}</span>
-              <span className="veil tabular" data-revealed={revealed}>
-                {b.available}
-              </span>
-            </div>
-          ))}
-        </section>
-      )}
-
-      <section className="mt-10 border border-hairline bg-paper p-6">
-        <div className="text-lg tracking-[-0.015em]">Your private account is open</div>
-        <p className="mt-2 text-[15px] leading-relaxed text-ink-60">
-          You&apos;re signed in to NEAR Confidential Intents with your passkey. The balance above is read live from your
-          confidential account. Adding money, sending and investing are being built next.
-        </p>
-        <p className="mt-4 text-xs text-ink-45">
-          Account id: <span className="tabular break-all">{account.signerId}</span>
-        </p>
-      </section>
     </div>
   );
 }
