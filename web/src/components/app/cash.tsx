@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, Delete } from "lucide-react";
 import { useState } from "react";
 import { AddIcon, RevealIcon, SendIcon, StatementIcon } from "@/components/brand/icons";
 import { CHAINS, type CashKind, type ChainId } from "@/lib/cash";
@@ -21,9 +21,14 @@ type CashQuote = {
   executable: boolean;
 };
 
-type Flow = CashKind | "receive";
+export type Flow = CashKind | "receive";
 
-const TITLES: Record<Flow, string> = { add: "Add money", send: "Send", withdraw: "Move out", receive: "Receive" };
+const TITLES: Record<Flow, string> = {
+  add: "Add money",
+  send: "Send",
+  withdraw: "Move out",
+  receive: "Receive",
+};
 
 export function Cash() {
   const { account } = useAccount();
@@ -76,19 +81,28 @@ export function Cash() {
       <section className="mt-10 border border-hairline bg-paper p-6 text-[15px] leading-relaxed text-ink-60">
         <h2 className="text-base text-ink">How your cash stays private</h2>
         <p className="mt-2">
-          Your USDC sits in a confidential balance on NEAR Intents. Payments between accounts happen there, out of public
-          view. Money coming in and going out is visible on its own chain, but not linked to your balance.
+          Your USDC sits in a confidential balance on NEAR Intents. Payments between accounts happen there, out of public view. Money coming
+          in and going out is visible on its own chain, but not linked to your balance.
         </p>
       </section>
 
-      <Sheet open={flow !== null} title={flow ? TITLES[flow] : ""} onClose={() => setFlow(null)}>
-        {flow === "receive" ? (
-          <ReceiveBody signerId={account.signerId} />
-        ) : flow ? (
-          <CashForm kind={flow} balance={cash} onDone={() => setFlow(null)} />
-        ) : null}
-      </Sheet>
+      <CashSheet flow={flow} onClose={() => setFlow(null)} />
     </div>
+  );
+}
+
+/** The Add / Send / Receive / Move out sheet, shared by Cash and Overview. */
+export function CashSheet({ flow, onClose }: { flow: Flow | null; onClose: () => void }) {
+  const { account } = useAccount();
+  const cash = Number(account.balances.find((b) => b.tokenId === USDC.assetId)?.available ?? "0") / 10 ** USDC.decimals;
+  return (
+    <Sheet open={flow !== null} title={flow ? TITLES[flow] : ""} onClose={onClose}>
+      {flow === "receive" ? (
+        <ReceiveBody signerId={account.signerId} />
+      ) : flow ? (
+        <CashForm kind={flow} balance={cash} onDone={onClose} />
+      ) : null}
+    </Sheet>
   );
 }
 
@@ -170,27 +184,41 @@ function CashForm({ kind, balance, onDone }: { kind: CashKind; balance: number; 
             spellCheck={false}
             value={recipient}
             onChange={(e) => setRecipient(e.target.value)}
-            placeholder={kind === "send" ? "0x… or name.near" : chainInfo.address === "evm" ? "0x…" : chainInfo.address === "sol" ? "Solana address" : "name.near"}
+            placeholder={
+              kind === "send"
+                ? "0x… or name.near"
+                : chainInfo.address === "evm"
+                  ? "0x…"
+                  : chainInfo.address === "sol"
+                    ? "Solana address"
+                    : "name.near"
+            }
             className="tabular mt-1 h-11 w-full border border-hairline bg-paper px-3 text-sm outline-none focus:border-ink"
           />
         </div>
       )}
 
-      <label className="mt-6 block text-[13px] text-ink-60" htmlFor="cash-amount">
-        Amount in USDC
-      </label>
-      <div className="mt-1 flex items-baseline gap-1 border-b border-ink pb-1">
-        <span className="text-[40px] tracking-[-0.04em] text-ink-45">$</span>
-        <input
-          id="cash-amount"
-          inputMode="decimal"
-          autoComplete="off"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
-          className="tabular w-full bg-transparent text-[40px] tracking-[-0.04em] outline-none"
-          placeholder="0"
-        />
-      </div>
+      {kind === "send" ? (
+        <SendAmount amount={amount} setAmount={setAmount} />
+      ) : (
+        <>
+          <label className="mt-6 block text-[13px] text-ink-60" htmlFor="cash-amount">
+            Amount in USDC
+          </label>
+          <div className="mt-1 flex items-baseline gap-1 border-b border-ink pb-1">
+            <span className="text-[40px] tracking-[-0.04em] text-ink-45">$</span>
+            <input
+              id="cash-amount"
+              inputMode="decimal"
+              autoComplete="off"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
+              className="tabular w-full bg-transparent text-[40px] tracking-[-0.04em] outline-none"
+              placeholder="0"
+            />
+          </div>
+        </>
+      )}
       {amountError && <p className="mt-2 text-sm text-down">{amountError}</p>}
       {!amountError && overBalance && <p className="mt-2 text-sm text-down">That&apos;s more than your private cash ({usd(balance)}).</p>}
       {kind !== "add" && balance > 0 && (
@@ -212,14 +240,15 @@ function CashForm({ kind, balance, onDone }: { kind: CashKind; balance: number; 
       <p className="mt-5 text-sm leading-relaxed text-ink-60">
         {kind === "add" &&
           `You'll send USDC on ${chainInfo.name} to a one-time deposit address. That deposit is public on ${chainInfo.name}; with Confidential Intents, it can't be linked to your balance.`}
-        {kind === "send" && "With Confidential Intents, only you and the recipient see the amount."}
+        {kind === "send" &&
+          "With Confidential Intents, the amount and the recipient are hidden from the public. Lumen's server and NEAR Intents still see them when the payment is made."}
         {kind === "withdraw" &&
           `This leaves your private balance. The receiving address and amount will be public on ${chainInfo.name}, but not linked to your Lumen balance.`}
       </p>
 
       {account.demo && data ? (
         <SimulateButton
-          label={kind === "add" ? "Simulate adding money" : kind === "send" ? "Simulate sending" : "Simulate moving out"}
+          label={kind === "add" ? "Simulate adding money" : kind === "send" ? "Simulate sending privately" : "Simulate moving out"}
           onDone={onDone}
           run={() => {
             const delta = kind === "add" ? Number(data.amountOut) : -Number(amount);
@@ -228,7 +257,8 @@ function CashForm({ kind, balance, onDone }: { kind: CashKind; balance: number; 
               { [USDC.assetId]: delta },
               {
                 kind,
-                title: kind === "add" ? `Added from ${chainInfo.name}` : kind === "send" ? `Sent to ${short}` : `Moved out to ${chainInfo.name}`,
+                title:
+                  kind === "add" ? `Added from ${chainInfo.name}` : kind === "send" ? `Sent to ${short}` : `Moved out to ${chainInfo.name}`,
                 detail: kind === "send" ? "Private payment" : kind === "add" ? "Deposit, unlinked" : short,
                 cashDelta: delta,
               },
@@ -237,14 +267,83 @@ function CashForm({ kind, balance, onDone }: { kind: CashKind; balance: number; 
         />
       ) : data?.executable && !overBalance ? (
         <button type="button" className="mt-6 h-[52px] w-full bg-ink font-medium text-white transition-opacity hover:opacity-70">
-          {kind === "add" ? "Get deposit address" : "Confirm with passkey"}
+          {kind === "add" ? "Get deposit address" : kind === "send" ? "Send privately" : "Confirm with passkey"}
         </button>
       ) : (
         <PreviewNotice>
-          <b>Preview only.</b> This is a real quote from NEAR Intents, but {TITLES[kind].toLowerCase()} opens once it
-          passes a live test on mainnet{data?.mode === "public-preview" ? " with Confidential Intents enabled" : ""}. No money
-          will move.
+          <b>Preview only.</b> This is a real quote from NEAR Intents, but {TITLES[kind].toLowerCase()} opens once it passes a live test on
+          mainnet
+          {data?.mode === "public-preview" ? " with Confidential Intents enabled" : ""}. No money will move.
         </PreviewNotice>
+      )}
+    </div>
+  );
+}
+
+const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "del"] as const;
+
+/** Big centred amount like a payment app. Phones get a number pad; mice and keyboards type into the field. */
+function SendAmount({ amount, setAmount }: { amount: string; setAmount: (v: string) => void }) {
+  const [touch] = useState(() => typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches);
+  const [whole, cents] = amount.split(".");
+
+  const press = (k: (typeof KEYS)[number]) => {
+    if (k === "del") return setAmount(amount.slice(0, -1));
+    if (k === ".") {
+      if (!amount.includes(".")) setAmount(amount === "" ? "0." : amount + ".");
+      return;
+    }
+    if (amount.includes(".") && amount.split(".")[1].length >= 2) return;
+    if (amount.replace(".", "").length >= 9) return;
+    setAmount(amount === "0" ? k : amount + k);
+  };
+
+  return (
+    <div className="mt-6">
+      <label htmlFor="cash-amount" className="sr-only">
+        Amount in USDC
+      </label>
+      <div className="flex items-baseline justify-center text-[64px] leading-none tracking-[-0.05em]">
+        <span className={amount === "" ? "text-ink-45" : ""}>$</span>
+        {touch ? (
+          <output id="cash-amount" aria-live="polite" className="tabular">
+            {amount === "" ? <span className="text-ink-45">0</span> : whole || "0"}
+            <span className="text-ink-45">.{(cents ?? "").padEnd(2, "0")}</span>
+          </output>
+        ) : (
+          <input
+            id="cash-amount"
+            inputMode="decimal"
+            autoComplete="off"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
+            placeholder="0.00"
+            size={Math.max(4, amount.length + 1)}
+            className="tabular min-w-0 bg-transparent text-center outline-none placeholder:text-ink-45"
+          />
+        )}
+      </div>
+      <p className="mt-3 text-center text-[13px] text-ink-60">USDC · from private cash</p>
+      <div className="mt-4 flex justify-center">
+        <span className="inline-flex items-center gap-2 border border-gold/40 bg-gold/10 px-3 py-2 text-[13px] text-ink-70">
+          <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+          Hidden from the public
+        </span>
+      </div>
+      {touch && (
+        <div className="tabular mt-4 grid grid-cols-3">
+          {KEYS.map((k) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => press(k)}
+              aria-label={k === "del" ? "Delete" : k === "." ? "Decimal point" : undefined}
+              className="flex h-14 items-center justify-center text-2xl transition-colors active:bg-mist"
+            >
+              {k === "del" ? <Delete size={24} strokeWidth={1.5} aria-hidden /> : k}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );

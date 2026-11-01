@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { USDC, type Asset } from "@/lib/markets";
-import { isEligibilityConfirmed, setEligibilityConfirmed } from "@/lib/prefs";
+import { isEligibilityConfirmed, revealByDefault, setEligibilityConfirmed } from "@/lib/prefs";
 import { useAccount } from "./account-app";
 import { PreviewNotice, Row, Sheet } from "./sheet";
 import { SimulateButton } from "./simulate";
@@ -19,6 +19,8 @@ type Quote = {
   executable: boolean;
 };
 
+/** Quotes are dry runs and nothing is held, so we fetch a fresh one on this interval. */
+const REFRESH_SEC = 30;
 
 export function TradeSheet({
   open,
@@ -61,6 +63,15 @@ function TradeForm({
   const [quote, setQuote] = useState<Quote | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [refresh, setRefresh] = useState(0);
+  const [quotedAt, setQuotedAt] = useState<number | null>(null);
+  const [quoteKey, setQuoteKey] = useState("");
+  const [revealed] = useState(revealByDefault);
+  const [now, setNow] = useState(() => Date.now());
+  const cashBase = account.balances.find((b) => b.tokenId === USDC.assetId)?.available ?? "0";
+  const cash = Number(cashBase) / 10 ** USDC.decimals;
+  // Whole cents, from integer base units so float rounding can't shave a cent off.
+  const maxBuy = Math.floor(Number(cashBase) / 10 ** (USDC.decimals - 2)) / 100;
 
   const n = Number(amount);
   const inputError =
@@ -94,6 +105,8 @@ function TradeForm({
       if (res?.ok) {
         setQuote(data);
         setError(null);
+        setQuotedAt(Date.now());
+        setQuoteKey(`${side}:${amount}`);
       } else {
         setQuote(null);
         setError(data.error ?? "Couldn't get a quote. Try again.");
@@ -103,14 +116,44 @@ function TradeForm({
       alive = false;
       clearTimeout(t);
     };
-  }, [canQuote, amount, side, asset.symbol]);
+  }, [canQuote, amount, side, asset.symbol, refresh]);
 
-  const shown = canQuote ? quote : null;
+  // Count down to the next quote and fetch it when the time is up.
+  useEffect(() => {
+    if (!canQuote || quotedAt == null) return;
+    const t = setInterval(() => {
+      const at = Date.now();
+      setNow(at);
+      if (at - quotedAt >= REFRESH_SEC * 1000) {
+        // Ask once; the next quote's arrival restarts this timer.
+        clearInterval(t);
+        setRefresh((r) => r + 1);
+      }
+    }, 1000);
+    return () => clearInterval(t);
+  }, [canQuote, quotedAt]);
+
+  // Only show a quote that belongs to the amount on screen.
+  const shown = canQuote && quoteKey === `${side}:${amount}` ? quote : null;
+  const nextQuoteIn = shown && quotedAt != null ? Math.max(0, REFRESH_SEC - Math.floor((now - quotedAt) / 1000)) : null;
+  const unit = side === "buy" ? asset.symbol : "USDC";
 
   return (
     <div>
-      <label className="mt-6 block text-[13px] text-ink-60" htmlFor="trade-amount">
-        {side === "buy" ? "Amount in USD, from private cash" : `Amount of ${asset.symbol} to sell`}
+      <div className="mt-2 text-[13px] text-ink-60">
+        {side === "buy" ? (
+          <>
+            From private cash ·{" "}
+            <span className="veil tabular" data-revealed={revealed}>
+              {usd(cash)}
+            </span>
+          </>
+        ) : (
+          `You hold ${holding.toFixed(4)} ${asset.symbol}`
+        )}
+      </div>
+      <label className="sr-only" htmlFor="trade-amount">
+        {side === "buy" ? "Amount in USD" : `Amount of ${asset.symbol} to sell`}
       </label>
       <div className="mt-1 flex items-baseline gap-1 border-b border-ink pb-1">
         {side === "buy" && <span className="text-[40px] tracking-[-0.04em] text-ink-45">$</span>}
@@ -120,10 +163,14 @@ function TradeForm({
           autoComplete="off"
           value={amount}
           onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
-          className="tabular w-full bg-transparent text-[40px] tracking-[-0.04em] outline-none"
+          className="tabular w-full min-w-0 bg-transparent text-[40px] tracking-[-0.04em] outline-none"
           placeholder="0"
         />
+        {side === "sell" && <span className="text-[15px] text-ink-45">{asset.symbol}</span>}
       </div>
+      <p className="tabular mt-2 h-5 text-[15px] text-ink-45">
+        {shown ? `≈ ${Number(shown.amountOut).toFixed(side === "buy" ? 4 : 2)} ${unit}` : loading && canQuote ? "Quoting…" : ""}
+      </p>
       {inputError && <p className="mt-2 text-sm text-down">{inputError}</p>}
 
       {side === "buy" ? (
@@ -133,11 +180,24 @@ function TradeForm({
               key={v}
               type="button"
               onClick={() => setAmount(String(v))}
-              className={`h-9 flex-1 border text-sm transition-opacity hover:opacity-70 ${Number(amount) === v ? "border-ink" : "border-hairline"}`}
+              aria-pressed={Number(amount) === v}
+              className={`h-9 flex-1 border text-sm transition-opacity hover:opacity-70 ${Number(amount) === v ? "border-ink font-medium" : "border-hairline"}`}
             >
               ${v}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => setAmount(String(maxBuy))}
+            disabled={maxBuy < minOrderUsd}
+            aria-pressed={maxBuy >= minOrderUsd && Number(amount) === maxBuy}
+            title={maxBuy < minOrderUsd ? `You need at least ${usd(minOrderUsd)} in private cash` : undefined}
+            className={`h-9 flex-1 border text-sm transition-opacity hover:opacity-70 disabled:opacity-40 disabled:hover:opacity-40 ${
+              maxBuy >= minOrderUsd && Number(amount) === maxBuy ? "border-ink font-medium" : "border-hairline"
+            }`}
+          >
+            Max
+          </button>
         </div>
       ) : (
         holding > 0 && (
@@ -159,23 +219,29 @@ function TradeForm({
             }}
           />
           <span>
-            I&apos;m not a US person, and I&apos;m allowed to buy tokenized securities where I live. I understand these
-            tokens give economic exposure only.
+            I&apos;m not a US person, and I&apos;m allowed to buy tokenized securities where I live. I understand these tokens give economic
+            exposure only.
           </span>
         </label>
       )}
 
       <div className="mt-6 flex flex-col gap-2.5 border-t border-hairline pt-4 text-sm">
-        <Row label="You'd receive about">
-          {shown ? `${Number(shown.amountOut).toFixed(side === "buy" ? 4 : 2)} ${side === "buy" ? asset.symbol : "USDC"}` : loading ? "Quoting…" : "—"}
-        </Row>
-        <Row label="At least">
-          {shown ? `${shown.minAmountOut.toFixed(side === "buy" ? 4 : 2)} ${side === "buy" ? asset.symbol : "USDC"}` : "—"}
-        </Row>
+        <Row label="You receive at least">{shown ? `${shown.minAmountOut.toFixed(side === "buy" ? 4 : 2)} ${unit}` : "—"}</Row>
         <Row label="Price impact and fees">{shown ? usd(Math.max(0, shown.amountInUsd - shown.amountOutUsd)) : "—"}</Row>
         <Row label="Estimated time">{shown ? `~${shown.timeEstimateSec}s` : "—"}</Row>
-        <Row label="Route">
-          {shown ? (shown.mode === "confidential" ? "Confidential Intents" : "NEAR Intents (public preview)") : "—"}
+        <Row label="Settlement">
+          {shown ? (
+            shown.mode === "confidential" ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+                Confidential
+              </span>
+            ) : (
+              "Public route (preview)"
+            )
+          ) : (
+            "—"
+          )}
         </Row>
       </div>
       {error && canQuote && <p className="mt-3 text-sm text-down">{error}</p>}
@@ -187,7 +253,9 @@ function TradeForm({
           run={() => {
             const out = Number(shown.amountOut);
             const deltas =
-              side === "buy" ? { [USDC.assetId]: -Number(amount), [asset.assetId]: out } : { [asset.assetId]: -Number(amount), [USDC.assetId]: out };
+              side === "buy"
+                ? { [USDC.assetId]: -Number(amount), [asset.assetId]: out }
+                : { [asset.assetId]: -Number(amount), [USDC.assetId]: out };
             return simulate(deltas, {
               kind: side,
               title: `${side === "buy" ? "Bought" : "Sold"} ${asset.name}`,
@@ -202,10 +270,18 @@ function TradeForm({
         </button>
       ) : (
         <PreviewNotice>
-          <b>Preview only.</b> This is a real quote, but orders for {asset.symbol} open once its route passes a live
-          test on mainnet. Nothing will be bought or sold.
+          <b>Preview only.</b> This is a real quote, but orders for {asset.symbol} open once its route passes a live test on mainnet.
+          Nothing will be bought or sold.
         </PreviewNotice>
       )}
+      <p className="tabular mt-3 text-center text-xs text-ink-45">
+        {side === "buy" ? `Minimum order ${usd(minOrderUsd)}. ` : ""}
+        {nextQuoteIn == null
+          ? `Quotes refresh every ${REFRESH_SEC} seconds.`
+          : loading || nextQuoteIn === 0
+            ? "Getting a new quote…"
+            : `New quote in 0:${String(nextQuoteIn).padStart(2, "0")}.`}
+      </p>
     </div>
   );
 }

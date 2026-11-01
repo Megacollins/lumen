@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { RevealIcon } from "@/components/brand/icons";
+import { AddIcon, InvestIcon, RevealIcon, SendIcon } from "@/components/brand/icons";
 import { CANDIDATE_ASSETS, USDC } from "@/lib/markets";
 import { revealByDefault } from "@/lib/prefs";
 import { useAccount } from "./account-app";
+import { CashSheet, type Flow } from "./cash";
 import { usd, useMarkets } from "./use-markets";
 
 const units = (base: string, decimals: number) => Number(base) / 10 ** decimals;
@@ -22,6 +23,7 @@ export function Overview() {
   const { account, activity } = useAccount();
   const markets = useMarkets();
   const [revealed, setRevealed] = useState(revealByDefault);
+  const [flow, setFlow] = useState<Flow | null>(null);
 
   const cash = units(account.balances.find((b) => b.tokenId === USDC.assetId)?.available ?? "0", USDC.decimals);
   const holdings = account.balances
@@ -29,8 +31,13 @@ export function Overview() {
     .map((b) => {
       const asset = CANDIDATE_ASSETS.find((a) => a.assetId === b.tokenId);
       const qty = asset ? units(b.available, asset.decimals) : 0;
-      const price = asset ? markets?.rows.find((r) => r.symbol === asset.symbol)?.price ?? null : null;
-      return { tokenId: b.tokenId, asset, qty, value: price == null ? null : qty * price };
+      const price = asset ? (markets?.rows.find((r) => r.symbol === asset.symbol)?.price ?? null) : null;
+      return {
+        tokenId: b.tokenId,
+        asset,
+        qty,
+        value: price == null ? null : qty * price,
+      };
     });
   const invested = holdings.reduce((s, h) => s + (h.value ?? 0), 0);
   const pricesMissing = holdings.some((h) => h.value == null);
@@ -55,7 +62,9 @@ export function Overview() {
           <RevealIcon size={16} />
           {revealed ? "Hide balances" : "Reveal balances"}
         </button>
-        {!account.balancesAvailable && <p className="mt-3 text-sm text-down">Balances couldn&apos;t be loaded from NEAR Intents just now.</p>}
+        {!account.balancesAvailable && (
+          <p className="mt-3 text-sm text-down">Balances couldn&apos;t be loaded from NEAR Intents just now.</p>
+        )}
         {pricesMissing && <p className="mt-3 text-xs text-ink-45">Some prices are unavailable, so the total may be low.</p>}
 
         {total > 0 && (
@@ -66,7 +75,33 @@ export function Overview() {
         )}
       </section>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
+      <div className="mt-8 grid grid-cols-3 gap-2 md:max-w-[420px]">
+        <button
+          type="button"
+          onClick={() => setFlow("add")}
+          className="flex h-16 flex-col items-center justify-center gap-1 bg-ink text-sm font-medium text-white transition-opacity hover:opacity-70"
+        >
+          <AddIcon size={20} />
+          Add
+        </button>
+        <button
+          type="button"
+          onClick={() => setFlow("send")}
+          className="flex h-16 flex-col items-center justify-center gap-1 border border-hairline bg-paper text-sm font-medium transition-opacity hover:opacity-70"
+        >
+          <SendIcon size={20} />
+          Send
+        </button>
+        <Link
+          href="/app/invest"
+          className="flex h-16 flex-col items-center justify-center gap-1 border border-hairline bg-paper text-sm font-medium transition-opacity hover:opacity-70"
+        >
+          <InvestIcon size={20} />
+          Invest
+        </Link>
+      </div>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
         <section className="border border-hairline bg-paper">
           <div className="flex justify-between px-4 pb-1.5 pt-3.5 text-[13px] text-ink-60">
             <span className="flex items-center gap-2">
@@ -143,6 +178,8 @@ export function Overview() {
           Account id: <span className="tabular break-all">{account.signerId}</span>
         </p>
       )}
+
+      <CashSheet flow={flow} onClose={() => setFlow(null)} />
     </div>
   );
 }
