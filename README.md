@@ -1,6 +1,6 @@
 # Lumen
 
-A private financial account on NEAR: hold dollars, pay people by username, and invest in tokenized stocks and gold, from one balance the public can't see.
+A private financial account on NEAR: hold dollars, send money privately, and invest in tokenized stocks and gold, from one balance the public can't see.
 
 Built for the NEAR Hackathon (Nov 1–14, 2026). Tracks: `privacy`, `realworld`, `defi`.
 

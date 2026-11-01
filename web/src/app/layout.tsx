@@ -12,7 +12,7 @@ const interTight = Inter_Tight({
 export const metadata: Metadata = {
   title: "Lumen — private money, private markets",
   description:
-    "A private financial account on NEAR. Hold dollars, pay people by username, and invest in tokenized stocks and gold from one balance the public can't see.",
+    "A private financial account on NEAR. Hold dollars, send money privately, and invest in tokenized stocks and gold from one balance the public can't see.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

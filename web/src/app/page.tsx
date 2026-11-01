@@ -7,7 +7,8 @@ import { AccountPreview } from "@/components/landing/account-preview";
 import { Reveal } from "@/components/motion/reveal";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Mark, Logo } from "@/components/brand/logo";
-import { AddIcon, SendIcon, InvestIcon, PrivateIcon, StatementIcon, PasskeyIcon } from "@/components/brand/icons";
+import { PrivateIcon, StatementIcon, PasskeyIcon } from "@/components/brand/icons";
+import { SealedCase, StepAdd, StepInvest, StepSend } from "@/components/landing/illustrations";
 
 const H2 = "text-[clamp(32px,4.2vw,60px)] font-normal leading-[1.08] tracking-[-0.035em]";
 const BODY = "text-base leading-relaxed text-ink-70";
@@ -36,7 +37,7 @@ export default function Home() {
               Private money. Private <i>markets</i>.
             </h1>
             <p className="mx-auto mt-6 max-w-[620px] text-lg leading-relaxed text-ink-70">
-              Lumen is a confidential account on NEAR. Hold dollars, pay anyone by username, and invest in tokenized
+              Lumen is a confidential account on NEAR. Hold dollars, send money privately, and invest in tokenized
               stocks and gold, with balances the public can&apos;t see.
             </p>
             <p className="mt-3 text-[15px] italic text-ink-60">Your money. Your investments. Your privacy.</p>
@@ -75,15 +76,13 @@ export default function Home() {
             </Reveal>
             <div className="mt-16 grid gap-6 md:grid-cols-3">
               {[
-                { Icon: AddIcon, title: "Add", text: "Move USDC from any chain into your private balance." },
-                { Icon: SendIcon, title: "Send", text: "Pay anyone by @username. Only the two of you see the amount." },
-                { Icon: InvestIcon, title: "Invest", text: "Buy tokenized stocks and gold from the same balance." },
-              ].map(({ Icon, title, text }, i) => (
+                { Art: StepAdd, title: "Add", text: "Move USDC from any chain into your private balance." },
+                { Art: StepSend, title: "Send", text: "Pay another NEAR Intents account. The amount stays off the public record." },
+                { Art: StepInvest, title: "Invest", text: "Buy tokenized stocks and gold from the same balance." },
+              ].map(({ Art, title, text }, i) => (
                 <Reveal key={title} delay={i * 0.06}>
                   <div className="flex h-full flex-col items-center gap-3 border border-hairline bg-paper px-8 pb-10 pt-12 text-center">
-                    <div className="flex h-[120px] w-[120px] items-center justify-center border border-hairline bg-mist">
-                      <Icon size={48} />
-                    </div>
+                    <Art />
                     <h3 className="mt-4 text-[26px] font-normal tracking-[-0.02em]">{title}</h3>
                     <p className="max-w-[280px] text-[15px] leading-relaxed text-ink-60">{text}</p>
                   </div>
@@ -103,7 +102,7 @@ export default function Home() {
                   Money that stays <i>yours</i>.
                 </h2>
                 <p className={`${BODY} mt-5 max-w-[460px]`}>
-                  Hold dollars in a confidential balance and pay people by username. Amounts and balances stay off the
+                  Hold dollars in a confidential balance and pay other accounts privately. Amounts and balances stay off the
                   public record. Deposits and withdrawals are still visible on their own chains, but not linked to
                   each other.
                 </p>
@@ -111,10 +110,10 @@ export default function Home() {
               <Reveal className="min-w-0 flex-[1_1_420px]" delay={0.1}>
                 <div className="mx-auto max-w-[420px] border border-hairline bg-paper p-6">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-studio">M</span>
+                    <span aria-hidden className="flex h-10 w-10 items-center justify-center rounded-full bg-studio text-sm">0x</span>
                     <div>
-                      <div>@maya</div>
-                      <div className="text-xs text-ink-45">Lumen account</div>
+                      <div className="tabular">0x055f…679b</div>
+                      <div className="text-xs text-ink-45">NEAR Intents account</div>
                     </div>
                   </div>
                   <div className="tabular mt-8 text-center text-[56px] leading-none tracking-[-0.05em]">
@@ -122,7 +121,7 @@ export default function Home() {
                   </div>
                   <div className="mx-auto mt-5 flex w-fit items-center gap-2 border border-[#EBDDB4] bg-[#FBF5E4] px-3 py-2 text-[13px] text-[#6B5318]">
                     <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-                    Only you and @maya will see this
+                    Hidden from the public
                   </div>
                   <div className="mt-6 flex h-12 items-center justify-center bg-ink font-medium text-white">Send privately</div>
                   <p className="mt-3 text-center text-xs text-ink-45">Example screen</p>
@@ -203,6 +202,7 @@ export default function Home() {
         <section id="privacy" className="scroll-mt-20 bg-paper px-4 py-[clamp(96px,10vw,160px)] sm:px-8">
           <div className="mx-auto flex max-w-[1280px] flex-wrap gap-16">
             <Reveal className="min-w-0 flex-[1_1_360px]">
+              <SealedCase className="mb-10 h-auto w-full max-w-[360px]" />
               <h2 className={`${H2} text-[clamp(32px,3.6vw,48px)]`}>
                 Private, not <i>hidden</i>.
               </h2>
