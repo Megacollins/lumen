@@ -1,0 +1,7 @@
+# Safety net: never upload secrets, even if someone deploys from the repo root by mistake.
+# The app itself deploys from web/ (see README).
+**/.env
+**/.env.*
+!**/.env.example
+spikes/
+**/node_modules

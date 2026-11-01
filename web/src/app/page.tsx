@@ -302,7 +302,7 @@ export default function Home() {
             <span>Built on NEAR</span>
           </div>
           <nav className="flex flex-wrap gap-6">
-            <a href="https://github.com" className="hover:opacity-70">GitHub</a>
+            <a href="https://github.com/Megacollins/lumen" className="hover:opacity-70">GitHub</a>
             <Link href="/#privacy" className="hover:opacity-70">Privacy</Link>
             <Link href="/legal" className="hover:opacity-70">Terms and risks</Link>
           </nav>

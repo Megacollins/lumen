@@ -4,6 +4,8 @@ A private financial account on NEAR: hold dollars, pay people by username, and i
 
 Built for the NEAR Hackathon (Nov 1–14, 2026). Tracks: `privacy`, `realworld`, `defi`.
 
+**Live:** https://lumen-near.vercel.app · **Try the demo (no sign-up):** https://lumen-near.vercel.app/demo
+
 > **Status: in development.** This README is updated as each part lands. Sections marked *(planned)* are not built yet.
 
 ## The problem
@@ -53,6 +55,8 @@ npm install
 cp .env.example .env.local   # then set SESSION_SECRET (command in the file)
 npm run dev                  # http://localhost:3000
 ```
+
+Deploy: from `web/` (not the repo root), `vercel --prod`. `web/vercel.json` pins the Next.js preset; the root `.vercelignore` keeps any `.env` file out of uploads.
 
 Open `/app` and create a passkey (Chrome, Safari or Edge; passkeys need HTTPS or localhost).
 `node scripts/sim-passkey.mjs http://localhost:3000` runs the whole sign-in with a software authenticator.
