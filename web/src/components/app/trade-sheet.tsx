@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { USDC, type Asset } from "@/lib/markets";
 import { isEligibilityConfirmed, revealByDefault, setEligibilityConfirmed } from "@/lib/prefs";
 import { useAccount } from "./account-app";
+import { ExecuteOrder } from "./execute";
 import { PreviewNotice, Row, Sheet } from "./sheet";
 import { SimulateButton } from "./simulate";
 import { usd } from "./use-markets";
@@ -87,6 +88,8 @@ function TradeForm({
               : `You don't hold any ${asset.symbol} yet.`
             : null;
   const canQuote = amount !== "" && !inputError && (side === "sell" || eligible);
+  // Still quote (prices are useful before funding), but never offer to sign more than the cash on hand.
+  const overCash = side === "buy" && !inputError && n > cash;
 
   // Debounced live quote. State updates happen in the async callback, never synchronously in the effect.
   useEffect(() => {
@@ -172,6 +175,7 @@ function TradeForm({
         {shown ? `≈ ${Number(shown.amountOut).toFixed(side === "buy" ? 4 : 2)} ${unit}` : loading && canQuote ? "Quoting…" : ""}
       </p>
       {inputError && <p className="mt-2 text-sm text-down">{inputError}</p>}
+      {overCash && <p className="mt-2 text-sm text-down">That&apos;s more than your private cash ({usd(cash)}).</p>}
 
       {side === "buy" ? (
         <div className="mt-4 flex gap-1.5">
@@ -264,10 +268,12 @@ function TradeForm({
             });
           }}
         />
-      ) : shown?.executable ? (
-        <button type="button" className="mt-6 h-[52px] w-full bg-ink font-medium text-white transition-opacity hover:opacity-70">
-          Confirm with passkey
-        </button>
+      ) : shown?.executable && !overCash ? (
+        <ExecuteOrder
+          key={`${side}:${amount}`}
+          spec={{ flow: "trade", symbol: asset.symbol, side, amount }}
+          label={`${side === "buy" ? "Buy" : "Sell"} ${asset.symbol} with passkey`}
+        />
       ) : (
         <PreviewNotice>
           <b>Preview only.</b> This is a real quote, but orders for {asset.symbol} open once its route passes a live test on mainnet.

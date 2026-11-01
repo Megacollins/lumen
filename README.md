@@ -18,9 +18,9 @@ On a public blockchain, every payment, balance and trade is visible to anyone, f
 |---|---|---|
 | Private balance | NEAR Confidential Intents (private shard, TEE-secured) | **Working** (read live) |
 | Add, send, move out, receive | USDC from/to NEAR, Base, Ethereum, Arbitrum, Solana; sends between Intents accounts | **Working** (real dry-run quotes, preview only) |
-| Execute cash movements | Signed intents from the confidential balance | *(planned; each flow enabled only after a live mainnet test)* |
+| Execute cash movements | Live quote → `/v0/generate-intent` (webauthn) → passkey signature → `/v0/submit-intent` → `/v0/status`; "Add money" returns a one-time deposit address | **Built, tested up to settlement** (a passkey-signed send was accepted by NEAR Intents mainnet and failed as expected on an empty account). Each flow opens only after a funded live test |
 | Invest: browse and quote | Ondo Global Markets tokens via NEAR Intents 1Click; indicative prices from the token list and real dry-run buy/sell quotes | **Working** (preview only) |
-| Invest: execute orders | Signed `swap_transfer` intents from the confidential balance | *(planned; enabled per asset only after a live mainnet test)* |
+| Invest: execute orders | Same pipeline, USDC ⇄ Ondo token between Intents balances | **Built, tested up to settlement** (a $30 NVDA buy was signed, accepted and tracked to FAILED on an empty account). Opens per asset after a funded live test |
 | Passkey sign-in | WebAuthn P-256 signs an empty intent; NEAR Intents returns a user session | **Working** (tested on a real phone and with a software authenticator) |
 | Read private balance | `/v0/account/balances` with the user session | **Working** |
 | Activity | Transaction history from NEAR Intents (`/v0/account/history`); demo receipts in demo mode | **Working** (real history is invite-only at NEAR Intents, so real accounts see an explanation instead) |
@@ -60,6 +60,9 @@ Deploy: from `web/` (not the repo root), `vercel --prod`. `web/vercel.json` pins
 
 Open `/app` and create a passkey (Chrome, Safari or Edge; passkeys need HTTPS or localhost).
 `node scripts/sim-passkey.mjs http://localhost:3000` runs the whole sign-in with a software authenticator.
+`node scripts/sim-order.mjs http://localhost:3000 send|buy` runs a real order through the execution pipeline on mainnet with a fresh, empty account (start the dev server with `LUMEN_DEV_EXECUTION=1`; NEAR Intents should accept the signed intent and then mark it FAILED, since nothing is funded).
+
+**Execution safety.** Real orders run only for flows that passed a funded mainnet test (`EXECUTION_VERIFIED`, `CASH_VERIFIED`) and only with Confidential Intents. The server re-quotes live, checks the balance before asking the passkey to sign (1Click intents stay valid for days), accepts only the exact payload it handed out within 5 minutes, refuses replays, and refuses intents for any other account.
 
 ## Try it as a judge
 

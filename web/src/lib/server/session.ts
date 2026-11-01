@@ -22,14 +22,15 @@ function key() {
   return createHash("sha256").update(secret).digest();
 }
 
-function seal(data: Session): string {
+/** AES-256-GCM, keyed by SESSION_SECRET. Also used for the pending-intent cookie (lib/server/pending.ts). */
+export function seal(data: unknown): string {
   const iv = randomBytes(12);
   const c = createCipheriv("aes-256-gcm", key(), iv);
   const body = Buffer.concat([c.update(JSON.stringify(data), "utf8"), c.final()]);
   return Buffer.concat([iv, c.getAuthTag(), body]).toString("base64url");
 }
 
-function unseal(value: string): Session | null {
+export function unseal<T = Session>(value: string): T | null {
   try {
     const buf = Buffer.from(value, "base64url");
     const d = createDecipheriv("aes-256-gcm", key(), buf.subarray(0, 12));

@@ -54,18 +54,15 @@ export async function createPasskey(): Promise<StoredPasskey> {
   return pk;
 }
 
-async function post<T>(path: string, body: unknown): Promise<T> {
+export async function post<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.error ?? "Something went wrong");
   return json as T;
 }
 
-/** Signs an empty intent with the passkey and opens a NEAR Intents session. */
-export async function signInWithPasskey(pk: StoredPasskey): Promise<{ signerId: string }> {
-  const { payload, challenge } = await post<{ payload: string; challenge: string }>("/api/auth/challenge", {
-    publicKey: pk.publicKey,
-  });
+/** The browser half of a WebAuthn signature over `challenge`, shaped for the server's webauthnSignedData(). */
+export async function signWithPasskey(pk: StoredPasskey, payload: string, challenge: string) {
   const a = (await navigator.credentials.get({
     publicKey: {
       challenge: b64u.dec(challenge),
@@ -73,16 +70,23 @@ export async function signInWithPasskey(pk: StoredPasskey): Promise<{ signerId: 
       userVerification: "required",
     },
   })) as PublicKeyCredential | null;
-  if (!a) throw new Error("Sign-in was cancelled");
+  if (!a) throw new Error("The passkey prompt was closed");
   const r = a.response as AuthenticatorAssertionResponse;
-
-  return post("/api/auth/verify", {
+  return {
     payload,
     publicKey: pk.publicKey,
     signatureDer: b64u.enc(r.signature),
     clientDataJSON: new TextDecoder().decode(r.clientDataJSON),
     authenticatorData: b64u.enc(r.authenticatorData),
+  };
+}
+
+/** Signs an empty intent with the passkey and opens a NEAR Intents session. */
+export async function signInWithPasskey(pk: StoredPasskey): Promise<{ signerId: string }> {
+  const { payload, challenge } = await post<{ payload: string; challenge: string }>("/api/auth/challenge", {
+    publicKey: pk.publicKey,
   });
+  return post("/api/auth/verify", await signWithPasskey(pk, payload, challenge));
 }
 
 export async function signOut() {

@@ -7,6 +7,7 @@ import { CHAINS, type CashKind, type ChainId } from "@/lib/cash";
 import { USDC } from "@/lib/markets";
 import { revealByDefault } from "@/lib/prefs";
 import { useAccount } from "./account-app";
+import { ExecuteOrder } from "./execute";
 import { PreviewNotice, Row, Sheet } from "./sheet";
 import { SimulateButton } from "./simulate";
 import { usd } from "./use-markets";
@@ -266,9 +267,12 @@ function CashForm({ kind, balance, onDone }: { kind: CashKind; balance: number; 
           }}
         />
       ) : data?.executable && !overBalance ? (
-        <button type="button" className="mt-6 h-[52px] w-full bg-ink font-medium text-white transition-opacity hover:opacity-70">
-          {kind === "add" ? "Get deposit address" : kind === "send" ? "Send privately" : "Confirm with passkey"}
-        </button>
+        <ExecuteOrder
+          key={`${kind}:${amount}:${chain}:${recipient.trim()}`}
+          spec={{ flow: "cash", kind, amount, chain, recipient: recipient.trim() }}
+          label={kind === "add" ? "Get deposit address" : kind === "send" ? "Send privately" : "Move out with passkey"}
+          depositChain={chainInfo.name}
+        />
       ) : (
         <PreviewNotice>
           <b>Preview only.</b> This is a real quote from NEAR Intents, but {TITLES[kind].toLowerCase()} opens once it passes a live test on
