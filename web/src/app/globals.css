@@ -125,6 +125,19 @@ body {
     0 0 6px 1px rgba(246, 205, 120, 0.9),
     0 0 18px 4px rgba(233, 180, 80, 0.45);
 }
+.lbox-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 17%;
+  transform: translateY(-50%);
+  text-align: center;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  color: rgba(214, 178, 98, 0.85);
+}
 .lbox-latch {
   position: absolute;
   left: 50%;
