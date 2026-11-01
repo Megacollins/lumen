@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { Logo, Mark } from "@/components/brand/logo";
-import { InvestIcon, PasskeyIcon, PrivateIcon } from "@/components/brand/icons";
+import { AddIcon, InvestIcon, PasskeyIcon, PrivateIcon } from "@/components/brand/icons";
 import {
   createPasskey,
   forgetPasskey,
@@ -74,6 +74,7 @@ export function AccountGate({ children }: { children: ReactNode }) {
 
 const TABS = [
   { href: "/app", label: "Overview", Icon: PrivateIcon },
+  { href: "/app/cash", label: "Cash", Icon: AddIcon },
   { href: "/app/invest", label: "Invest", Icon: InvestIcon },
 ];
 
@@ -113,7 +114,7 @@ function Shell({ signerId, onSignOut, children }: { signerId: string; onSignOut:
 
       <div className="mx-auto flex w-full max-w-[960px] flex-1 flex-col px-5">{children}</div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 border-t border-hairline bg-paper pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t border-hairline bg-paper pb-[env(safe-area-inset-bottom)] md:hidden">
         {TABS.map(({ href, label, Icon }) => (
           <Link
             key={href}

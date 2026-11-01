@@ -14,8 +14,9 @@ On a public blockchain, every payment, balance and trade is visible to anyone, f
 
 | Feature | How | Status |
 |---|---|---|
-| Private balance | NEAR Confidential Intents (private shard, TEE-secured) | *(planned)* |
-| Send privately | Confidential transfer between Lumen accounts | *(planned, under verification)* |
+| Private balance | NEAR Confidential Intents (private shard, TEE-secured) | **Working** (read live) |
+| Add, send, move out, receive | USDC from/to NEAR, Base, Ethereum, Arbitrum, Solana; sends between Intents accounts | **Working** (real dry-run quotes, preview only) |
+| Execute cash movements | Signed intents from the confidential balance | *(planned; each flow enabled only after a live mainnet test)* |
 | Invest: browse and quote | Ondo Global Markets tokens via NEAR Intents 1Click; live prices and real dry-run buy/sell quotes | **Working** (preview only) |
 | Invest: execute orders | Signed `swap_transfer` intents from the confidential balance | *(planned; enabled per asset only after a live mainnet test)* |
 | Passkey sign-in | WebAuthn P-256 signs an empty intent; NEAR Intents returns a user session | **Working** (tested with a software authenticator; real device pending) |
