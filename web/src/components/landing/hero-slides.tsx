@@ -6,7 +6,7 @@ import { useRef, useState, useSyncExternalStore, type PointerEvent } from "react
 /** The studio series, "lit from within": money, privacy, clarity. */
 const SLIDES = [
   { src: "/images/gold-bar.jpg", pos: "50% 50%", alt: "A gold bar resting on a stone plinth, lit by a single warm light" },
-  { src: "/images/case.jpg", pos: "50% 55%", alt: "A closed dark box with warm golden light glowing from the seam of its lid" },
+  { src: "/images/case-lumen.jpg", pos: "50% 55%", alt: "A closed dark box marked lumen, with warm golden light glowing from the seam of its lid" },
   { src: "/images/glass-wide.jpg", pos: "50% 50%", alt: "A frosted glass block with a line of warm golden light glowing inside it" },
 ];
 

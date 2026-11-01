@@ -1,7 +1,7 @@
 /**
  * The Lumen box in 3D: a closed charcoal box with light at the seam of its lid and the wordmark on the lid, turning slowly.
  * Pure CSS 3D (styles in globals.css under .lbox), so it costs no JavaScript.
- * Matches public/images/case.jpg; stands still at a three-quarter angle for reduced motion.
+ * Matches public/images/case-lumen.jpg; stands still at a three-quarter angle for reduced motion.
  */
 const W = 220; // width
 const H = 140; // height
