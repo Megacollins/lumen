@@ -17,17 +17,36 @@ const canTilt = () => window.matchMedia("(hover: hover) and (pointer: fine)").ma
 /**
  * Hero photo series: crossfades every 6s, timed by the active progress bar (globals.css .hero-progress), so pausing
  * on hover or focus freezes the bar and resumes where it left off. No autoplay with reduced motion.
- * On devices with a mouse, the photo tilts a few degrees toward the pointer.
+ * Swipe (touch) or drag (mouse) sideways to change photo; arrow keys work on the progress bars. Vertical swipes
+ * still scroll the page. On devices with a mouse, the photo tilts a few degrees toward the pointer.
  */
 export function HeroSlides({ className }: { className?: string }) {
   const [index, setIndex] = useState(0);
   const [hovered, setHovered] = useState(false);
   const [reduced] = useState(prefersReducedMotion);
   const tilt = useRef<HTMLDivElement>(null);
+  const swipe = useRef<{ x: number; y: number } | null>(null);
   // The progress bar (which advances the slides) only starts once React is listening: started from the server HTML,
   // it could finish before hydration on a slow phone and the slideshow would never move.
   const hydrated = useSyncExternalStore(noop, () => true, () => false);
   const paused = hovered || reduced;
+
+  const go = (step: number) => setIndex((n) => (n + step + SLIDES.length) % SLIDES.length);
+
+  function onDown(e: PointerEvent<HTMLDivElement>) {
+    if ((e.target as HTMLElement).closest("button")) return;
+    swipe.current = { x: e.clientX, y: e.clientY };
+  }
+
+  function onUp(e: PointerEvent<HTMLDivElement>) {
+    const start = swipe.current;
+    swipe.current = null;
+    if (!start) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    // Mostly sideways and far enough to be deliberate; the new slide's progress bar restarts the 6s timer.
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) go(dx < 0 ? 1 : -1);
+  }
 
   function onMove(e: PointerEvent<HTMLDivElement>) {
     const el = tilt.current;
@@ -42,14 +61,18 @@ export function HeroSlides({ className }: { className?: string }) {
 
   function onLeave() {
     setHovered(false);
+    swipe.current = null;
     if (tilt.current) tilt.current.style.transform = "";
   }
 
   return (
     <div className={className}>
       <div
-        className="relative h-[300px] overflow-hidden bg-studio [perspective:1200px] sm:h-auto sm:aspect-[1672/941]"
-        onPointerEnter={() => setHovered(true)}
+        className="relative h-[300px] touch-pan-y select-none overflow-hidden bg-studio [perspective:1200px] sm:h-auto sm:aspect-[1672/941]"
+        onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
+        onPointerDown={onDown}
+        onPointerUp={onUp}
+        onPointerCancel={() => (swipe.current = null)}
         onPointerMove={onMove}
         onPointerLeave={onLeave}
         role="group"
@@ -64,6 +87,7 @@ export function HeroSlides({ className }: { className?: string }) {
               alt={s.alt}
               aria-hidden={i !== index}
               fill
+              draggable={false}
               priority={i === 0}
               sizes="(min-width: 1212px) 1180px, 100vw"
               style={{ objectPosition: s.pos }}
@@ -72,7 +96,18 @@ export function HeroSlides({ className }: { className?: string }) {
           ))}
           <span aria-hidden className="hero-glint absolute inset-0" />
         </div>
-        <div className="absolute bottom-3 left-4 z-10 flex items-center gap-2 sm:bottom-5 sm:left-6" onFocus={() => setHovered(true)} onBlur={() => setHovered(false)}>
+        <div
+          className="absolute bottom-3 left-4 z-10 flex items-center gap-2 sm:bottom-5 sm:left-6"
+          onFocus={() => setHovered(true)}
+          onBlur={() => setHovered(false)}
+          onKeyDown={(e) => {
+            if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+            e.preventDefault();
+            const next = (index + (e.key === "ArrowRight" ? 1 : -1) + SLIDES.length) % SLIDES.length;
+            setIndex(next);
+            (e.currentTarget.children[next] as HTMLElement).focus();
+          }}
+        >
           {SLIDES.map((s, i) => (
             <button
               key={s.src}
