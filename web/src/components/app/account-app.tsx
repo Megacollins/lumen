@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { List, Settings as SettingsIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { Logo, Mark } from "@/components/brand/logo";
@@ -131,10 +132,15 @@ function SignedIn({
   );
 }
 
+const ActivityTabIcon = ({ size }: { size?: number }) => <List size={size} strokeWidth={1.5} aria-hidden />;
+const SettingsTabIcon = ({ size }: { size?: number }) => <SettingsIcon size={size} strokeWidth={1.5} aria-hidden />;
+
 const TABS = [
   { href: "/app", label: "Overview", Icon: PrivateIcon },
   { href: "/app/cash", label: "Cash", Icon: AddIcon },
   { href: "/app/invest", label: "Invest", Icon: InvestIcon },
+  { href: "/app/activity", label: "Activity", Icon: ActivityTabIcon },
+  { href: "/app/settings", label: "Settings", Icon: SettingsTabIcon },
 ];
 
 function Shell({
@@ -201,7 +207,7 @@ function Shell({
 
       <div className="mx-auto flex w-full max-w-[960px] flex-1 flex-col px-5">{children}</div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t border-hairline bg-paper pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-hairline bg-paper pb-[env(safe-area-inset-bottom)] md:hidden">
         {TABS.map(({ href, label, Icon }) => (
           <Link
             key={href}

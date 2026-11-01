@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AddIcon, RevealIcon, SendIcon, StatementIcon } from "@/components/brand/icons";
 import { CHAINS, type CashKind, type ChainId } from "@/lib/cash";
 import { USDC } from "@/lib/markets";
+import { revealByDefault } from "@/lib/prefs";
 import { useAccount } from "./account-app";
 import { PreviewNotice, Row, Sheet } from "./sheet";
 import { SimulateButton } from "./simulate";
@@ -26,7 +27,7 @@ const TITLES: Record<Flow, string> = { add: "Add money", send: "Send", withdraw:
 
 export function Cash() {
   const { account } = useAccount();
-  const [revealed, setRevealed] = useState(false);
+  const [revealed, setRevealed] = useState(revealByDefault);
   const [flow, setFlow] = useState<Flow | null>(null);
   const cash = Number(account.balances.find((b) => b.tokenId === USDC.assetId)?.available ?? "0") / 10 ** USDC.decimals;
 

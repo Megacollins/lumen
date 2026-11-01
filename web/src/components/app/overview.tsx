@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { RevealIcon } from "@/components/brand/icons";
 import { CANDIDATE_ASSETS, USDC } from "@/lib/markets";
+import { revealByDefault } from "@/lib/prefs";
 import { useAccount } from "./account-app";
 import { usd, useMarkets } from "./use-markets";
 
@@ -20,7 +21,7 @@ function timeAgo(at: number) {
 export function Overview() {
   const { account, activity } = useAccount();
   const markets = useMarkets();
-  const [revealed, setRevealed] = useState(false);
+  const [revealed, setRevealed] = useState(revealByDefault);
 
   const cash = units(account.balances.find((b) => b.tokenId === USDC.assetId)?.available ?? "0", USDC.decimals);
   const holdings = account.balances

@@ -21,6 +21,8 @@ On a public blockchain, every payment, balance and trade is visible to anyone, f
 | Invest: execute orders | Signed `swap_transfer` intents from the confidential balance | *(planned; enabled per asset only after a live mainnet test)* |
 | Passkey sign-in | WebAuthn P-256 signs an empty intent; NEAR Intents returns a user session | **Working** (tested with a software authenticator; real device pending) |
 | Read private balance | `/v0/account/balances` with the user session | **Working** |
+| Activity | Transaction history from NEAR Intents (`/v0/account/history`); demo receipts in demo mode | **Working** (real history is invite-only at NEAR Intents, so real accounts see an explanation instead) |
+| Signed statement | Balances and activity exported as JSON, signed by the account's passkey (WebAuthn P-256) | **Built** (real-device signing untested) |
 | Demo mode | Simulated balance and activity in the browser; every flow uses real dry-run quotes | **Working** |
 
 ## What is private, and what isn't

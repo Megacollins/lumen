@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { USDC, type Asset } from "@/lib/markets";
+import { isEligibilityConfirmed, setEligibilityConfirmed } from "@/lib/prefs";
 import { useAccount } from "./account-app";
 import { PreviewNotice, Row, Sheet } from "./sheet";
 import { SimulateButton } from "./simulate";
@@ -18,15 +19,6 @@ type Quote = {
   executable: boolean;
 };
 
-const ELIGIBLE_KEY = "lumen.eligibility.v1";
-
-function readEligible() {
-  try {
-    return localStorage.getItem(ELIGIBLE_KEY) === "yes";
-  } catch {
-    return false;
-  }
-}
 
 export function TradeSheet({
   open,
@@ -65,7 +57,7 @@ function TradeForm({
 }) {
   const { account, simulate } = useAccount();
   const [amount, setAmount] = useState(side === "buy" ? String(minOrderUsd) : "");
-  const [eligible, setEligible] = useState(readEligible);
+  const [eligible, setEligible] = useState(isEligibilityConfirmed);
   const [quote, setQuote] = useState<Quote | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -162,9 +154,7 @@ function TradeForm({
             className="mt-1 accent-[#141413]"
             onChange={(e) => {
               if (!e.target.checked) return;
-              try {
-                localStorage.setItem(ELIGIBLE_KEY, "yes");
-              } catch {}
+              setEligibilityConfirmed(true);
               setEligible(true);
             }}
           />
