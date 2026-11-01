@@ -4,9 +4,10 @@ import { Suspense } from "react";
 import { MarketGrid, MarketGridFallback } from "@/components/landing/market-grid";
 import { SiteHeader } from "@/components/landing/site-header";
 import { AccountPreview } from "@/components/landing/account-preview";
+import { HeroSlides } from "@/components/landing/hero-slides";
 import { Reveal } from "@/components/motion/reveal";
 import { ButtonLink } from "@/components/ui/button-link";
-import { Logo } from "@/components/brand/logo";
+import { Logo, Mark } from "@/components/brand/logo";
 import { PrivateIcon, StatementIcon, PasskeyIcon } from "@/components/brand/icons";
 import { StepAdd, StepInvest, StepSend } from "@/components/landing/illustrations";
 import { LumenBox } from "@/components/landing/lumen-box";
@@ -19,19 +20,11 @@ export default function Home() {
     <>
       <SiteHeader />
       <main className="flex-1">
-        {/* Hero: still life with an account preview */}
+        {/* Hero: studio photo series with an account preview */}
         <section className="relative overflow-hidden bg-studio px-4 pb-16 pt-6 sm:pb-24">
           <div className="relative mx-auto max-w-[1180px]">
-            <Image
-              src="/images/gold-bar.jpg"
-              alt="A gold bar resting on a stone plinth, lit by a single warm light"
-              width={1672}
-              height={941}
-              priority
-              sizes="(min-width: 1212px) 1180px, 100vw"
-              className="block h-[300px] w-full object-cover sm:h-auto"
-            />
-            <div className="relative mx-auto -mt-10 flex justify-center xl:absolute xl:bottom-[6%] xl:right-[1.5%] xl:mt-0">
+            <HeroSlides />
+            <div className="relative z-10 mt-4 flex justify-center sm:-mt-12 sm:justify-end sm:pr-[3%]">
               <Reveal delay={0.2}>
                 <AccountPreview />
               </Reveal>
@@ -377,14 +370,14 @@ export default function Home() {
           style={{ background: "linear-gradient(var(--paper) 0%, var(--studio) 100%)" }}
         >
           <Reveal>
-            <Image
-              src="/images/glass.jpg"
-              alt="A frosted glass block with a line of warm golden light glowing inside it"
-              width={1254}
-              height={1254}
-              sizes="280px"
-              className="mx-auto h-auto w-[240px] sm:w-[280px]"
-            />
+            <div className="relative mx-auto flex h-[200px] w-[200px] items-center justify-center">
+              <span
+                aria-hidden
+                className="absolute inset-0 rounded-full"
+                style={{ background: "radial-gradient(circle, rgba(240,223,174,0.85) 0%, rgba(236,235,232,0) 68%)" }}
+              />
+              <Mark size={72} className="relative" />
+            </div>
             <h2 className={`${H2} mt-7`}>
               Your finances, finally <i>yours</i>.
             </h2>

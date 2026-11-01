@@ -65,6 +65,36 @@ body {
   filter: none;
 }
 
+/* Hero photo series (components/landing/hero-slides.tsx). */
+.hero-tilt {
+  transform-style: preserve-3d;
+  transition: transform 500ms var(--ease-out-soft);
+}
+.hero-glint {
+  opacity: 0;
+  mix-blend-mode: soft-light;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 40%), rgba(255, 240, 205, 0.55) 0%, rgba(255, 240, 205, 0) 45%);
+  transition: opacity 500ms var(--ease-out-soft);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hero-tilt:hover .hero-glint,
+  :hover > .hero-tilt .hero-glint {
+    opacity: 1;
+  }
+}
+.hero-progress {
+  width: 0;
+  animation: hero-fill 6s linear forwards;
+}
+.hero-progress-paused {
+  animation-play-state: paused;
+}
+@keyframes hero-fill {
+  to {
+    width: 100%;
+  }
+}
+
 /* The Lumen box (components/landing/lumen-box.tsx): CSS 3D, one turn every 24s. */
 .lbox-stage {
   position: relative;
