@@ -9,6 +9,7 @@ import { ButtonLink } from "@/components/ui/button-link";
 import { Logo } from "@/components/brand/logo";
 import { PrivateIcon, StatementIcon, PasskeyIcon } from "@/components/brand/icons";
 import { StepAdd, StepInvest, StepSend } from "@/components/landing/illustrations";
+import { LumenBox } from "@/components/landing/lumen-box";
 
 const H2 = "text-[clamp(32px,4.2vw,60px)] font-normal leading-[1.08] tracking-[-0.035em]";
 const BODY = "text-base leading-relaxed text-ink-70";
@@ -218,14 +219,7 @@ export default function Home() {
         <section id="privacy" className="scroll-mt-20 bg-paper px-4 py-[clamp(96px,10vw,160px)] sm:px-8">
           <div className="mx-auto flex max-w-[1280px] flex-wrap gap-16">
             <Reveal className="min-w-0 flex-[1_1_360px]">
-              <Image
-                src="/images/case.jpg"
-                alt="A closed grey box with warm golden light glowing from the seam of its lid"
-                width={1536}
-                height={1024}
-                sizes="(min-width: 768px) 420px, 100vw"
-                className="mb-10 h-auto w-full max-w-[420px]"
-              />
+              <LumenBox className="mb-10 w-full max-w-[420px]" />
               <h2 className={`${H2} text-[clamp(32px,3.6vw,48px)]`}>
                 Private, not <i>hidden</i>.
               </h2>

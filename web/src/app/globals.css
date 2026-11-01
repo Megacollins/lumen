@@ -65,7 +65,99 @@ body {
   filter: none;
 }
 
+/* The Lumen box (components/landing/lumen-box.tsx): CSS 3D, one turn every 24s. */
+.lbox-stage {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  perspective: 1100px;
+  background: radial-gradient(ellipse 70% 80% at 28% 18%, #fbecd6 0%, #e9dccf 45%, #d6cbc1 100%);
+}
+.lbox-tilt {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  transform-style: preserve-3d;
+  transform: rotateX(-20deg) scale(0.78);
+}
+@media (max-width: 480px) {
+  .lbox-tilt {
+    transform: rotateX(-20deg) scale(0.6);
+  }
+}
+.lbox-spin {
+  transform-style: preserve-3d;
+  transform: rotateY(-28deg);
+  animation: lbox-turn 24s linear infinite;
+}
+@keyframes lbox-turn {
+  from {
+    transform: rotateY(-28deg);
+  }
+  to {
+    transform: rotateY(332deg);
+  }
+}
+.lbox-face {
+  position: absolute;
+  left: 0;
+  top: 0;
+  backface-visibility: hidden;
+}
+.lbox-side {
+  background: linear-gradient(180deg, #2e2d2b 0%, #1d1c1a 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+.lbox-top {
+  background: linear-gradient(135deg, #4a4945 0%, #2e2d2a 100%);
+}
+.lbox-bottom {
+  background: #151413;
+}
+.lbox-seam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34%;
+  height: 2px;
+  background: #f6d58a;
+  box-shadow:
+    0 0 6px 1px rgba(246, 205, 120, 0.9),
+    0 0 18px 4px rgba(233, 180, 80, 0.45);
+}
+.lbox-latch {
+  position: absolute;
+  left: 50%;
+  top: calc(34% + 14px);
+  width: 34px;
+  height: 20px;
+  margin-left: -17px;
+  border: 1px solid rgba(201, 162, 74, 0.75);
+}
+.lbox-floor-glow {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 70%;
+  height: 26%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(246, 205, 120, 0.4) 0%, rgba(246, 205, 120, 0) 70%);
+}
+.lbox-shadow {
+  position: absolute;
+  left: 50%;
+  top: 70%;
+  width: 46%;
+  height: 8%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(20, 20, 19, 0.35) 0%, rgba(20, 20, 19, 0) 70%);
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .lbox-spin {
+    animation: none;
+  }
   html {
     scroll-behavior: auto;
   }
