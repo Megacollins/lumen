@@ -1,7 +1,7 @@
 import { CANDIDATE_ASSETS, USDC } from "./markets";
 
 // Demo mode's simulated account. Lives only in this browser; nothing here touches NEAR Intents.
-const KEY = "lumen.demo.v1";
+const KEY = "lumen.demo.v2";
 
 export type ActivityKind = "add" | "send" | "withdraw" | "buy" | "sell" | "receive";
 

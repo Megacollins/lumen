@@ -8,7 +8,7 @@ export function InvestList() {
   const markets = useMarkets();
 
   return (
-    <div className="pb-16 pt-10">
+    <div className="pb-16 pt-6 md:pt-10">
       <h1 className="text-[clamp(32px,5vw,44px)] font-normal leading-tight tracking-[-0.035em]">
         Invest, <i>quietly</i>.
       </h1>
@@ -33,7 +33,7 @@ export function InvestList() {
               {a.symbol}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate">{a.name}</span>
+              <span className="block leading-snug">{a.name}</span>
               <span className="block text-xs text-ink-45">{a.kind}</span>
             </span>
             <span className="tabular text-right">{a.price == null ? "—" : usd(a.price)}</span>

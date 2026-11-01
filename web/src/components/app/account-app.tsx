@@ -162,19 +162,14 @@ function Shell({
   return (
     <div className="flex flex-1 flex-col pb-20 md:pb-0">
       {demo && (
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 bg-ink px-4 py-2 text-center text-[13px] text-white">
+        <div className="flex items-center justify-center gap-3 bg-ink px-4 py-2 text-center text-[13px] text-white">
           <span>
-            <b className="font-medium">Demo mode.</b> Balances and transactions are simulated; prices and quotes are
-            real.
+            <b className="font-medium">Demo.</b> Simulated balances<span className="hidden sm:inline"> and transactions</span>, real
+            prices and quotes.
           </span>
-          <span className="flex gap-3">
-            <button type="button" onClick={onResetDemo} className="underline underline-offset-4 hover:opacity-70">
-              Reset
-            </button>
-            <button type="button" onClick={onSignOut} className="underline underline-offset-4 hover:opacity-70">
-              Exit demo
-            </button>
-          </span>
+          <button type="button" onClick={onResetDemo} className="flex-none underline underline-offset-4 hover:opacity-70">
+            Reset
+          </button>
         </div>
       )}
       <header className="sticky top-0 z-40 border-b border-hairline bg-mist/85 backdrop-blur-[6px]">
@@ -256,7 +251,7 @@ function SignIn({ onSignedIn }: { onSignedIn: () => void }) {
       <div className="flex flex-col gap-3 border-t border-hairline bg-paper px-6 pb-9 pt-8 md:w-[440px] md:border md:p-10">
         <Logo size={16} />
         <h1 className="mt-1 text-[34px] font-normal leading-[1.1] tracking-[-0.035em]">
-          Your money, visible only to <i>you</i>.
+          Your money, off the <i>public</i> record.
         </h1>
         <p className="mb-3 text-[15px] leading-relaxed text-ink-60">
           {stored ? "Welcome back. Sign in with the passkey on this device." : "Create a passkey to open your private account. No seed phrase, no password."}

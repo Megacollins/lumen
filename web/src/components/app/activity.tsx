@@ -57,7 +57,7 @@ export function Activity() {
   }, [account.demo]);
 
   return (
-    <div className="pb-16 pt-10">
+    <div className="pb-16 pt-6 md:pt-10">
       <h1 className="text-[clamp(32px,5vw,44px)] font-normal leading-tight tracking-[-0.035em]">Activity</h1>
       <p className="mt-2 text-[15px] text-ink-60">Every transaction on your account and its status.</p>
 
@@ -72,7 +72,7 @@ export function Activity() {
                 {g.items.map((r) => (
                   <div key={r.id} className="flex justify-between gap-4 border-b border-hairline px-4 py-3.5 text-sm last:border-b-0">
                     <div className="min-w-0">
-                      <div className="truncate">{r.title}</div>
+                      <div className="break-words">{r.title}</div>
                       <div className="text-xs text-ink-45">
                         {time(r.at)} · {r.detail} · simulated
                       </div>
@@ -113,7 +113,7 @@ export function Activity() {
               {g.items.map((r) => (
                 <div key={r.id} className="flex justify-between gap-4 border-b border-hairline px-4 py-3.5 text-sm last:border-b-0">
                   <div className="min-w-0">
-                    <div className="truncate">{r.title}</div>
+                    <div className="break-words">{r.title}</div>
                     <div className="truncate text-xs text-ink-45">
                       {time(r.at)} · {r.detail}
                       {r.confidential ? " · confidential" : ""}

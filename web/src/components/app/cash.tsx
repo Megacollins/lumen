@@ -44,12 +44,12 @@ export function Cash() {
   ];
 
   return (
-    <div className="pb-16 pt-10">
+    <div className="pb-16 pt-6 md:pt-10">
       <div className="flex items-center gap-2 text-[13px] text-ink-60">
         <span className="h-[7px] w-[7px] rounded-full bg-gold" />
         Private cash · USDC
       </div>
-      <div className="veil tabular mt-1.5 text-[56px] leading-none tracking-[-0.045em]" data-revealed={revealed}>
+      <div className="veil tabular mt-1.5 text-[clamp(44px,13vw,56px)] leading-none tracking-[-0.045em]" data-revealed={revealed}>
         {usd(cash)}
       </div>
       <button
@@ -62,7 +62,7 @@ export function Cash() {
         {revealed ? "Hide balance" : "Reveal balance"}
       </button>
 
-      <div className="mt-8 grid grid-cols-4 gap-2 md:max-w-[520px]">
+      <div className="mt-8 grid max-w-[520px] grid-cols-4 gap-2">
         {actions.map(({ id, label, Icon }, i) => (
           <button
             key={id}
@@ -82,7 +82,7 @@ export function Cash() {
         <h2 className="text-base text-ink">How your cash stays private</h2>
         <p className="mt-2">
           Your USDC sits in a confidential balance on NEAR Intents. Payments between accounts happen there, out of public view. Money coming
-          in and going out is visible on its own chain, but not linked to your balance.
+          in and going out is visible on its own chain, but not directly tied to your balance.
         </p>
       </section>
 
@@ -303,7 +303,7 @@ function SendAmount({ amount, setAmount }: { amount: string; setAmount: (v: stri
       <label htmlFor="cash-amount" className="sr-only">
         Amount in USDC
       </label>
-      <div className="flex items-baseline justify-center text-[64px] leading-none tracking-[-0.05em]">
+      <div className="flex items-baseline justify-center text-[clamp(48px,15vw,64px)] leading-none tracking-[-0.05em]">
         <span className={amount === "" ? "text-ink-45" : ""}>$</span>
         {touch ? (
           <output id="cash-amount" aria-live="polite" className="tabular">
@@ -338,7 +338,7 @@ function SendAmount({ amount, setAmount }: { amount: string; setAmount: (v: stri
               type="button"
               onClick={() => press(k)}
               aria-label={k === "del" ? "Delete" : k === "." ? "Decimal point" : undefined}
-              className="flex h-14 items-center justify-center text-2xl transition-colors active:bg-mist"
+              className="flex h-12 items-center justify-center text-2xl transition-colors active:bg-mist sm:h-14"
             >
               {k === "del" ? <Delete size={24} strokeWidth={1.5} aria-hidden /> : k}
             </button>

@@ -45,12 +45,12 @@ export function Overview() {
 
   return (
     <div className="pb-16">
-      <section className="pt-10">
+      <section className="pt-6 md:pt-10">
         <div className="flex items-center gap-2 text-[13px] text-ink-60">
           <span className="h-[7px] w-[7px] rounded-full bg-gold" />
           Net worth{account.demo ? " · demo" : ""}
         </div>
-        <div className="veil tabular mt-1.5 text-[56px] leading-none tracking-[-0.045em]" data-revealed={revealed}>
+        <div className="veil tabular mt-1.5 text-[clamp(44px,13vw,56px)] leading-none tracking-[-0.045em]" data-revealed={revealed}>
           {usd(total)}
         </div>
         <button
@@ -75,7 +75,7 @@ export function Overview() {
         )}
       </section>
 
-      <div className="mt-8 grid grid-cols-3 gap-2 md:max-w-[420px]">
+      <div className="mt-8 grid max-w-[520px] grid-cols-3 gap-2">
         <button
           type="button"
           onClick={() => setFlow("add")}
@@ -158,7 +158,7 @@ export function Overview() {
           activity.slice(0, 6).map((r) => (
             <div key={r.id} className="flex justify-between gap-4 border-t border-hairline px-4 py-3 text-sm">
               <div className="min-w-0">
-                <div className="truncate">{r.title}</div>
+                <div className="break-words">{r.title}</div>
                 <div className="text-xs text-ink-45">
                   {timeAgo(r.at)} · {r.detail}
                   {account.demo ? " · simulated" : ""}
