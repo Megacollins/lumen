@@ -1,4 +1,4 @@
-/** Line drawings for "How it works" and the sealed case for the privacy section (DESIGN.md, hero series 03). */
+/** Line drawings for "How it works". */
 
 import type { ReactNode } from "react";
 
@@ -49,41 +49,5 @@ export function StepInvest() {
       <path d="M34 106 H106" strokeOpacity="0.35" />
       <rect x="102" y="46" width="8" height="8" fill={GOLD} stroke="none" />
     </Step>
-  );
-}
-
-/** A closed slate case with warm light escaping from its seam: what's inside stays inside. */
-export function SealedCase({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 480 440"
-      className={className}
-      role="img"
-      aria-label="A closed slate-grey case with a thin line of warm light escaping from its seam"
-    >
-      <defs>
-        <radialGradient id="case-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#F0DFAE" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id="case-body" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#3A3936" />
-          <stop offset="100%" stopColor="#1C1B19" />
-        </linearGradient>
-        <linearGradient id="case-seam" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#E9CF86" stopOpacity="0" />
-          <stop offset="50%" stopColor="#FFF1C4" />
-          <stop offset="100%" stopColor="#E9CF86" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <ellipse cx="240" cy="236" rx="230" ry="150" fill="url(#case-glow)" />
-      <ellipse cx="240" cy="372" rx="170" ry="14" fill="#141413" opacity="0.1" />
-      <rect x="90" y="150" width="300" height="210" fill="url(#case-body)" />
-      <polygon points="90,150 130,118 430,118 390,150" fill="#4A4945" />
-      <polygon points="390,150 430,118 430,328 390,360" fill="#262523" />
-      <rect x="90" y="226" width="300" height="3" fill="url(#case-seam)" />
-      <polygon points="390,227 430,195 430,198 390,230" fill="#E9CF86" opacity="0.7" />
-      <rect x="222" y="244" width="36" height="22" fill="none" stroke="#6B6A65" strokeWidth="1.5" />
-    </svg>
   );
 }

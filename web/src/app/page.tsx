@@ -1,14 +1,14 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Suspense } from "react";
 import { MarketGrid, MarketGridFallback } from "@/components/landing/market-grid";
 import { SiteHeader } from "@/components/landing/site-header";
-import { StillLife } from "@/components/landing/still-life";
 import { AccountPreview } from "@/components/landing/account-preview";
 import { Reveal } from "@/components/motion/reveal";
 import { ButtonLink } from "@/components/ui/button-link";
-import { Mark, Logo } from "@/components/brand/logo";
+import { Logo } from "@/components/brand/logo";
 import { PrivateIcon, StatementIcon, PasskeyIcon } from "@/components/brand/icons";
-import { SealedCase, StepAdd, StepInvest, StepSend } from "@/components/landing/illustrations";
+import { StepAdd, StepInvest, StepSend } from "@/components/landing/illustrations";
 
 const H2 = "text-[clamp(32px,4.2vw,60px)] font-normal leading-[1.08] tracking-[-0.035em]";
 const BODY = "text-base leading-relaxed text-ink-70";
@@ -21,7 +21,15 @@ export default function Home() {
         {/* Hero: still life with an account preview */}
         <section className="relative overflow-hidden bg-studio px-4 pb-16 pt-6 sm:pb-24">
           <div className="relative mx-auto max-w-[1180px]">
-            <StillLife className="block h-[300px] w-full sm:aspect-[1200/640] sm:h-auto" />
+            <Image
+              src="/images/gold-bar.jpg"
+              alt="A gold bar resting on a stone plinth, lit by a single warm light"
+              width={1672}
+              height={941}
+              priority
+              sizes="(min-width: 1212px) 1180px, 100vw"
+              className="block h-[300px] w-full object-cover sm:h-auto"
+            />
             <div className="mx-auto -mt-6 flex justify-center sm:absolute sm:bottom-[8%] sm:right-[2%] sm:mt-0">
               <Reveal delay={0.2}>
                 <AccountPreview />
@@ -143,6 +151,14 @@ export default function Home() {
                   balance. Each token gives economic exposure to the underlying asset; it is not direct share
                   ownership.
                 </p>
+                <Image
+                  src="/images/certificate.jpg"
+                  alt="A blank certificate with an engraved border under a pane of glass"
+                  width={1448}
+                  height={1086}
+                  sizes="(min-width: 768px) 380px, 100vw"
+                  className="mt-10 h-auto w-full max-w-[380px]"
+                />
               </Reveal>
               <div className="grid min-w-0 flex-[2_1_560px] gap-4 sm:grid-cols-2">
                 <Suspense fallback={<MarketGridFallback />}>
@@ -202,7 +218,14 @@ export default function Home() {
         <section id="privacy" className="scroll-mt-20 bg-paper px-4 py-[clamp(96px,10vw,160px)] sm:px-8">
           <div className="mx-auto flex max-w-[1280px] flex-wrap gap-16">
             <Reveal className="min-w-0 flex-[1_1_360px]">
-              <SealedCase className="mb-10 h-auto w-full max-w-[360px]" />
+              <Image
+                src="/images/case.jpg"
+                alt="A closed grey box with warm golden light glowing from the seam of its lid"
+                width={1536}
+                height={1024}
+                sizes="(min-width: 768px) 420px, 100vw"
+                className="mb-10 h-auto w-full max-w-[420px]"
+              />
               <h2 className={`${H2} text-[clamp(32px,3.6vw,48px)]`}>
                 Private, not <i>hidden</i>.
               </h2>
@@ -283,7 +306,14 @@ export default function Home() {
           style={{ background: "linear-gradient(var(--paper) 0%, var(--studio) 100%)" }}
         >
           <Reveal>
-            <Mark size={40} className="mx-auto" />
+            <Image
+              src="/images/glass.jpg"
+              alt="A frosted glass block with a line of warm golden light glowing inside it"
+              width={1254}
+              height={1254}
+              sizes="280px"
+              className="mx-auto h-auto w-[240px] sm:w-[280px]"
+            />
             <h2 className={`${H2} mt-7`}>
               Your finances, finally <i>yours</i>.
             </h2>
