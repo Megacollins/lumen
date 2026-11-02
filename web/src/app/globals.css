@@ -168,6 +168,17 @@ body {
   line-height: 1;
   color: rgba(214, 178, 98, 0.85);
 }
+.lbox-credit {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(236, 232, 224, 0.55);
+}
 .lbox-latch {
   position: absolute;
   left: 50%;

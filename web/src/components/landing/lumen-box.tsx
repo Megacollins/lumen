@@ -1,5 +1,6 @@
 /**
- * The Lumen box in 3D: a closed charcoal box with light at the seam of its lid and the wordmark on the lid, turning slowly.
+ * The Lumen box in 3D: a closed charcoal box with light at the seam of its lid, the wordmark on the lid and a quiet
+ * "built on NEAR" credit on top, turning slowly.
  * Pure CSS 3D (styles in globals.css under .lbox), so it costs no JavaScript.
  * Matches public/images/case-lumen.jpg; stands still at a three-quarter angle for reduced motion.
  */
@@ -22,7 +23,9 @@ function Cap({ transform, top }: { transform: string; top?: boolean }) {
     <div
       className={`lbox-face ${top ? "lbox-top" : "lbox-bottom"}`}
       style={{ width: W, height: D, marginLeft: -W / 2, marginTop: -D / 2, transform }}
-    />
+    >
+      {top && <span className="lbox-credit">built on NEAR</span>}
+    </div>
   );
 }
 
@@ -31,7 +34,7 @@ export function LumenBox({ className }: { className?: string }) {
     <div
       className={`lbox-stage ${className ?? ""}`}
       role="img"
-      aria-label="A closed charcoal box marked lumen, slowly turning, with warm golden light glowing from the seam of its lid"
+      aria-label="A closed charcoal box marked lumen, built on NEAR, slowly turning, with warm golden light glowing from the seam of its lid"
     >
       <span className="lbox-floor-glow" aria-hidden />
       <span className="lbox-shadow" aria-hidden />
