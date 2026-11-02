@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Check, Copy } from "lucide-react";
+import { Check, ChevronRight, Copy } from "lucide-react";
 import { useRef, useState, type ReactNode } from "react";
 import { PasskeyIcon, PrivateIcon, StatementIcon } from "@/components/brand/icons";
 import { storedPasskey } from "@/lib/passkey-client";
@@ -169,14 +169,22 @@ export function Settings() {
         </div>
       </Section>
 
-      <div className="mt-8 flex flex-wrap gap-6 text-sm text-ink-60">
-        <Link href="/legal" className="underline underline-offset-4 hover:opacity-70">
-          Terms and risks
-        </Link>
-        <Link href="/#privacy" className="underline underline-offset-4 hover:opacity-70">
-          What&apos;s private
-        </Link>
-      </div>
+      <Section title="About Lumen" Icon={PrivateIcon}>
+        {[
+          ["/", "Lumen website"],
+          ["/#privacy", "What's private, and what isn't"],
+          ["/legal", "Terms and risks"],
+        ].map(([href, label]) => (
+          <Link
+            key={href}
+            href={href}
+            className="flex items-center justify-between border-b border-hairline px-4 py-3.5 text-sm transition-colors last:border-b-0 hover:bg-mist"
+          >
+            {label}
+            <ChevronRight size={16} strokeWidth={1.5} className="text-ink-45" aria-hidden />
+          </Link>
+        ))}
+      </Section>
     </div>
   );
 }

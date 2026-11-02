@@ -254,7 +254,9 @@ function SignIn({ onSignedIn }: { onSignedIn: () => void }) {
         <Mark size={104} className="relative" />
       </div>
       <div className="flex flex-col gap-3 border-t border-hairline bg-paper px-6 pb-9 pt-8 md:w-[440px] md:border md:p-10">
-        <Logo size={16} />
+        <Link href="/" aria-label="Lumen website" className="w-fit transition-opacity hover:opacity-70">
+          <Logo size={16} />
+        </Link>
         <h1 className="mt-1 text-[34px] font-normal leading-[1.1] tracking-[-0.035em]">
           Your money, off the <i>public</i> record.
         </h1>
