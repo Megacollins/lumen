@@ -8,7 +8,17 @@ const ORDERS = "lumen_orders";
 const SIGN_WINDOW_MS = 5 * 60_000;
 
 export type Pending = { signerId: string; payloadHash: string; depositAddress: string; summary: string; expiresAt: number };
-export type OrderRef = { depositAddress: string; summary: string; at: number };
+/** An order this browser placed. Bound to the account that placed it, so another account here never sees it. */
+export type OrderRef = {
+  signerId: string;
+  depositAddress: string;
+  summary: string;
+  at: number;
+  /** "deposit": money arrives at depositAddress from another chain; "signed": an intent signed from the balance. */
+  kind: "deposit" | "signed";
+  /** Deposits only: what to send, so the address stays usable after the sheet closes. */
+  deposit?: { amount: string; chain: string; memo: string | null; deadline: string | null };
+};
 
 export const sha256Hex = (s: string) => createHash("sha256").update(s, "utf8").digest("hex");
 
@@ -35,8 +45,16 @@ export async function rememberOrder(o: OrderRef) {
   jar.set(ORDERS, seal(next), { ...opts, maxAge: 7 * 24 * 3600 });
 }
 
-export async function knownOrder(depositAddress: string): Promise<OrderRef | null> {
+async function allOrders(): Promise<OrderRef[]> {
   const raw = (await cookies()).get(ORDERS)?.value;
-  const list = (raw ? unseal<OrderRef[]>(raw) : null) ?? [];
-  return list.find((x) => x.depositAddress === depositAddress) ?? null;
+  return (raw ? unseal<OrderRef[]>(raw) : null) ?? [];
+}
+
+/** This account's orders on this browser, newest first. */
+export async function ordersOf(signerId: string): Promise<OrderRef[]> {
+  return (await allOrders()).filter((x) => x.signerId === signerId);
+}
+
+export async function knownOrder(depositAddress: string, signerId: string): Promise<OrderRef | null> {
+  return (await allOrders()).find((x) => x.depositAddress === depositAddress && x.signerId === signerId) ?? null;
 }

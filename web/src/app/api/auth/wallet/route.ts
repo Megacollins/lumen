@@ -1,6 +1,7 @@
 import { oneclick, OneClickError, type UserTokens } from "@/lib/server/oneclick";
 import { sessionFromTokens, writeSession } from "@/lib/server/session";
 import { erc191SignedData, nep413SignedData, signerOf, type Nep413Payload } from "@/lib/server/wallets";
+import { rateLimit } from "@/lib/server/ratelimit";
 
 type Body =
   | { standard: "erc191"; payload: string; signature: string }
@@ -8,6 +9,8 @@ type Body =
 
 // Step 2 of wallet sign-in: exchange the wallet-signed empty intent for a NEAR Intents user session.
 export async function POST(req: Request) {
+  const limited = rateLimit(req, "auth");
+  if (limited) return limited;
   const b = (await req.json().catch(() => null)) as Body | null;
   if (!b?.payload || !b.signature) return Response.json({ error: "Incomplete wallet response" }, { status: 400 });
 

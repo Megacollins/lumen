@@ -2,6 +2,7 @@
 // so what a user is shown is exactly what they sign.
 import { CASH_VERIFIED, CHAINS, isChainAddress, isIntentsAccount, type CashKind } from "@/lib/cash";
 import { EXECUTION_VERIFIED, findAsset, MIN_ORDER_USD, toBaseUnits, USDC } from "@/lib/markets";
+import { isNamedNearAccount, nearAccountExists } from "./near";
 
 export type OrderSpec =
   | { flow: "trade"; symbol: string; side: "buy" | "sell"; amount: string }
@@ -18,7 +19,20 @@ export type BuiltOrder = {
   verified: boolean;
   /** Short human summary for receipts. */
   summary: string;
+  /** Where the money goes, when it isn't back to the signer (send, move out). */
+  recipient?: string;
+  /** The recipient is a named NEAR account that must exist (send, or move out to NEAR). */
+  recipientMustExist?: boolean;
 };
+
+/** USDC's own token contracts on every chain Lumen supports: never a valid place to send money. */
+const TOKEN_CONTRACTS = new Set([
+  "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1", // NEAR
+  "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", // Base
+  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", // Ethereum
+  "0xaf88d065e77c8cc2239327c5edb3a432268e5831", // Arbitrum
+  "epjfwdd5aufqssqem2qn1xzybapc8g4weggkzwytdt1v", // Solana (mint, compared lowercased)
+]);
 
 /** Confidential Intents needs the partner key; without it quotes use the public Intents route. */
 export const confidential = () => !!process.env.ONECLICK_JWT;
@@ -96,6 +110,8 @@ export function buildOrder(spec: OrderSpec, signerId: string, country: string | 
       signed: true,
       verified: CASH_VERIFIED.has("send"),
       summary: `Send ${spec.amount} USDC to ${to}`,
+      recipient: to,
+      recipientMustExist: isNamedNearAccount(to),
     };
   }
   if (spec.kind === "withdraw") {
@@ -103,15 +119,31 @@ export function buildOrder(spec: OrderSpec, signerId: string, country: string | 
     const to = spec.recipient?.trim() ?? "";
     if (!c) return { error: "Choose a network.", status: 400 };
     if (!isChainAddress(c.address, to)) return { error: `Enter a valid ${c.name} address.`, status: 400 };
+    if (TOKEN_CONTRACTS.has(to.toLowerCase()))
+      return { error: "That's a token contract, not a wallet. Money sent there can't be recovered.", status: 400 };
     return {
       body: { ...amount, originAsset: USDC.assetId, depositType: t, destinationAsset: c.assetId, recipient: to, recipientType: "DESTINATION_CHAIN", refundTo: signerId, refundType: t },
       outDecimals: USDC.decimals,
       signed: true,
       verified: CASH_VERIFIED.has("withdraw"),
       summary: `Move ${spec.amount} USDC out to ${c.name}`,
+      recipient: to,
+      recipientMustExist: c.address === "near" && isNamedNearAccount(to.toLowerCase()),
     };
   }
   return { error: "Unknown action.", status: 400 };
+}
+
+/**
+ * A named NEAR recipient must exist: money sent to a name nobody has created yet can't come back, and whoever creates
+ * that name later would receive it. Implicit accounts (0x…, 64 hex) can't be checked, so the app shows them in full
+ * for confirmation before signing.
+ */
+export async function checkRecipient(o: BuiltOrder): Promise<{ error: string; status: number } | null> {
+  if (!o.recipientMustExist || !o.recipient) return null;
+  const exists = await nearAccountExists(o.recipient.toLowerCase());
+  if (exists === null) return { error: "Couldn't check that NEAR account just now. Try again.", status: 502 };
+  return exists ? null : { error: `${o.recipient} doesn't exist on NEAR. Check the name.`, status: 422 };
 }
 
 /** Turns 1Click quote errors into messages a user can act on. */

@@ -16,16 +16,18 @@ type Prepared =
       depositAddress: string;
       amountIn: string;
       amountOut: string;
+      minAmountOut: number;
     }
   | { step: "deposit"; depositAddress: string; depositMemo: string | null; deadline: string | null; amountIn: string; amountOut: string };
 
-type Phase = "idle" | "preparing" | "signing" | "submitting" | "settling" | "deposit" | "success" | "refunded" | "failed" | "error";
+type Phase = "idle" | "preparing" | "review" | "signing" | "submitting" | "settling" | "deposit" | "success" | "refunded" | "failed" | "error";
 
 const POLL_MS = 3000;
 const GIVE_UP_MS = 15 * 60_000;
 
 /**
- * Places a real order: live quote → passkey signature → NEAR Intents → status until it settles.
+ * Places a real order: live quote → review of the exact terms → passkey/wallet signature → NEAR Intents → status
+ * until it settles. Nothing is signed until the user confirms the live quote they see.
  * Only rendered when the server says the flow is executable (verified on mainnet, confidential).
  */
 export function ExecuteOrder({ spec, label, depositChain }: { spec: OrderSpec; label: string; depositChain?: string }) {
@@ -37,14 +39,34 @@ export function ExecuteOrder({ spec, label, depositChain }: { spec: OrderSpec; l
   const [intentHash, setIntentHash] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const fail = (e: unknown) => {
+    const msg = e instanceof Error ? e.message : String(e);
+    setError(
+      /NotAllowed|prompt was closed|cancel|timed out|reject|denied/i.test(msg)
+        ? `The ${wallet ? "wallet request" : "passkey prompt"} was closed. Nothing was sent.`
+        : msg,
+    );
+    setPhase("error");
+  };
+
+  // Step 1: live quote and the intent to sign. Shown for review; nothing is signed yet.
   async function run() {
     setError(null);
     setPhase("preparing");
     try {
       const p = await post<Prepared>("/api/execute/prepare", spec);
       setPrepared(p);
-      if (p.step === "deposit") return setPhase("deposit");
+      setPhase(p.step === "deposit" ? "deposit" : "review");
+    } catch (e) {
+      fail(e);
+    }
+  }
 
+  // Step 2, after the user confirms the exact terms: sign and submit.
+  async function confirm() {
+    const p = prepared;
+    if (p?.step !== "sign") return;
+    try {
       setPhase("signing");
       let signed: object;
       if (p.standard === "webauthn") {
@@ -60,13 +82,7 @@ export function ExecuteOrder({ spec, label, depositChain }: { spec: OrderSpec; l
       setIntentHash(r.intentHash);
       setPhase("settling");
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      setError(
-        /NotAllowed|prompt was closed|cancel|timed out|reject|denied/i.test(msg)
-          ? `The ${wallet ? "wallet request" : "passkey prompt"} was closed. Nothing was sent.`
-          : msg,
-      );
-      setPhase("error");
+      fail(e);
     }
   }
 
@@ -113,6 +129,52 @@ export function ExecuteOrder({ spec, label, depositChain }: { spec: OrderSpec; l
         </p>
       </div>
     );
+
+  if (phase === "review" && prepared?.step === "sign") {
+    const inUnit = spec.flow === "trade" && spec.side === "sell" ? spec.symbol : "USDC";
+    const outUnit = spec.flow === "trade" && spec.side === "buy" ? spec.symbol : "USDC";
+    const to = spec.flow === "cash" && spec.kind !== "add" ? spec.recipient : undefined;
+    return (
+      <div className="mt-6 border border-ink bg-paper p-5" role="region" aria-label="Review before signing">
+        <p className="text-[13px] text-ink-60">Live quote. Check it before you sign.</p>
+        <div className="mt-3 flex flex-col gap-2 text-sm">
+          <div className="flex justify-between gap-4">
+            <span className="text-ink-60">You pay</span>
+            <span className="tabular">
+              {prepared.amountIn} {inUnit}
+            </span>
+          </div>
+          <div className="flex justify-between gap-4">
+            <span className="text-ink-60">{to ? "They receive about" : "You receive about"}</span>
+            <span className="tabular">
+              {prepared.amountOut} {outUnit}
+            </span>
+          </div>
+          <div className="flex justify-between gap-4">
+            <span className="text-ink-60">At least</span>
+            <span className="tabular">
+              {prepared.minAmountOut} {outUnit}
+            </span>
+          </div>
+          {to && (
+            <div className="border-t border-hairline pt-2">
+              <span className="text-ink-60">To</span>
+              <span className="tabular mt-1 block break-all font-medium">{to}</span>
+              <span className="mt-1 block text-xs text-ink-60">Payments can&apos;t be reversed. Check every character.</span>
+            </div>
+          )}
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <button type="button" onClick={() => setPhase("idle")} className="h-11 border border-hairline text-sm font-medium transition-opacity hover:opacity-70">
+            Cancel
+          </button>
+          <button type="button" onClick={confirm} className="h-11 bg-ink text-sm font-medium text-white transition-opacity hover:opacity-70">
+            {wallet ? "Confirm in wallet" : "Confirm with passkey"}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (phase === "deposit" && prepared?.step === "deposit")
     return (

@@ -1,6 +1,7 @@
 import { buildOrder, confidential, executionAllowed, quoteErrorMessage } from "@/lib/server/orders";
 import { oneclick, OneClickError } from "@/lib/server/oneclick";
 import { getSession } from "@/lib/server/session";
+import { cached, rateLimit } from "@/lib/server/ratelimit";
 
 type QuoteResponse = {
   quote: {
@@ -18,6 +19,8 @@ type QuoteResponse = {
  * With a partner key the quote uses Confidential Intents; without one it is a public-route preview.
  */
 export async function POST(req: Request) {
+  const limited = rateLimit(req, "quote");
+  if (limited) return limited;
   const session = await getSession().catch(() => null);
   if (!session) return Response.json({ error: "Sign in to get a quote." }, { status: 401 });
 
@@ -30,9 +33,12 @@ export async function POST(req: Request) {
   if ("error" in order) return Response.json({ error: order.error }, { status: order.status });
 
   try {
-    const q = await oneclick<QuoteResponse>("/v0/quote", {
-      body: { dry: true, deadline: new Date(Date.now() + 10 * 60_000).toISOString(), ...order.body },
-    });
+    // Identical quotes within 5 seconds share one NEAR Intents call (typing, refreshes, repeated requests).
+    const q = await cached(`quote:${JSON.stringify(order.body)}`, 5_000, () =>
+      oneclick<QuoteResponse>("/v0/quote", {
+        body: { dry: true, deadline: new Date(Date.now() + 10 * 60_000).toISOString(), ...order.body },
+      }),
+    );
     return Response.json({
       side,
       symbol,

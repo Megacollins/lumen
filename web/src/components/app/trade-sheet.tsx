@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { USDC, type Asset } from "@/lib/markets";
+import { USDC, type Asset, fromBaseUnits, toBaseUnits } from "@/lib/markets";
 import { isEligibilityConfirmed, revealByDefault, setEligibilityConfirmed } from "@/lib/prefs";
 import { useAccount } from "./account-app";
 import { ExecuteOrder } from "./execute";
@@ -28,6 +28,7 @@ export function TradeSheet({
   side,
   asset,
   holding,
+  holdingBase,
   minOrderUsd,
   onClose,
 }: {
@@ -35,12 +36,14 @@ export function TradeSheet({
   side: "buy" | "sell";
   asset: Asset;
   holding: number;
+  /** Exact holding in base units; "Sell all" and the sell check use this, never the float. */
+  holdingBase: string;
   minOrderUsd: number;
   onClose: () => void;
 }) {
   return (
     <Sheet open={open} title={`${side === "buy" ? "Buy" : "Sell"} ${asset.name}`} onClose={onClose}>
-      <TradeForm side={side} asset={asset} holding={holding} minOrderUsd={minOrderUsd} onDone={onClose} />
+      <TradeForm side={side} asset={asset} holding={holding} holdingBase={holdingBase} minOrderUsd={minOrderUsd} onDone={onClose} />
     </Sheet>
   );
 }
@@ -49,12 +52,14 @@ function TradeForm({
   side,
   asset,
   holding,
+  holdingBase,
   minOrderUsd,
   onDone,
 }: {
   side: "buy" | "sell";
   asset: Asset;
   holding: number;
+  holdingBase: string;
   minOrderUsd: number;
   onDone: () => void;
 }) {
@@ -82,7 +87,9 @@ function TradeForm({
         ? "Enter an amount."
         : side === "buy" && n < minOrderUsd
           ? `The minimum order is ${usd(minOrderUsd)}.`
-          : side === "sell" && n > holding
+          : side === "sell" && toBaseUnits(amount, asset.decimals) === null
+            ? `Use at most ${asset.decimals} decimal places.`
+          : side === "sell" && toBaseUnits(amount, asset.decimals)! > BigInt(holdingBase)
             ? holding > 0
               ? `You hold ${holding.toFixed(4)} ${asset.symbol}.`
               : `You don't hold any ${asset.symbol} yet.`
@@ -205,7 +212,7 @@ function TradeForm({
         </div>
       ) : (
         holding > 0 && (
-          <button type="button" onClick={() => setAmount(String(holding))} className="mt-3 text-sm underline underline-offset-4">
+          <button type="button" onClick={() => setAmount(fromBaseUnits(holdingBase, asset.decimals))} className="mt-3 text-sm underline underline-offset-4">
             Sell all ({holding.toFixed(4)})
           </button>
         )

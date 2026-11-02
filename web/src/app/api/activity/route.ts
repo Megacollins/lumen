@@ -2,6 +2,7 @@ import { CHAINS } from "@/lib/cash";
 import { CANDIDATE_ASSETS, USDC } from "@/lib/markets";
 import { oneclick, OneClickError } from "@/lib/server/oneclick";
 import { getSession } from "@/lib/server/session";
+import { rateLimit } from "@/lib/server/ratelimit";
 
 type HistoryItem = {
   status: "PENDING_DEPOSIT" | "INCOMPLETE_DEPOSIT" | "PROCESSING" | "SUCCESS" | "REFUNDED" | "FAILED";
@@ -31,7 +32,9 @@ function label(assetId?: string) {
  * Transaction history for the signed-in account, from NEAR Intents.
  * The history endpoint is invite-only for now; when it refuses, say so instead of showing an empty list as truth.
  */
-export async function GET() {
+export async function GET(req: Request) {
+  const limited = rateLimit(req, "read");
+  if (limited) return limited;
   const s = await getSession().catch(() => null);
   if (!s) return Response.json({ error: "Not signed in" }, { status: 401 });
   if (s.demo) return Response.json({ demo: true, available: true, items: [] });

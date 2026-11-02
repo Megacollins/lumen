@@ -26,7 +26,8 @@ export function AssetDetail({ symbol }: { symbol: string }) {
 
   const row = markets?.rows.find((r) => r.symbol === asset.symbol);
   const bal = account.balances.find((b) => b.tokenId === asset.assetId);
-  const holding = bal ? Number(bal.available) / 10 ** asset.decimals : 0;
+  const holdingBase = bal?.available ?? "0";
+  const holding = Number(holdingBase) / 10 ** asset.decimals; // display only
 
   return (
     <div className="pb-16 pt-6">
@@ -106,6 +107,7 @@ export function AssetDetail({ symbol }: { symbol: string }) {
         side={sheet ?? "buy"}
         asset={asset}
         holding={holding}
+        holdingBase={holdingBase}
         minOrderUsd={markets?.minOrderUsd ?? MIN_ORDER_USD}
         onClose={() => setSheet(null)}
       />

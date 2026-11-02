@@ -1,11 +1,13 @@
 import { base64urlnopad } from "@scure/base";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { utf8ToBytes } from "@noble/hashes/utils.js";
-import { buildOrder, devExecution, executionAllowed, quoteErrorMessage, type OrderSpec } from "@/lib/server/orders";
+import { buildOrder, checkRecipient, devExecution, executionAllowed, quoteErrorMessage, type OrderSpec } from "@/lib/server/orders";
 import { oneclick, OneClickError } from "@/lib/server/oneclick";
 import { rememberOrder, sha256Hex, writePending } from "@/lib/server/pending";
+import { CHAINS } from "@/lib/cash";
 import { getSession } from "@/lib/server/session";
 import { payloadText, signerOf, type SignPayload } from "@/lib/server/wallets";
+import { rateLimit } from "@/lib/server/ratelimit";
 
 type LiveQuote = {
   quote: {
@@ -25,6 +27,8 @@ type LiveQuote = {
  * Refused unless the flow passed its live mainnet test (see executionAllowed).
  */
 export async function POST(req: Request) {
+  const limited = rateLimit(req, "execute");
+  if (limited) return limited;
   const session = await getSession().catch(() => null);
   if (!session) return Response.json({ error: "Sign in to continue." }, { status: 401 });
   if (session.demo) return Response.json({ error: "The demo can't place real orders." }, { status: 403 });
@@ -34,6 +38,8 @@ export async function POST(req: Request) {
   const order = buildOrder(spec, session.signerId, req.headers.get("x-vercel-ip-country"));
   if ("error" in order) return Response.json({ error: order.error }, { status: order.status });
   if (!executionAllowed(order)) return Response.json({ error: "This isn't open yet. It opens after a live test on mainnet." }, { status: 403 });
+  const badRecipient = await checkRecipient(order);
+  if (badRecipient) return Response.json({ error: badRecipient.error }, { status: badRecipient.status });
 
   // 1Click intents stay valid for days, so never ask the passkey to sign what the balance can't cover now:
   // an unfunded signed intent could otherwise settle later, once money arrives. (Skipped only for dev pipeline tests.)
@@ -71,7 +77,15 @@ export async function POST(req: Request) {
   };
 
   if (!order.signed) {
-    await rememberOrder({ depositAddress, summary: order.summary, at: Date.now() });
+    const chain = spec.flow === "cash" ? (CHAINS.find((c) => c.id === spec.chain)?.name ?? "") : "";
+    await rememberOrder({
+      signerId: session.signerId,
+      kind: "deposit",
+      depositAddress,
+      summary: order.summary,
+      at: Date.now(),
+      deposit: { amount: q.quote.amountInFormatted, chain, memo: q.quote.depositMemo ?? null, deadline: q.quote.deadline ?? null },
+    });
     return Response.json({ step: "deposit", depositAddress, depositMemo: q.quote.depositMemo ?? null, deadline: q.quote.deadline ?? null, ...summary });
   }
 

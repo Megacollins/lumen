@@ -56,6 +56,16 @@ export async function getMarketRows(): Promise<{ rows: MarketRow[]; live: boolea
   }
 }
 
+/** Integer base units → exact decimal string (no floating point), trailing zeros trimmed: "5200384443024744206", 18 → "5.200384443024744206". */
+export function fromBaseUnits(base: string | bigint, decimals: number): string {
+  const v = BigInt(base);
+  const neg = v < BigInt(0);
+  const digits = (neg ? -v : v).toString().padStart(decimals + 1, "0");
+  const whole = digits.slice(0, digits.length - decimals);
+  const frac = digits.slice(digits.length - decimals).replace(/0+$/, "");
+  return (neg ? "-" : "") + whole + (frac ? "." + frac : "");
+}
+
 /** Decimal string → integer base units, without floating-point rounding. */
 export function toBaseUnits(amount: string, decimals: number): bigint | null {
   if (!/^\d+(\.\d+)?$/.test(amount)) return null;

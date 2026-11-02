@@ -4,7 +4,7 @@ import { Check, Copy, Delete } from "lucide-react";
 import { useState } from "react";
 import { AddIcon, RevealIcon, SendIcon, StatementIcon } from "@/components/brand/icons";
 import { CHAINS, type CashKind, type ChainId } from "@/lib/cash";
-import { USDC } from "@/lib/markets";
+import { fromBaseUnits, toBaseUnits, USDC } from "@/lib/markets";
 import { revealByDefault } from "@/lib/prefs";
 import { useAccount } from "./account-app";
 import { ExecuteOrder } from "./execute";
@@ -99,13 +99,14 @@ export function Cash() {
 /** The Add / Send / Receive / Move out sheet, shared by Cash and Overview. */
 export function CashSheet({ flow, onClose }: { flow: Flow | null; onClose: () => void }) {
   const { account } = useAccount();
-  const cash = Number(account.balances.find((b) => b.tokenId === USDC.assetId)?.available ?? "0") / 10 ** USDC.decimals;
+  const cashBase = account.balances.find((b) => b.tokenId === USDC.assetId)?.available ?? "0";
+  const cash = Number(cashBase) / 10 ** USDC.decimals;
   return (
     <Sheet open={flow !== null} title={flow ? TITLES[flow] : ""} onClose={onClose}>
       {flow === "receive" ? (
         <ReceiveBody signerId={account.signerId} />
       ) : flow ? (
-        <CashForm kind={flow} balance={cash} onDone={onClose} />
+        <CashForm kind={flow} balance={cash} balanceBase={cashBase} onDone={onClose} />
       ) : null}
     </Sheet>
   );
@@ -138,7 +139,7 @@ function ReceiveBody({ signerId }: { signerId: string }) {
   );
 }
 
-function CashForm({ kind, balance, onDone }: { kind: CashKind; balance: number; onDone: () => void }) {
+function CashForm({ kind, balance, balanceBase, onDone }: { kind: CashKind; balance: number; balanceBase: string; onDone: () => void }) {
   const { account, simulate } = useAccount();
   const [amount, setAmount] = useState("");
   const [chain, setChain] = useState<ChainId>(kind === "add" ? "base" : "near");
@@ -148,7 +149,9 @@ function CashForm({ kind, balance, onDone }: { kind: CashKind; balance: number; 
   const n = Number(amount);
   const amountError = amount === "" || n > 0 ? null : "Enter an amount.";
   // Over-balance still quotes (nothing executes in preview), but must block a real send.
-  const overBalance = kind !== "add" && n > balance;
+  // Exact comparison in base units; the float `balance` is for display only.
+  const base = amount === "" || amountError ? null : toBaseUnits(amount, USDC.decimals);
+  const overBalance = kind !== "add" && base !== null && base > BigInt(balanceBase);
   const needsRecipient = kind !== "add";
   const ready = amount !== "" && !amountError && (!needsRecipient || recipient.trim() !== "");
 
@@ -227,7 +230,7 @@ function CashForm({ kind, balance, onDone }: { kind: CashKind; balance: number; 
       {amountError && <p className="mt-2 text-sm text-down">{amountError}</p>}
       {!amountError && overBalance && <p className="mt-2 text-sm text-down">That&apos;s more than your private cash ({usd(balance)}).</p>}
       {kind !== "add" && balance > 0 && (
-        <button type="button" onClick={() => setAmount(String(balance))} className="mt-3 text-sm underline underline-offset-4">
+        <button type="button" onClick={() => setAmount(fromBaseUnits(balanceBase, USDC.decimals))} className="mt-3 text-sm underline underline-offset-4">
           Use all ({usd(balance)})
         </button>
       )}

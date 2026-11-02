@@ -64,7 +64,9 @@ Open `/app` and create a passkey (Chrome, Safari or Edge; passkeys need HTTPS or
 `node scripts/sim-wallet.mjs http://localhost:3000 nep413|erc191 [order]` does the same with a software NEAR or EVM wallet.
 `node scripts/sim-order.mjs http://localhost:3000 send|buy` runs a real order through the execution pipeline on mainnet with a fresh, empty account (start the dev server with `LUMEN_DEV_EXECUTION=1`; NEAR Intents should accept the signed intent and then mark it FAILED, since nothing is funded).
 
-**Execution safety.** Real orders run only for flows that passed a funded mainnet test (`EXECUTION_VERIFIED`, `CASH_VERIFIED`) and only with Confidential Intents. The server re-quotes live, checks the balance before asking the passkey to sign (1Click intents stay valid for days), accepts only the exact payload it handed out within 5 minutes, refuses replays, and refuses intents for any other account.
+**Execution safety.** Real orders run only for flows that passed a funded mainnet test (`EXECUTION_VERIFIED`, `CASH_VERIFIED`) and only with Confidential Intents. The server re-quotes live, checks the balance before asking the passkey to sign (1Click intents stay valid for days), accepts only the exact payload it handed out within 5 minutes, refuses replays, and refuses intents for any other account. Before signing, the app shows the live quote and the full recipient for review; named NEAR recipients must exist, and USDC's own token contracts are refused as destinations. Orders placed from a browser are listed in Activity ("Your orders on this device"), bound to the account that placed them.
+
+**Abuse protection.** Every API route has a per-IP rate limit and identical quotes share one NEAR Intents call for 5 seconds (in memory per server instance; a shared store would make the limit global). Security headers forbid framing (clickjacking) and restrict plugins, `<base>` and form targets; scripts and connections aren't restricted, because the NEAR wallet SDKs load from their own domains.
 
 ## Try it as a judge
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAccount } from "./account-app";
+import { YourOrders } from "./your-orders";
 import { usd } from "./use-markets";
 
 type RealItem = {
@@ -60,6 +61,8 @@ export function Activity() {
     <div className="pb-16 pt-6 md:pt-8">
       <h1 className="text-[32px] font-normal leading-tight tracking-[-0.035em] md:text-[36px]">Activity</h1>
       <p className="mt-2 text-[15px] text-ink-60">Every transaction on your account and its status.</p>
+
+      {!account.demo && <YourOrders />}
 
       {account.demo ? (
         activity.length === 0 ? (

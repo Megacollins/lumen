@@ -3,6 +3,7 @@ import { webauthnSignedData, type Assertion } from "@/lib/server/passkey";
 import { rememberOrder, sha256Hex, takePending } from "@/lib/server/pending";
 import { getSession } from "@/lib/server/session";
 import { erc191SignedData, nep413SignedData, payloadText, type Nep413Payload } from "@/lib/server/wallets";
+import { rateLimit } from "@/lib/server/ratelimit";
 
 type Body =
   | ({ standard?: "webauthn" } & Assertion)
@@ -15,6 +16,8 @@ type Body =
  * the signer type this account uses (passkey, EVM wallet or NEAR wallet).
  */
 export async function POST(req: Request) {
+  const limited = rateLimit(req, "execute");
+  if (limited) return limited;
   const session = await getSession().catch(() => null);
   if (!session || session.demo) return Response.json({ error: "Sign in to continue." }, { status: 401 });
 
@@ -49,7 +52,7 @@ export async function POST(req: Request) {
 
   try {
     const r = await oneclick<{ intentHash: string }>("/v0/submit-intent", { body: { type: "swap_transfer", signedData } });
-    await rememberOrder({ depositAddress: pending.depositAddress, summary: pending.summary, at: Date.now() });
+    await rememberOrder({ signerId: session.signerId, kind: "signed", depositAddress: pending.depositAddress, summary: pending.summary, at: Date.now() });
     return Response.json({ intentHash: r.intentHash, depositAddress: pending.depositAddress });
   } catch (e) {
     const msg = e instanceof OneClickError ? String((e.body as { message?: string })?.message ?? "") : "";

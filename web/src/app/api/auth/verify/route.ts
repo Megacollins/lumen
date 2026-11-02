@@ -1,9 +1,12 @@
 import { oneclick, OneClickError, type UserTokens } from "@/lib/server/oneclick";
 import { webauthnSignedData, type Assertion } from "@/lib/server/passkey";
 import { sessionFromTokens, writeSession } from "@/lib/server/session";
+import { rateLimit } from "@/lib/server/ratelimit";
 
 // Step 2 of passkey sign-in: exchange the signed empty intent for a NEAR Intents user session.
 export async function POST(req: Request) {
+  const limited = rateLimit(req, "auth");
+  if (limited) return limited;
   const a = (await req.json().catch(() => null)) as Assertion | null;
   if (!a?.payload || !a.publicKey || !a.signatureDer || !a.clientDataJSON || !a.authenticatorData)
     return Response.json({ error: "Incomplete passkey response" }, { status: 400 });
