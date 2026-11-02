@@ -22,7 +22,7 @@ export default function Home() {
       <SiteHeader />
       <main className="flex-1">
         {/* Hero: studio photo series, then the statement beside an account preview (stacked below lg) */}
-        <section className="relative overflow-hidden bg-studio px-4 pb-[clamp(56px,6vw,96px)] pt-6">
+        <section className="relative overflow-hidden bg-studio px-4 pb-[clamp(48px,5vw,80px)] pt-6">
           <div className="relative mx-auto max-w-[1180px]">
             <HeroSlides />
             <div className="relative z-10 mt-4 flex flex-col items-center gap-12 sm:mt-0 lg:flex-row lg:items-end lg:justify-between lg:gap-16 lg:pr-[3%]">
@@ -53,7 +53,7 @@ export default function Home() {
         </section>
 
         {/* The problem */}
-        <section className="relative overflow-hidden bg-paper px-4 py-[clamp(64px,7vw,112px)] text-center">
+        <section className="relative overflow-hidden bg-paper px-4 py-[clamp(48px,5vw,80px)] text-center">
           <div
             aria-hidden
             className="absolute left-1/2 top-[38%] h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full"
@@ -70,14 +70,14 @@ export default function Home() {
         </section>
 
         {/* How it works */}
-        <section id="how" className="scroll-mt-20 bg-mist px-4 py-[clamp(64px,7vw,112px)] sm:px-8">
+        <section id="how" className="scroll-mt-20 bg-mist px-4 py-[clamp(48px,5vw,80px)] sm:px-8">
           <div className="mx-auto max-w-[1280px]">
             <Reveal>
               <h2 className={`${H2} text-center`}>
                 Three steps. <i>Nothing</i> on display.
               </h2>
             </Reveal>
-            <div className="mt-12 grid gap-6 md:grid-cols-3">
+            <div className="mt-10 grid gap-6 md:grid-cols-3">
               {[
                 { Art: StepAdd, title: "Add", text: "Bring USDC from NEAR, Base, Ethereum, Arbitrum or Solana into your private balance." },
                 {
@@ -101,8 +101,8 @@ export default function Home() {
 
         <div style={{ background: "linear-gradient(var(--mist) 0%, var(--stone) 50%, var(--mist) 100%)" }}>
           {/* Private Cash */}
-          <section className="px-4 py-[clamp(64px,7vw,112px)] sm:px-8">
-            <div className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-16">
+          <section className="px-4 py-[clamp(48px,5vw,80px)] sm:px-8">
+            <div className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-10 lg:gap-16">
               <Reveal className="min-w-0 flex-[1_1_380px]">
                 <p className="text-[13px] tracking-[0.12em] text-ink-45">PRIVATE CASH</p>
                 <h2 className={`${H2} mt-4 text-[clamp(32px,3.6vw,48px)]`}>
@@ -139,8 +139,8 @@ export default function Home() {
           </section>
 
           {/* Confidential investments */}
-          <section id="invest" className="scroll-mt-20 px-4 pb-[clamp(64px,7vw,112px)] pt-4 sm:px-8">
-            <div className="mx-auto flex max-w-[1280px] flex-wrap items-start gap-16">
+          <section id="invest" className="scroll-mt-20 px-4 pb-[clamp(48px,5vw,80px)] pt-0 sm:px-8">
+            <div className="mx-auto flex max-w-[1280px] flex-wrap items-start gap-10 lg:gap-16">
               <Reveal className="min-w-0 flex-[1_1_320px]">
                 <p className="text-[13px] tracking-[0.12em] text-ink-45">CONFIDENTIAL INVESTMENTS</p>
                 <h2 className={`${H2} mt-4`}>
@@ -169,7 +169,7 @@ export default function Home() {
         </div>
 
         {/* Unified portfolio */}
-        <section className="bg-mist px-4 py-[clamp(64px,7vw,112px)] sm:px-8">
+        <section className="bg-mist px-4 py-[clamp(48px,5vw,80px)] sm:px-8">
           <div className="mx-auto max-w-[1080px]">
             <Reveal>
               <h2 className={`${H2} text-center`}>
@@ -245,8 +245,8 @@ export default function Home() {
         </section>
 
         {/* Honest privacy */}
-        <section id="privacy" className="scroll-mt-20 bg-paper px-4 py-[clamp(64px,7vw,112px)] sm:px-8">
-          <div className="mx-auto flex max-w-[1280px] flex-wrap gap-16">
+        <section id="privacy" className="scroll-mt-20 bg-paper px-4 py-[clamp(48px,5vw,80px)] sm:px-8">
+          <div className="mx-auto flex max-w-[1280px] flex-wrap gap-10 lg:gap-16">
             <Reveal className="min-w-0 flex-[1_1_360px]">
               <LumenBox className="mb-10 w-full max-w-[420px]" />
               <h2 className={`${H2} text-[clamp(32px,3.6vw,48px)]`}>
@@ -342,7 +342,7 @@ export default function Home() {
         </section>
 
         {/* Who it's for */}
-        <section className="bg-mist px-4 py-[clamp(64px,7vw,112px)] sm:px-8">
+        <section className="bg-mist px-4 py-[clamp(48px,5vw,80px)] sm:px-8">
           <div className="mx-auto max-w-[1280px]">
             <Reveal>
               <h2 className={`${H2} mx-auto max-w-[900px] text-center`}>
@@ -368,7 +368,7 @@ export default function Home() {
         </section>
 
         {/* Questions */}
-        <section id="faq" className="scroll-mt-20 bg-paper px-4 py-[clamp(64px,7vw,112px)] sm:px-8">
+        <section id="faq" className="scroll-mt-20 bg-paper px-4 py-[clamp(48px,5vw,80px)] sm:px-8">
           <div className="mx-auto grid max-w-[1180px] gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)] lg:gap-16">
             <Reveal>
               <h2 className={H2}>
@@ -385,19 +385,19 @@ export default function Home() {
         {/* Call to action */}
         <section
           id="open"
-          className="px-4 py-[clamp(72px,8vw,128px)] text-center"
+          className="px-4 py-[clamp(48px,5vw,88px)] text-center"
           style={{ background: "linear-gradient(var(--paper) 0%, var(--studio) 100%)" }}
         >
           <Reveal>
-            <div className="relative mx-auto flex h-[200px] w-[200px] items-center justify-center">
+            <div className="relative mx-auto flex h-[150px] w-[150px] items-center justify-center">
               <span
                 aria-hidden
                 className="absolute inset-0 rounded-full"
                 style={{ background: "radial-gradient(circle, rgba(240,223,174,0.85) 0%, rgba(236,235,232,0) 68%)" }}
               />
-              <Mark size={72} className="relative" />
+              <Mark size={60} className="relative" />
             </div>
-            <h2 className={`${H2} mt-7`}>
+            <h2 className={`${H2} mt-4`}>
               Your finances, finally <i>yours</i>.
             </h2>
             <p className="mt-4 text-[17px] text-ink-60">
