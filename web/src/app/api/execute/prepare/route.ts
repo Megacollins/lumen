@@ -4,7 +4,8 @@ import { utf8ToBytes } from "@noble/hashes/utils.js";
 import { buildOrder, checkRecipient, devExecution, executionAllowed, quoteErrorMessage, type OrderSpec } from "@/lib/server/orders";
 import { oneclick, OneClickError } from "@/lib/server/oneclick";
 import { rememberOrder, sha256Hex, writePending } from "@/lib/server/pending";
-import { CHAINS } from "@/lib/cash";
+import { CHAINS, type CashKind } from "@/lib/cash";
+import { jsonObject, str } from "@/lib/server/validate";
 import { getSession } from "@/lib/server/session";
 import { payloadText, signerOf, type SignPayload } from "@/lib/server/wallets";
 import { rateLimit } from "@/lib/server/ratelimit";
@@ -33,7 +34,15 @@ export async function POST(req: Request) {
   if (!session) return Response.json({ error: "Sign in to continue." }, { status: 401 });
   if (session.demo) return Response.json({ error: "The demo can't place real orders." }, { status: 403 });
 
-  const spec = (await req.json().catch(() => null)) as OrderSpec | null;
+  // Rebuild the order from string fields only, so a malformed body is a clean 400.
+  const b = await jsonObject(req);
+  const flow = str(b?.flow);
+  const spec: OrderSpec | null =
+    flow === "trade"
+      ? { flow, symbol: str(b?.symbol) ?? "", side: str(b?.side) as "buy" | "sell", amount: str(b?.amount) ?? "" }
+      : flow === "cash"
+        ? { flow, kind: str(b?.kind) as CashKind, amount: str(b?.amount) ?? "", chain: str(b?.chain), recipient: str(b?.recipient) }
+        : null;
   if (!spec) return Response.json({ error: "Missing order." }, { status: 400 });
   const order = buildOrder(spec, session.signerId, req.headers.get("x-vercel-ip-country"));
   if ("error" in order) return Response.json({ error: order.error }, { status: order.status });
@@ -97,8 +106,8 @@ export async function POST(req: Request) {
     });
     payload = gen.intent.payload;
   } catch (e) {
-    const msg = e instanceof OneClickError ? String((e.body as { message?: string })?.message ?? "") : "";
-    return Response.json({ error: msg ? `NEAR Intents couldn't prepare the order: ${msg}` : "NEAR Intents couldn't prepare the order." }, { status: 502 });
+    console.error("generate-intent failed", e instanceof OneClickError ? e.body : e);
+    return Response.json({ error: "NEAR Intents couldn't prepare the order. Try again for a fresh quote." }, { status: 502 });
   }
 
   // Never ask the passkey or wallet to sign for someone else.

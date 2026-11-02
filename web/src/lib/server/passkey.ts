@@ -43,6 +43,32 @@ export type Assertion = {
   authenticatorData: string; // base64url
 };
 
+/** The origin the browser used for this request, as Vercel forwards it (or the local dev host). */
+export function requestOrigin(req: Request) {
+  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? new URL(req.url).host;
+  const proto = req.headers.get("x-forwarded-proto") ?? new URL(req.url).protocol.replace(":", "");
+  return `${proto}://${host}`;
+}
+
+/**
+ * Checks what NEAR Intents doesn't: the assertion is a WebAuthn *get* made on this site (origin and rpId hash match the
+ * request's host) with the user present and verified (fingerprint, face or PIN).
+ */
+export function webauthnContextOk(a: Assertion, expectedOrigin: string) {
+  try {
+    const cd = JSON.parse(a.clientDataJSON) as { type?: string; origin?: string };
+    if (cd.type !== "webauthn.get" || cd.origin !== expectedOrigin) return false;
+    const auth = base64urlnopad.decode(a.authenticatorData);
+    if (auth.length < 37) return false;
+    const rpIdHash = sha256(utf8ToBytes(new URL(expectedOrigin).hostname));
+    if (!auth.slice(0, 32).every((b, i) => b === rpIdHash[i])) return false;
+    const flags = auth[32];
+    return (flags & 0x01) !== 0 && (flags & 0x04) !== 0; // UP and UV
+  } catch {
+    return false;
+  }
+}
+
 /** Builds the Intents `webauthn` MultiPayload from a browser assertion (DER → compact low-S). */
 export function webauthnSignedData(a: Assertion) {
   const pub = base64urlnopad.decode(a.publicKey);

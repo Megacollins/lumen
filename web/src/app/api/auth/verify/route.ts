@@ -1,5 +1,7 @@
 import { oneclick, OneClickError, type UserTokens } from "@/lib/server/oneclick";
-import { webauthnSignedData, type Assertion } from "@/lib/server/passkey";
+import { requestOrigin, webauthnContextOk, webauthnSignedData } from "@/lib/server/passkey";
+import { takeChallenge } from "@/lib/server/pending";
+import { assertion, jsonObject } from "@/lib/server/validate";
 import { sessionFromTokens, writeSession } from "@/lib/server/session";
 import { rateLimit } from "@/lib/server/ratelimit";
 
@@ -7,9 +9,8 @@ import { rateLimit } from "@/lib/server/ratelimit";
 export async function POST(req: Request) {
   const limited = rateLimit(req, "auth");
   if (limited) return limited;
-  const a = (await req.json().catch(() => null)) as Assertion | null;
-  if (!a?.payload || !a.publicKey || !a.signatureDer || !a.clientDataJSON || !a.authenticatorData)
-    return Response.json({ error: "Incomplete passkey response" }, { status: 400 });
+  const a = assertion(await jsonObject(req));
+  if (!a) return Response.json({ error: "Incomplete passkey response" }, { status: 400 });
 
   let signerId: string;
   try {
@@ -20,6 +21,10 @@ export async function POST(req: Request) {
 
   const { valid, signedData } = webauthnSignedData(a);
   if (!valid) return Response.json({ error: "Passkey signature did not verify" }, { status: 401 });
+  if (!webauthnContextOk(a, requestOrigin(req))) return Response.json({ error: "Passkey response wasn't made on this site" }, { status: 401 });
+  // Single use: only the challenge this browser was handed, once, within 5 minutes.
+  if (!(await takeChallenge(a.payload)))
+    return Response.json({ error: "This sign-in expired or was already used. Try again." }, { status: 409 });
 
   try {
     const tokens = await oneclick<UserTokens>("/v0/auth/authenticate", { body: { signedData } });

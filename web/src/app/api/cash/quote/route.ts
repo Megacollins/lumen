@@ -3,6 +3,7 @@ import { buildOrder, checkRecipient, confidential, executionAllowed, quoteErrorM
 import { oneclick, OneClickError } from "@/lib/server/oneclick";
 import { getSession } from "@/lib/server/session";
 import { cached, rateLimit } from "@/lib/server/ratelimit";
+import { jsonObject, str } from "@/lib/server/validate";
 
 type QuoteResponse = {
   quote: {
@@ -23,12 +24,11 @@ export async function POST(req: Request) {
   const session = await getSession().catch(() => null);
   if (!session) return Response.json({ error: "Sign in to continue." }, { status: 401 });
 
-  const { kind, amount, chain, recipient } = (await req.json().catch(() => ({}))) as {
-    kind?: CashKind;
-    amount?: string;
-    chain?: string;
-    recipient?: string;
-  };
+  const body = (await jsonObject(req)) ?? {};
+  const kind = str(body.kind);
+  const amount = str(body.amount);
+  const chain = str(body.chain);
+  const recipient = str(body.recipient);
   const order = buildOrder({ flow: "cash", kind: kind as CashKind, amount: amount ?? "", chain, recipient }, session.signerId, null);
   if ("error" in order) return Response.json({ error: order.error }, { status: order.status });
   const bad = await checkRecipient(order);
@@ -52,6 +52,8 @@ export async function POST(req: Request) {
     });
   } catch (e) {
     const msg = e instanceof OneClickError ? String((e.body as { message?: string })?.message ?? "") : "";
+    if (kind === "withdraw" && /failed to get quote/i.test(msg))
+      return Response.json({ error: "No quote for this amount. It may be below the minimum for moving out to that network; try a larger amount." }, { status: 422 });
     const { error, status } = quoteErrorMessage(msg);
     return Response.json({ error }, { status });
   }

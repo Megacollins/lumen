@@ -2,6 +2,7 @@ import { buildOrder, confidential, executionAllowed, quoteErrorMessage } from "@
 import { oneclick, OneClickError } from "@/lib/server/oneclick";
 import { getSession } from "@/lib/server/session";
 import { cached, rateLimit } from "@/lib/server/ratelimit";
+import { jsonObject, str } from "@/lib/server/validate";
 
 type QuoteResponse = {
   quote: {
@@ -24,7 +25,10 @@ export async function POST(req: Request) {
   const session = await getSession().catch(() => null);
   if (!session) return Response.json({ error: "Sign in to get a quote." }, { status: 401 });
 
-  const { symbol, side, amount } = (await req.json().catch(() => ({}))) as { symbol?: string; side?: "buy" | "sell"; amount?: string };
+  const body = (await jsonObject(req)) ?? {};
+  const symbol = str(body.symbol);
+  const side = str(body.side);
+  const amount = str(body.amount);
   const order = buildOrder(
     { flow: "trade", symbol: symbol ?? "", side: side as "buy" | "sell", amount: amount ?? "" },
     session.signerId,

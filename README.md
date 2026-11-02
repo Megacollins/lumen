@@ -78,6 +78,13 @@ Open `/app` and create a passkey (Chrome, Safari or Edge; passkeys need HTTPS or
 
 Outside demo mode, the same screens show real balances from NEAR Intents and say "Preview only" until each flow has passed a live mainnet test.
 
+## Known limitations
+
+- **Geofence.** Tokenized stocks are blocked for US visitors by Vercel's IP-country header, and buyers confirm they aren't US persons (stored on their device). A VPN gets around both. A production launch would need proper KYC or an eligibility attestation.
+- **Dependency advisories.** `npm audit` reports issues (one critical, in `protobufjs`) inside the NEAR Intents SDK's cross-chain bridge libraries, which Lumen uses only on the server. Several NEAR wallet SDKs carry advisories of their own; they load only when someone picks a NEAR wallet. The suggested `npm audit fix` downgrades major versions, so these are tracked rather than forced.
+- **Rate limits** count per server instance (see Abuse protection).
+- **Real wallets.** EVM and NEAR wallet sign-in and signing are tested with software wallets against mainnet; the one-time key registration for named NEAR accounts isn't tested yet.
+
 ## Built with
 
 Next.js, TypeScript, Tailwind CSS, NEAR Intents 1Click API, `@defuse-protocol/intents-sdk`. Code written with Claude Code.

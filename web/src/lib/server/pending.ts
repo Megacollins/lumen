@@ -4,6 +4,7 @@ import { seal, unseal } from "./session";
 
 // What the server handed out for signing, and the orders this browser placed. Encrypted, httpOnly.
 const PENDING = "lumen_pending";
+const CHALLENGE = "lumen_challenge";
 const ORDERS = "lumen_orders";
 const SIGN_WINDOW_MS = 5 * 60_000;
 
@@ -24,17 +25,40 @@ export const sha256Hex = (s: string) => createHash("sha256").update(s, "utf8").d
 
 const opts = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict" as const, path: "/" };
 
+/** Several orders can be awaiting a signature at once (two tabs or sheets); each is kept until used or expired. */
 export async function writePending(p: Omit<Pending, "expiresAt">) {
-  (await cookies()).set(PENDING, seal({ ...p, expiresAt: Date.now() + SIGN_WINDOW_MS }), { ...opts, maxAge: SIGN_WINDOW_MS / 1000 });
+  const jar = await cookies();
+  const now = Date.now();
+  const next = [...(await readPending()).filter((x) => x.expiresAt > now), { ...p, expiresAt: now + SIGN_WINDOW_MS }].slice(-5);
+  jar.set(PENDING, seal(next), { ...opts, maxAge: SIGN_WINDOW_MS / 1000 });
 }
 
-/** The intent this browser was asked to sign, if it is still within its signing window. Single use. */
-export async function takePending(signerId: string): Promise<Pending | null> {
+/** The pending list, accepting the older single-object cookie shape too. */
+async function readPending(): Promise<Pending[]> {
+  const raw = (await cookies()).get(PENDING)?.value;
+  const parsed = raw ? unseal<Pending[] | Pending>(raw) : null;
+  return Array.isArray(parsed) ? parsed : parsed ? [parsed] : [];
+}
+
+const submitted = new Map<string, number>();
+
+/**
+ * The prepared order this signature is for, removed so it can't be used twice. Matches by payload hash, so several
+ * prepared orders can coexist. The in-memory record also stops two simultaneous submits of the same signed order.
+ */
+export async function takePending(signerId: string, payloadHash: string): Promise<Pending | null> {
+  const now = Date.now();
+  for (const [h, t] of submitted) if (t < now) submitted.delete(h);
+  if (submitted.has(payloadHash)) return null;
+
   const jar = await cookies();
-  const raw = jar.get(PENDING)?.value;
-  jar.delete(PENDING);
-  const p = raw ? unseal<Pending>(raw) : null;
-  return p && p.signerId === signerId && p.expiresAt > Date.now() ? p : null;
+  const list = await readPending();
+  const hit = list.find((x) => x.payloadHash === payloadHash && x.signerId === signerId && x.expiresAt > now) ?? null;
+  const rest = list.filter((x) => x !== hit && x.expiresAt > now);
+  if (rest.length) jar.set(PENDING, seal(rest), { ...opts, maxAge: SIGN_WINDOW_MS / 1000 });
+  else jar.delete(PENDING);
+  if (hit) submitted.set(payloadHash, now + 24 * 3600_000);
+  return hit;
 }
 
 export async function rememberOrder(o: OrderRef) {
@@ -57,4 +81,31 @@ export async function ordersOf(signerId: string): Promise<OrderRef[]> {
 
 export async function knownOrder(depositAddress: string, signerId: string): Promise<OrderRef | null> {
   return (await allOrders()).find((x) => x.depositAddress === depositAddress && x.signerId === signerId) ?? null;
+}
+
+/* ---------- Sign-in challenges (single use) ---------- */
+
+const usedChallenges = new Map<string, number>();
+
+/** Remembers the sign-in challenge handed to this browser (its hash), valid for 5 minutes. */
+export async function writeChallenge(payloadText: string) {
+  const c = { hash: sha256Hex(payloadText), expiresAt: Date.now() + SIGN_WINDOW_MS };
+  (await cookies()).set(CHALLENGE, seal(c), { ...opts, maxAge: SIGN_WINDOW_MS / 1000 });
+}
+
+/**
+ * True once per challenge: it must be the one this browser was handed, still fresh, and not already used here.
+ * The in-memory record also stops two simultaneous replays of the same signed sign-in on this server instance.
+ */
+export async function takeChallenge(payloadText: string): Promise<boolean> {
+  const jar = await cookies();
+  const raw = jar.get(CHALLENGE)?.value;
+  jar.delete(CHALLENGE);
+  const c = raw ? unseal<{ hash: string; expiresAt: number }>(raw) : null;
+  const hash = sha256Hex(payloadText);
+  const now = Date.now();
+  for (const [h, t] of usedChallenges) if (t < now) usedChallenges.delete(h);
+  if (!c || c.hash !== hash || c.expiresAt < now || usedChallenges.has(hash)) return false;
+  usedChallenges.set(hash, c.expiresAt);
+  return true;
 }

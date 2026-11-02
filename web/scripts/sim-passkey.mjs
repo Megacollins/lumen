@@ -7,16 +7,20 @@ import { base64urlnopad as b64 } from "@scure/base";
 
 const base = process.argv[2] ?? "http://localhost:3220";
 const host = new URL(base).hostname;
-let cookie = "";
+const jar = new Map();
 
 async function call(path, body) {
   const res = await fetch(base + path, {
     method: body ? "POST" : "GET",
-    headers: { "Content-Type": "application/json", ...(cookie && { Cookie: cookie }) },
+    headers: { "Content-Type": "application/json", Cookie: [...jar].map(([k, v]) => `${k}=${v}`).join("; ") },
     body: body ? JSON.stringify(body) : undefined,
   });
-  const set = res.headers.get("set-cookie");
-  if (set) cookie = set.split(";")[0];
+  for (const c of res.headers.getSetCookie()) {
+    const [kv] = c.split(";");
+    const i = kv.indexOf("=");
+    if (kv.slice(i + 1)) jar.set(kv.slice(0, i), kv.slice(i + 1));
+    else jar.delete(kv.slice(0, i));
+  }
   return { status: res.status, body: await res.json().catch(() => null) };
 }
 
@@ -38,6 +42,6 @@ const v = await call("/api/auth/verify", {
   clientDataJSON,
   authenticatorData: b64.encode(authData),
 });
-console.log("verify:", v.status, JSON.stringify(v.body), "cookie set:", !!cookie);
+console.log("verify:", v.status, JSON.stringify(v.body), "session cookie set:", jar.has("lumen_session"));
 console.log("account:", JSON.stringify(await call("/api/account")));
 console.log("logout:", (await call("/api/auth/logout", {})).status);
