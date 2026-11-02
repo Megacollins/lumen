@@ -5,9 +5,12 @@ import { oneclick, type UserTokens } from "./oneclick";
 // The Intents user-session tokens live only in an encrypted, httpOnly cookie.
 const COOKIE = "lumen_session";
 
+export type SignStandard = "webauthn" | "erc191" | "nep413";
+
 export type Session = {
   signerId: string;
-  standard: "webauthn";
+  /** How this account signs: a passkey, an EVM wallet (ERC-191) or a NEAR wallet (NEP-413). */
+  standard: SignStandard;
   /** Demo sessions have no NEAR Intents tokens: balances are simulated in the browser, quotes are real. */
   demo?: boolean;
   accessToken: string;
@@ -41,11 +44,11 @@ export function unseal<T = Session>(value: string): T | null {
   }
 }
 
-export function sessionFromTokens(signerId: string, t: UserTokens): Session {
+export function sessionFromTokens(signerId: string, t: UserTokens, standard: SignStandard = "webauthn"): Session {
   const now = Date.now();
   return {
     signerId,
-    standard: "webauthn",
+    standard,
     accessToken: t.accessToken,
     accessExpiresAt: now + t.expiresIn * 1000,
     refreshToken: t.refreshToken,

@@ -25,12 +25,16 @@ import {
   type Ledger,
   type Receipt,
 } from "@/lib/demo-ledger";
+import { signOutWallet } from "@/lib/wallet-client";
+import { WalletSignIn } from "./wallet-sign-in";
 
 export type Account = {
   signerId: string;
   balances: { tokenId: string; available: string }[];
   balancesAvailable: boolean;
   demo?: boolean;
+  /** How this account signs: passkey (webauthn), EVM wallet (erc191) or NEAR wallet (nep413). */
+  standard?: "webauthn" | "erc191" | "nep413";
 };
 
 type AccountCtx = {
@@ -122,6 +126,7 @@ function SignedIn({
         }}
         onSignOut={async () => {
           await signOut();
+          await signOutWallet();
           if (account.demo) clearLedger();
           onSignedOut();
         }}
@@ -293,6 +298,9 @@ function SignIn({ onSignedIn }: { onSignedIn: () => void }) {
             {error}
           </p>
         )}
+        <div className="flex justify-center">
+          <WalletSignIn onSignedIn={onSignedIn} disabled={busy} />
+        </div>
         <div className="mt-2 flex items-center gap-3 text-xs text-ink-45">
           <span className="h-px flex-1 bg-hairline" />
           or

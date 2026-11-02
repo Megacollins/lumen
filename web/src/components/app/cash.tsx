@@ -270,7 +270,7 @@ function CashForm({ kind, balance, onDone }: { kind: CashKind; balance: number; 
         <ExecuteOrder
           key={`${kind}:${amount}:${chain}:${recipient.trim()}`}
           spec={{ flow: "cash", kind, amount, chain, recipient: recipient.trim() }}
-          label={kind === "add" ? "Get deposit address" : kind === "send" ? "Send privately" : "Move out with passkey"}
+          label={kind === "add" ? "Get deposit address" : kind === "send" ? "Send privately" : "Move out"}
           depositChain={chainInfo.name}
         />
       ) : (

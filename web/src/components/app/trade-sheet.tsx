@@ -272,7 +272,7 @@ function TradeForm({
         <ExecuteOrder
           key={`${side}:${amount}`}
           spec={{ flow: "trade", symbol: asset.symbol, side, amount }}
-          label={`${side === "buy" ? "Buy" : "Sell"} ${asset.symbol} with passkey`}
+          label={`${side === "buy" ? "Buy" : "Sell"} ${asset.symbol}`}
         />
       ) : (
         <PreviewNotice>

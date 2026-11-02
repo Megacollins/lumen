@@ -5,6 +5,7 @@ import { buildOrder, devExecution, executionAllowed, quoteErrorMessage, type Ord
 import { oneclick, OneClickError } from "@/lib/server/oneclick";
 import { rememberOrder, sha256Hex, writePending } from "@/lib/server/pending";
 import { getSession } from "@/lib/server/session";
+import { payloadText, signerOf, type SignPayload } from "@/lib/server/wallets";
 
 type LiveQuote = {
   quote: {
@@ -74,10 +75,11 @@ export async function POST(req: Request) {
     return Response.json({ step: "deposit", depositAddress, depositMemo: q.quote.depositMemo ?? null, deadline: q.quote.deadline ?? null, ...summary });
   }
 
-  let payload: string;
+  // The intent comes back in the signer's own format: a JSON string (passkey, EVM) or a NEP-413 object (NEAR).
+  let payload: SignPayload;
   try {
-    const gen = await oneclick<{ intent: { standard: string; payload: string } }>("/v0/generate-intent", {
-      body: { type: "swap_transfer", standard: "webauthn", signerId: session.signerId, depositAddress },
+    const gen = await oneclick<{ intent: { standard: string; payload: SignPayload } }>("/v0/generate-intent", {
+      body: { type: "swap_transfer", standard: session.standard, signerId: session.signerId, depositAddress },
     });
     payload = gen.intent.payload;
   } catch (e) {
@@ -85,13 +87,10 @@ export async function POST(req: Request) {
     return Response.json({ error: msg ? `NEAR Intents couldn't prepare the order: ${msg}` : "NEAR Intents couldn't prepare the order." }, { status: 502 });
   }
 
-  // Never ask the passkey to sign for someone else.
-  let signer: unknown;
-  try {
-    signer = JSON.parse(payload).signer_id;
-  } catch {}
-  if (signer !== session.signerId) return Response.json({ error: "NEAR Intents returned an intent for a different account." }, { status: 502 });
+  // Never ask the passkey or wallet to sign for someone else.
+  if (signerOf(payload) !== session.signerId) return Response.json({ error: "NEAR Intents returned an intent for a different account." }, { status: 502 });
 
-  await writePending({ signerId: session.signerId, payloadHash: sha256Hex(payload), depositAddress, summary: order.summary });
-  return Response.json({ step: "sign", payload, challenge: base64urlnopad.encode(sha256(utf8ToBytes(payload))), depositAddress, ...summary });
+  await writePending({ signerId: session.signerId, payloadHash: sha256Hex(payloadText(payload)), depositAddress, summary: order.summary });
+  const challenge = typeof payload === "string" && session.standard === "webauthn" ? base64urlnopad.encode(sha256(utf8ToBytes(payload))) : null;
+  return Response.json({ step: "sign", standard: session.standard, payload, challenge, depositAddress, ...summary });
 }

@@ -7,6 +7,7 @@ import { PasskeyIcon, PrivateIcon, StatementIcon } from "@/components/brand/icon
 import { storedPasskey } from "@/lib/passkey-client";
 import { isEligibilityConfirmed, revealByDefault, setEligibilityConfirmed, setRevealByDefault } from "@/lib/prefs";
 import { buildStatement, download, signStatement } from "@/lib/statement";
+import { signStatementWithWallet } from "@/lib/wallet-client";
 import { useAccount } from "./account-app";
 import { useMarkets } from "./use-markets";
 
@@ -44,13 +45,18 @@ export function Settings() {
           download(`lumen-demo-statement-${stamp}.json`, { statement, signature: null }),
         );
       } else {
-        const signed = await signStatement(statement);
+        const wallet = account.standard === "erc191" || account.standard === "nep413";
+        const signed = wallet ? await signStatementWithWallet(account.signerId, JSON.stringify(statement)) : await signStatement(statement);
         if (!signed) {
           setStatementState("error");
-          setStatementNote("This device doesn't hold the passkey for this account, so the statement can't be signed here.");
+          setStatementNote(
+            wallet
+              ? "This browser isn't connected to the wallet for this account, so the statement can't be signed here."
+              : "This device doesn't hold the passkey for this account, so the statement can't be signed here.",
+          );
           return;
         }
-        finish("Signed with your passkey. Anyone with the file can check it came from this account.", () =>
+        finish(`Signed with your ${wallet ? "wallet" : "passkey"}. Anyone with the file can check it came from this account.`, () =>
           download(`lumen-statement-${stamp}.json`, signed),
         );
       }
@@ -86,7 +92,15 @@ export function Settings() {
         </Item>
         <Item label="Sign-in">
           <span className="text-sm text-ink-60">
-            {account.demo ? "None (demo)" : hasPasskey ? "Passkey on this device" : "Passkey (stored on another device)"}
+            {account.demo
+              ? "None (demo)"
+              : account.standard === "erc191"
+                ? "EVM wallet (recovery phrase is your backup)"
+                : account.standard === "nep413"
+                  ? "NEAR wallet (recovery phrase is your backup)"
+                  : hasPasskey
+                    ? "Passkey on this device"
+                    : "Passkey (stored on another device)"}
           </span>
         </Item>
       </Section>
@@ -134,7 +148,9 @@ export function Settings() {
         <div className="p-4">
           <p className="text-[15px] leading-relaxed text-ink-60">
             Download your balances and activity as a file for an accountant or a tax filing.
-            {account.demo ? "" : " It's signed with your passkey, so it can be checked against your account id."}
+            {account.demo
+              ? ""
+              : ` It's signed with your ${account.standard === "erc191" || account.standard === "nep413" ? "wallet" : "passkey"}, so it can be checked against your account id.`}
           </p>
           <button
             type="button"

@@ -11,8 +11,8 @@ export async function GET() {
 
   try {
     const { balances } = await oneclick<{ balances: Balance[] }>("/v0/account/balances", { userToken: s.accessToken });
-    return Response.json({ signedIn: true, signerId: s.signerId, balances, balancesAvailable: true });
+    return Response.json({ signedIn: true, signerId: s.signerId, standard: s.standard, balances, balancesAvailable: true });
   } catch {
-    return Response.json({ signedIn: true, signerId: s.signerId, balances: [], balancesAvailable: false });
+    return Response.json({ signedIn: true, signerId: s.signerId, standard: s.standard, balances: [], balancesAvailable: false });
   }
 }

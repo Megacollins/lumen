@@ -22,6 +22,7 @@ On a public blockchain, every payment, balance and trade is visible to anyone, f
 | Invest: browse and quote | Ondo Global Markets tokens via NEAR Intents 1Click; indicative prices from the token list and real dry-run buy/sell quotes | **Working** (preview only) |
 | Invest: execute orders | Same pipeline, USDC ⇄ Ondo token between Intents balances | **Built, tested up to settlement** (a $30 NVDA buy was signed, accepted and tracked to FAILED on an empty account). Opens per asset after a funded live test |
 | Passkey sign-in | WebAuthn P-256 signs an empty intent; NEAR Intents returns a user session | **Working** (tested on a real phone and with a software authenticator) |
+| Wallet sign-in | "Use a wallet instead": EVM wallets (MetaMask and others, ERC-191 `personal_sign`) and NEAR wallets (Meteor, HOT, Intear, NEP-413 `signMessage`). The Lumen account is the wallet's own account, so its recovery phrase is the backup. Orders and statements are signed by the wallet | **Working** (EVM and NEAR sign-in and wallet-signed orders tested on mainnet with software wallets; named NEAR accounts register their key once with `intents.near add_public_key`, which is built but untested) |
 | Read private balance | `/v0/account/balances` with the user session | **Working** |
 | Activity | Transaction history from NEAR Intents (`/v0/account/history`); demo receipts in demo mode | **Working** (real history is invite-only at NEAR Intents, so real accounts see an explanation instead) |
 | Signed statement | Balances and activity exported as JSON, signed by the account's passkey (WebAuthn P-256) | **Working** (tested on a real phone) |
@@ -60,6 +61,7 @@ Deploy: from `web/` (not the repo root), `vercel --prod`. `web/vercel.json` pins
 
 Open `/app` and create a passkey (Chrome, Safari or Edge; passkeys need HTTPS or localhost).
 `node scripts/sim-passkey.mjs http://localhost:3000` runs the whole sign-in with a software authenticator.
+`node scripts/sim-wallet.mjs http://localhost:3000 nep413|erc191 [order]` does the same with a software NEAR or EVM wallet.
 `node scripts/sim-order.mjs http://localhost:3000 send|buy` runs a real order through the execution pipeline on mainnet with a fresh, empty account (start the dev server with `LUMEN_DEV_EXECUTION=1`; NEAR Intents should accept the signed intent and then mark it FAILED, since nothing is funded).
 
 **Execution safety.** Real orders run only for flows that passed a funded mainnet test (`EXECUTION_VERIFIED`, `CASH_VERIFIED`) and only with Confidential Intents. The server re-quotes live, checks the balance before asking the passkey to sign (1Click intents stay valid for days), accepts only the exact payload it handed out within 5 minutes, refuses replays, and refuses intents for any other account.

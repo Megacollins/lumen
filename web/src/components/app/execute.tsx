@@ -3,11 +3,20 @@
 import { Check, Copy, Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { post, signWithPasskey, storedPasskey } from "@/lib/passkey-client";
+import { signOrderWithWallet } from "@/lib/wallet-client";
 import type { OrderSpec } from "@/lib/server/orders";
 import { useAccount } from "./account-app";
 
 type Prepared =
-  | { step: "sign"; payload: string; challenge: string; depositAddress: string; amountIn: string; amountOut: string }
+  | {
+      step: "sign";
+      standard: "webauthn" | "erc191" | "nep413";
+      payload: string | { message: string; nonce: string; recipient: string };
+      challenge: string | null;
+      depositAddress: string;
+      amountIn: string;
+      amountOut: string;
+    }
   | { step: "deposit"; depositAddress: string; depositMemo: string | null; deadline: string | null; amountIn: string; amountOut: string };
 
 type Phase = "idle" | "preparing" | "signing" | "submitting" | "settling" | "deposit" | "success" | "refunded" | "failed" | "error";
@@ -20,7 +29,8 @@ const GIVE_UP_MS = 15 * 60_000;
  * Only rendered when the server says the flow is executable (verified on mainnet, confidential).
  */
 export function ExecuteOrder({ spec, label, depositChain }: { spec: OrderSpec; label: string; depositChain?: string }) {
-  const { reload } = useAccount();
+  const { account, reload } = useAccount();
+  const wallet = account.standard === "erc191" || account.standard === "nep413";
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
   const [prepared, setPrepared] = useState<Prepared | null>(null);
@@ -35,17 +45,27 @@ export function ExecuteOrder({ spec, label, depositChain }: { spec: OrderSpec; l
       setPrepared(p);
       if (p.step === "deposit") return setPhase("deposit");
 
-      const pk = storedPasskey();
-      if (!pk) throw new Error("This device doesn't hold the passkey for this account, so it can't sign here.");
       setPhase("signing");
-      const assertion = await signWithPasskey(pk, p.payload, p.challenge);
+      let signed: object;
+      if (p.standard === "webauthn") {
+        const pk = storedPasskey();
+        if (!pk || typeof p.payload !== "string" || !p.challenge)
+          throw new Error("This device doesn't hold the passkey for this account, so it can't sign here.");
+        signed = await signWithPasskey(pk, p.payload, p.challenge);
+      } else {
+        signed = await signOrderWithWallet(p.standard, p.payload);
+      }
       setPhase("submitting");
-      const r = await post<{ intentHash: string }>("/api/execute/submit", assertion);
+      const r = await post<{ intentHash: string }>("/api/execute/submit", signed);
       setIntentHash(r.intentHash);
       setPhase("settling");
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      setError(/NotAllowed|prompt was closed|cancel|timed out/i.test(msg) ? "The passkey prompt was closed. Nothing was sent." : msg);
+      setError(
+        /NotAllowed|prompt was closed|cancel|timed out|reject|denied/i.test(msg)
+          ? `The ${wallet ? "wallet request" : "passkey prompt"} was closed. Nothing was sent.`
+          : msg,
+      );
       setPhase("error");
     }
   }
@@ -89,7 +109,7 @@ export function ExecuteOrder({ spec, label, depositChain }: { spec: OrderSpec; l
         <p className="mt-2 text-center text-xs text-ink-45">
           {spec.flow === "cash" && spec.kind === "add"
             ? "You'll get a one-time deposit address with a fresh quote."
-            : "You'll confirm with your passkey. The price is re-quoted live first."}
+            : `You'll confirm ${wallet ? "in your wallet" : "with your passkey"}. The price is re-quoted live first.`}
         </p>
       </div>
     );
@@ -128,7 +148,7 @@ export function ExecuteOrder({ spec, label, depositChain }: { spec: OrderSpec; l
 
   const steps: { label: string; done: boolean; active: boolean }[] = [
     { label: "Live quote", done: phase !== "preparing", active: phase === "preparing" },
-    { label: "Confirmed with your passkey", done: ["submitting", "settling", "success", "refunded", "failed"].includes(phase), active: phase === "signing" },
+    { label: wallet ? "Confirmed in your wallet" : "Confirmed with your passkey", done: ["submitting", "settling", "success", "refunded", "failed"].includes(phase), active: phase === "signing" },
     { label: "Sent to NEAR Intents", done: ["settling", "success", "refunded", "failed"].includes(phase), active: phase === "submitting" },
     { label: "Settled", done: phase === "success", active: phase === "settling" },
   ];
