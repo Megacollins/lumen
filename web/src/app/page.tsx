@@ -11,6 +11,7 @@ import { Logo, Mark } from "@/components/brand/logo";
 import { PrivateIcon, StatementIcon, PasskeyIcon } from "@/components/brand/icons";
 import { StepAdd, StepInvest, StepSend } from "@/components/landing/illustrations";
 import { LumenBox } from "@/components/landing/lumen-box";
+import { Faq } from "@/components/landing/faq";
 
 const H2 = "text-[clamp(32px,4.2vw,60px)] font-normal leading-[1.08] tracking-[-0.035em]";
 const BODY = "text-base leading-relaxed text-ink-70";
@@ -363,6 +364,21 @@ export default function Home() {
                 </Reveal>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Questions */}
+        <section id="faq" className="scroll-mt-20 bg-paper px-4 py-[clamp(64px,7vw,112px)] sm:px-8">
+          <div className="mx-auto grid max-w-[1180px] gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)] lg:gap-16">
+            <Reveal>
+              <h2 className={H2}>
+                Questions, <i>answered</i>.
+              </h2>
+              <p className={`${BODY} mt-5 max-w-[340px]`}>The short version. The privacy section above has the full detail.</p>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <Faq />
+            </Reveal>
           </div>
         </section>
 
