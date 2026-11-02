@@ -29,6 +29,11 @@ function SolverCard() {
   );
 }
 
+/** Phones: one row you swipe sideways (no snapping). From sm up: the two-column grid. */
+const ROW =
+  "-mx-4 flex gap-3 overflow-x-auto overscroll-x-contain px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden";
+const ITEM = "w-[76%] flex-none sm:w-auto";
+
 const time = (iso: string) =>
   new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + " UTC";
 
@@ -37,24 +42,34 @@ export async function MarketGrid() {
   const { rows, live, updatedAt } = await getMarketRows();
   return (
     <>
-      {rows.map((a, i) => (
-        <Reveal key={a.symbol} delay={i * 0.05}>
-          <Card
-            {...a}
-            price={a.price == null ? "—" : `$${a.price.toFixed(2)}`}
-            status={!live ? "Price unavailable" : !a.listed ? "Not listed on NEAR Intents right now" : a.tradable ? "Indicative · orders open" : "Indicative · orders in preview"}
-          />
+      <div className={ROW}>
+        {rows.map((a, i) => (
+          <Reveal key={a.symbol} delay={i * 0.05} className={ITEM}>
+            <Card
+              {...a}
+              price={a.price == null ? "—" : `$${a.price.toFixed(2)}`}
+              status={
+                !live
+                  ? "Price unavailable"
+                  : !a.listed
+                    ? "Not listed on NEAR Intents right now"
+                    : a.tradable
+                      ? "Indicative · orders open"
+                      : "Indicative · orders in preview"
+              }
+            />
+          </Reveal>
+        ))}
+        <Reveal delay={0.25} className={ITEM}>
+          <SolverCard />
         </Reveal>
-      ))}
-      <Reveal delay={0.25}>
-        <SolverCard />
-      </Reveal>
-      <p className="text-xs leading-relaxed text-ink-45 sm:col-span-2">
+      </div>
+      <p className="mt-4 text-xs leading-relaxed text-ink-45">
         {live
           ? `Indicative prices from the NEAR Intents token list${updatedAt ? `, last updated ${time(updatedAt)}` : ""}. Outside stock market hours they may not move. `
           : "Prices can't be loaded from NEAR Intents right now. "}
-        The price you pay comes from a live quote when you order. Orders open per asset after a verified test trade on
-        mainnet; until then Lumen shows quotes only.
+        The price you pay comes from a live quote when you order. Orders open per asset after a verified test trade on mainnet; until then
+        Lumen shows quotes only.
       </p>
     </>
   );
@@ -62,11 +77,15 @@ export async function MarketGrid() {
 
 export function MarketGridFallback() {
   return (
-    <>
+    <div className={ROW}>
       {CANDIDATE_ASSETS.map((a) => (
-        <Card key={a.symbol} {...a} price="—" status="Loading price…" />
+        <div key={a.symbol} className={ITEM}>
+          <Card {...a} price="—" status="Loading price…" />
+        </div>
       ))}
-      <SolverCard />
-    </>
+      <div className={ITEM}>
+        <SolverCard />
+      </div>
+    </div>
   );
 }
