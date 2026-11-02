@@ -45,41 +45,45 @@ export function Cash() {
   ];
 
   return (
-    <div className="pb-16 pt-6 md:pt-10">
-      <div className="flex items-center gap-2 text-[13px] text-ink-60">
-        <span className="h-[7px] w-[7px] rounded-full bg-gold" />
-        Private cash · USDC
-      </div>
-      <div className="veil tabular mt-1.5 text-[clamp(44px,13vw,56px)] leading-none tracking-[-0.045em]" data-revealed={revealed}>
-        {usd(cash)}
-      </div>
-      <button
-        type="button"
-        onClick={() => setRevealed((r) => !r)}
-        aria-pressed={revealed}
-        className="mt-2 flex items-center gap-1.5 text-[13px] text-ink-60 transition-opacity hover:opacity-70"
-      >
-        <RevealIcon size={16} />
-        {revealed ? "Hide balance" : "Reveal balance"}
-      </button>
-
-      <div className="mt-8 grid max-w-[520px] grid-cols-4 gap-2">
-        {actions.map(({ id, label, Icon }, i) => (
+    <div className="pb-16 pt-6 md:pt-8">
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_440px] lg:items-end lg:gap-10">
+        <div>
+          <div className="flex items-center gap-2 text-[13px] text-ink-60">
+            <span className="h-[7px] w-[7px] rounded-full bg-gold" />
+            Private cash · USDC
+          </div>
+          <div className="veil tabular mt-1.5 text-[clamp(44px,13vw,56px)] leading-none tracking-[-0.045em]" data-revealed={revealed}>
+            {usd(cash)}
+          </div>
           <button
-            key={id}
             type="button"
-            onClick={() => setFlow(id)}
-            className={`flex h-[72px] flex-col items-center justify-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70 ${
-              i === 0 ? "bg-ink text-white" : "border border-hairline bg-paper"
-            }`}
+            onClick={() => setRevealed((r) => !r)}
+            aria-pressed={revealed}
+            className="mt-2 flex items-center gap-1.5 text-[13px] text-ink-60 transition-opacity hover:opacity-70"
           >
-            <Icon size={20} className={id === "withdraw" ? "-rotate-90" : undefined} />
-            {label}
+            <RevealIcon size={16} />
+            {revealed ? "Hide balance" : "Reveal balance"}
           </button>
-        ))}
+        </div>
+
+        <div className="mt-6 grid max-w-[520px] grid-cols-4 gap-2 lg:mt-0 lg:max-w-none">
+          {actions.map(({ id, label, Icon }, i) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setFlow(id)}
+              className={`flex h-[72px] flex-col items-center justify-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70 ${
+                i === 0 ? "bg-ink text-white" : "border border-hairline bg-paper"
+              }`}
+            >
+              <Icon size={20} className={id === "withdraw" ? "-rotate-90" : undefined} />
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <section className="mt-10 border border-hairline bg-paper p-6 text-[15px] leading-relaxed text-ink-60">
+      <section className="mt-8 border border-hairline bg-paper p-5 text-[15px] leading-relaxed text-ink-60 md:p-6">
         <h2 className="text-base text-ink">How your cash stays private</h2>
         <p className="mt-2">
           Your USDC sits in a confidential balance on NEAR Intents. Payments between accounts happen there, out of public view. Money coming

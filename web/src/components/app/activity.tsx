@@ -57,8 +57,8 @@ export function Activity() {
   }, [account.demo]);
 
   return (
-    <div className="pb-16 pt-6 md:pt-10">
-      <h1 className="text-[clamp(32px,5vw,44px)] font-normal leading-tight tracking-[-0.035em]">Activity</h1>
+    <div className="pb-16 pt-6 md:pt-8">
+      <h1 className="text-[32px] font-normal leading-tight tracking-[-0.035em] md:text-[36px]">Activity</h1>
       <p className="mt-2 text-[15px] text-ink-60">Every transaction on your account and its status.</p>
 
       {account.demo ? (

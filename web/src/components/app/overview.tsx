@@ -45,60 +45,62 @@ export function Overview() {
 
   return (
     <div className="pb-16">
-      <section className="pt-6 md:pt-10">
-        <div className="flex items-center gap-2 text-[13px] text-ink-60">
-          <span className="h-[7px] w-[7px] rounded-full bg-gold" />
-          Net worth{account.demo ? " · demo" : ""}
-        </div>
-        <div className="veil tabular mt-1.5 text-[clamp(44px,13vw,56px)] leading-none tracking-[-0.045em]" data-revealed={revealed}>
-          {usd(total)}
-        </div>
-        <button
-          type="button"
-          onClick={() => setRevealed((r) => !r)}
-          aria-pressed={revealed}
-          className="mt-2 flex items-center gap-1.5 text-[13px] text-ink-60 transition-opacity hover:opacity-70"
-        >
-          <RevealIcon size={16} />
-          {revealed ? "Hide balances" : "Reveal balances"}
-        </button>
-        {!account.balancesAvailable && (
-          <p className="mt-3 text-sm text-down">Balances couldn&apos;t be loaded from NEAR Intents just now.</p>
-        )}
-        {pricesMissing && <p className="mt-3 text-xs text-ink-45">Some prices are unavailable, so the total may be low.</p>}
-
-        {total > 0 && (
-          <div className="mt-6 flex h-1.5 w-full max-w-[520px]">
-            <span className="bg-ink" style={{ width: `${(cash / total) * 100}%` }} />
-            <span className="bg-gold" style={{ width: `${(invested / total) * 100}%` }} />
+      <div className="pt-6 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end lg:gap-10 md:pt-8">
+        <section>
+          <div className="flex items-center gap-2 text-[13px] text-ink-60">
+            <span className="h-[7px] w-[7px] rounded-full bg-gold" />
+            Net worth{account.demo ? " · demo" : ""}
           </div>
-        )}
-      </section>
+          <div className="veil tabular mt-1.5 text-[clamp(44px,13vw,56px)] leading-none tracking-[-0.045em]" data-revealed={revealed}>
+            {usd(total)}
+          </div>
+          <button
+            type="button"
+            onClick={() => setRevealed((r) => !r)}
+            aria-pressed={revealed}
+            className="mt-2 flex items-center gap-1.5 text-[13px] text-ink-60 transition-opacity hover:opacity-70"
+          >
+            <RevealIcon size={16} />
+            {revealed ? "Hide balances" : "Reveal balances"}
+          </button>
+          {!account.balancesAvailable && (
+            <p className="mt-3 text-sm text-down">Balances couldn&apos;t be loaded from NEAR Intents just now.</p>
+          )}
+          {pricesMissing && <p className="mt-3 text-xs text-ink-45">Some prices are unavailable, so the total may be low.</p>}
 
-      <div className="mt-8 grid max-w-[520px] grid-cols-3 gap-2">
-        <button
-          type="button"
-          onClick={() => setFlow("add")}
-          className="flex h-16 flex-col items-center justify-center gap-1 bg-ink text-sm font-medium text-white transition-opacity hover:opacity-70"
-        >
-          <AddIcon size={20} />
-          Add
-        </button>
-        <button
-          type="button"
-          onClick={() => setFlow("send")}
-          className="flex h-16 flex-col items-center justify-center gap-1 border border-hairline bg-paper text-sm font-medium transition-opacity hover:opacity-70"
-        >
-          <SendIcon size={20} />
-          Send
-        </button>
-        <Link
-          href="/app/invest"
-          className="flex h-16 flex-col items-center justify-center gap-1 border border-hairline bg-paper text-sm font-medium transition-opacity hover:opacity-70"
-        >
-          <InvestIcon size={20} />
-          Invest
-        </Link>
+          {total > 0 && (
+            <div className="mt-6 flex h-1.5 w-full max-w-[520px] lg:max-w-none">
+              <span className="bg-ink" style={{ width: `${(cash / total) * 100}%` }} />
+              <span className="bg-gold" style={{ width: `${(invested / total) * 100}%` }} />
+            </div>
+          )}
+        </section>
+
+        <div className="mt-6 grid max-w-[520px] grid-cols-3 gap-2 lg:mt-0 lg:max-w-none">
+          <button
+            type="button"
+            onClick={() => setFlow("add")}
+            className="flex h-16 flex-col items-center justify-center gap-1 bg-ink text-sm font-medium text-white transition-opacity hover:opacity-70"
+          >
+            <AddIcon size={20} />
+            Add
+          </button>
+          <button
+            type="button"
+            onClick={() => setFlow("send")}
+            className="flex h-16 flex-col items-center justify-center gap-1 border border-hairline bg-paper text-sm font-medium transition-opacity hover:opacity-70"
+          >
+            <SendIcon size={20} />
+            Send
+          </button>
+          <Link
+            href="/app/invest"
+            className="flex h-16 flex-col items-center justify-center gap-1 border border-hairline bg-paper text-sm font-medium transition-opacity hover:opacity-70"
+          >
+            <InvestIcon size={20} />
+            Invest
+          </Link>
+        </div>
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">

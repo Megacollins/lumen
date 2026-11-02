@@ -34,56 +34,72 @@ export function AssetDetail({ symbol }: { symbol: string }) {
         <ChevronLeft size={16} strokeWidth={1.5} aria-hidden /> Invest
       </Link>
 
-      <div className="mt-6 flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center border border-hairline bg-paper text-xs tracking-wide">{asset.symbol}</span>
+      <div className="md:mt-6 md:grid md:grid-cols-[minmax(0,1fr)_400px] md:gap-12">
         <div>
-          <h1 className="text-[26px] font-normal leading-tight tracking-[-0.02em]">{asset.name}</h1>
-          <div className="text-[13px] text-ink-45">
-            {asset.symbol} · {asset.kind} · tokenized by Ondo
+          <div className="mt-6 flex items-center gap-3 md:mt-0">
+            <span className="flex h-11 w-11 items-center justify-center border border-hairline bg-paper text-xs tracking-wide">
+              {asset.symbol}
+            </span>
+            <div>
+              <h1 className="text-[26px] font-normal leading-tight tracking-[-0.02em]">{asset.name}</h1>
+              <div className="text-[13px] text-ink-45">
+                {asset.symbol} · {asset.kind} · tokenized by Ondo
+              </div>
+            </div>
+          </div>
+
+          <div className="tabular mt-8 text-[48px] leading-none tracking-[-0.04em]">{row?.price == null ? "—" : usd(row.price)}</div>
+          <p className="mt-2 text-[13px] text-ink-45">Indicative price from NEAR Intents. Your order gets its own quote.</p>
+
+          <div className="mt-8 grid grid-cols-2 gap-2 md:max-w-[360px]">
+            <button
+              type="button"
+              onClick={() => setSheet("buy")}
+              className="h-[52px] bg-ink font-medium text-white transition-opacity hover:opacity-70"
+            >
+              Buy
+            </button>
+            <button
+              type="button"
+              onClick={() => setSheet("sell")}
+              className="h-[52px] border border-ink bg-paper font-medium transition-opacity hover:opacity-70"
+            >
+              Sell
+            </button>
           </div>
         </div>
-      </div>
 
-      <div className="tabular mt-8 text-[48px] leading-none tracking-[-0.04em]">
-        {row?.price == null ? "—" : usd(row.price)}
-      </div>
-      <p className="mt-2 text-[13px] text-ink-45">Indicative price from NEAR Intents. Your order gets its own quote.</p>
+        <div>
+          <section className="mt-10 border border-hairline bg-paper md:mt-0">
+            <div className="flex justify-between px-4 py-3.5 text-sm">
+              <span className="text-ink-60">You hold</span>
+              <span className="tabular">{holding > 0 ? `${holding.toFixed(4)} ${asset.symbol}` : "None yet"}</span>
+            </div>
+            <div className="flex justify-between border-t border-hairline px-4 py-3.5 text-sm">
+              <span className="text-ink-60">Minimum order</span>
+              <span className="tabular">{usd(markets?.minOrderUsd ?? MIN_ORDER_USD)}</span>
+            </div>
+            <div className="flex justify-between border-t border-hairline px-4 py-3.5 text-sm">
+              <span className="text-ink-60">Orders</span>
+              <span>{row?.tradable ? "Open" : "Preview only"}</span>
+            </div>
+          </section>
 
-      <div className="mt-8 grid grid-cols-2 gap-2 md:max-w-[420px]">
-        <button type="button" onClick={() => setSheet("buy")} className="h-[52px] bg-ink font-medium text-white transition-opacity hover:opacity-70">
-          Buy
-        </button>
-        <button type="button" onClick={() => setSheet("sell")} className="h-[52px] border border-ink bg-paper font-medium transition-opacity hover:opacity-70">
-          Sell
-        </button>
-      </div>
-
-      <section className="mt-10 border border-hairline bg-paper">
-        <div className="flex justify-between px-4 py-3.5 text-sm">
-          <span className="text-ink-60">You hold</span>
-          <span className="tabular">
-            {holding > 0 ? `${holding.toFixed(4)} ${asset.symbol}` : "None yet"}
-          </span>
+          <section className="mt-6 text-[15px] leading-relaxed text-ink-60">
+            <h2 className="text-base text-ink">What you&apos;re buying</h2>
+            <p className="mt-2">
+              {asset.symbol}on is a token issued by Ondo Global Markets that tracks the price of {asset.name}
+              {asset.kind === "Gold ETF"
+                ? " (an exchange-traded fund that holds gold; the token is not physical gold)"
+                : asset.kind === "ETF"
+                  ? " (an exchange-traded fund)"
+                  : ""}
+              . It gives economic exposure only: no voting rights and no direct ownership of the underlying asset. The token lives on BNB
+              Chain and is held in your NEAR Intents account.
+            </p>
+          </section>
         </div>
-        <div className="flex justify-between border-t border-hairline px-4 py-3.5 text-sm">
-          <span className="text-ink-60">Minimum order</span>
-          <span className="tabular">{usd(markets?.minOrderUsd ?? MIN_ORDER_USD)}</span>
-        </div>
-        <div className="flex justify-between border-t border-hairline px-4 py-3.5 text-sm">
-          <span className="text-ink-60">Orders</span>
-          <span>{row?.tradable ? "Open" : "Preview only"}</span>
-        </div>
-      </section>
-
-      <section className="mt-6 text-[15px] leading-relaxed text-ink-60">
-        <h2 className="text-base text-ink">What you&apos;re buying</h2>
-        <p className="mt-2">
-          {asset.symbol}on is a token issued by Ondo Global Markets that tracks the price of {asset.name}
-          {asset.kind === "Gold ETF" ? " (an exchange-traded fund that holds gold; the token is not physical gold)" : asset.kind === "ETF" ? " (an exchange-traded fund)" : ""}. It gives economic exposure only: no
-          voting rights and no direct ownership of the underlying asset. The token lives on BNB Chain and is held in
-          your NEAR Intents account.
-        </p>
-      </section>
+      </div>
 
       <TradeSheet
         open={sheet !== null}
