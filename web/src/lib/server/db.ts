@@ -55,6 +55,26 @@ const SCHEMA = [
      at timestamptz not null default now(),
      seen_version int not null default 1,
      primary key (strategy_id, signer_id))`,
+  `create table if not exists alert_rules (
+     signer_id text not null,
+     kind text not null,
+     target text not null,
+     threshold double precision not null,
+     last_version int,
+     last_ret double precision,
+     created_at timestamptz not null default now(),
+     primary key (signer_id, kind, target))`,
+  `create table if not exists alert_events (
+     id bigserial primary key,
+     signer_id text not null,
+     dedupe text not null,
+     at timestamptz not null default now(),
+     title text not null,
+     detail text not null,
+     source_name text not null,
+     source_url text not null,
+     seen boolean not null default false,
+     unique (signer_id, dedupe))`,
 ];
 
 /** The query function, with the schema created once per server instance. Throws DbUnavailable without DATABASE_URL. */

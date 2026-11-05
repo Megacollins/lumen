@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-/** Markets | Strategies switch at the top of Invest. */
+/** Markets | Strategies | Intelligence switch at the top of Invest. */
 export function InvestTabs() {
   const path = usePathname();
   const strategies = path.startsWith("/app/invest/strategies");
+  const intelligence = path.startsWith("/app/invest/intelligence");
   const tab = (href: string, label: string, active: boolean) => (
     <Link
       href={href}
@@ -20,8 +21,9 @@ export function InvestTabs() {
   );
   return (
     <nav className="mb-6 flex gap-6 border-b border-hairline pt-6 md:pt-8" aria-label="Invest">
-      {tab("/app/invest", "Markets", !strategies)}
+      {tab("/app/invest", "Markets", !strategies && !intelligence)}
       {tab("/app/invest/strategies", "Strategies", strategies)}
+      {tab("/app/invest/intelligence", "Intelligence", intelligence)}
     </nav>
   );
 }
