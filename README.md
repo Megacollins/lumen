@@ -27,6 +27,7 @@ On a public blockchain, every payment, balance and trade is visible to anyone, f
 | Activity | Transaction history from NEAR Intents (`/v0/account/history`); demo receipts in demo mode | **Working** (real history is invite-only at NEAR Intents, so real accounts see an explanation instead) |
 | Signed statement | Balances and activity exported as JSON, signed by the account's passkey (WebAuthn P-256) | **Working** (tested on a real phone) |
 | Demo mode | Simulated balance and activity in the browser; every flow uses real dry-run quotes | **Working** |
+| Strategies | Invest → Strategies: investors publish model allocations across USDC and the Ondo assets; others browse, follow and copy them. Performance is the time-weighted return of the published allocation, chained across changes, computed only from prices Lumen records from the NEAR Intents token list from the moment of publishing (downloadable as CSV). Creators choose to share a holdings check (Lumen reads their confidential balance once with their own session and publishes only match/no-match within 5 points), a value range, and their account id. Followers get allocation updates in the app; "Copy allocation" splits an amount across the holdings and opens the normal buy sheet per asset, each with its own quote and signature | **Working** (tested end to end on the dev server against the real database and NEAR Intents: publish, holdings check, follow, update, unseen updates, unfollow, CSV, permissions). Buys follow the same preview lock as Invest |
 
 ## What is private, and what isn't
 
@@ -83,6 +84,9 @@ Outside demo mode, the same screens show real balances from NEAR Intents and say
 - **Geofence.** Tokenized stocks are blocked for US visitors by Vercel's IP-country header, and buyers confirm they aren't US persons (stored on their device). A VPN gets around both. A production launch would need proper KYC or an eligibility attestation.
 - **Dependency advisories.** `npm audit` reports issues (one critical, in `protobufjs`) inside the NEAR Intents SDK's cross-chain bridge libraries, which Lumen uses only on the server. Several NEAR wallet SDKs carry advisories of their own; they load only when someone picks a NEAR wallet. The suggested `npm audit fix` downgrades major versions, so these are tracked rather than forced.
 - **Rate limits** count per server instance (see Abuse protection).
+- **Strategies: no history before publishing.** NEAR Intents' token list gives current prices only, so a track record starts at zero on the day a strategy is published and grows from Lumen's own snapshots (at least daily, plus every 30 minutes while someone is viewing). Returns are a model: no fees, slippage or the creator's actual fills.
+- **Strategies: holdings checks rely on Lumen.** NEAR Intents has no viewing keys or delegated read access for developers yet (its selective disclosure is described, not exposed in the API), and transaction history is invite-only. So a check is Lumen's server reading the creator's balance with their session at that moment and recording the result, not a proof anyone can verify independently. Balances themselves are not stored.
+- **Strategies: updates are in-app only.** Followers see new allocation changes when they open Strategies; there are no push or email notifications. Following never trades: there are no automated or batched orders.
 - **Real wallets.** EVM and NEAR wallet sign-in and signing are tested with software wallets against mainnet; the one-time key registration for named NEAR accounts isn't tested yet.
 
 ## Built with

@@ -30,6 +30,7 @@ export function TradeSheet({
   holding,
   holdingBase,
   minOrderUsd,
+  initialAmount,
   onClose,
 }: {
   open: boolean;
@@ -39,11 +40,21 @@ export function TradeSheet({
   /** Exact holding in base units; "Sell all" and the sell check use this, never the float. */
   holdingBase: string;
   minOrderUsd: number;
+  /** Buy amount in USD to start from (Copy allocation); the person can still change it. */
+  initialAmount?: number;
   onClose: () => void;
 }) {
   return (
     <Sheet open={open} title={`${side === "buy" ? "Buy" : "Sell"} ${asset.name}`} onClose={onClose}>
-      <TradeForm side={side} asset={asset} holding={holding} holdingBase={holdingBase} minOrderUsd={minOrderUsd} onDone={onClose} />
+      <TradeForm
+        side={side}
+        asset={asset}
+        holding={holding}
+        holdingBase={holdingBase}
+        minOrderUsd={minOrderUsd}
+        initialAmount={initialAmount}
+        onDone={onClose}
+      />
     </Sheet>
   );
 }
@@ -54,6 +65,7 @@ function TradeForm({
   holding,
   holdingBase,
   minOrderUsd,
+  initialAmount,
   onDone,
 }: {
   side: "buy" | "sell";
@@ -61,10 +73,11 @@ function TradeForm({
   holding: number;
   holdingBase: string;
   minOrderUsd: number;
+  initialAmount?: number;
   onDone: () => void;
 }) {
   const { account, simulate } = useAccount();
-  const [amount, setAmount] = useState(side === "buy" ? String(minOrderUsd) : "");
+  const [amount, setAmount] = useState(side === "buy" ? String(initialAmount ?? minOrderUsd) : "");
   const [eligible, setEligible] = useState(isEligibilityConfirmed);
   const [quote, setQuote] = useState<Quote | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -89,11 +102,11 @@ function TradeForm({
           ? `The minimum order is ${usd(minOrderUsd)}.`
           : side === "sell" && toBaseUnits(amount, asset.decimals) === null
             ? `Use at most ${asset.decimals} decimal places.`
-          : side === "sell" && toBaseUnits(amount, asset.decimals)! > BigInt(holdingBase)
-            ? holding > 0
-              ? `You hold ${holding.toFixed(4)} ${asset.symbol}.`
-              : `You don't hold any ${asset.symbol} yet.`
-            : null;
+            : side === "sell" && toBaseUnits(amount, asset.decimals)! > BigInt(holdingBase)
+              ? holding > 0
+                ? `You hold ${holding.toFixed(4)} ${asset.symbol}.`
+                : `You don't hold any ${asset.symbol} yet.`
+              : null;
   const canQuote = amount !== "" && !inputError && (side === "sell" || eligible);
   // Still quote (prices are useful before funding), but never offer to sign more than the cash on hand.
   const overCash = side === "buy" && !inputError && n > cash;
@@ -212,7 +225,11 @@ function TradeForm({
         </div>
       ) : (
         holding > 0 && (
-          <button type="button" onClick={() => setAmount(fromBaseUnits(holdingBase, asset.decimals))} className="mt-3 text-sm underline underline-offset-4">
+          <button
+            type="button"
+            onClick={() => setAmount(fromBaseUnits(holdingBase, asset.decimals))}
+            className="mt-3 text-sm underline underline-offset-4"
+          >
             Sell all ({holding.toFixed(4)})
           </button>
         )

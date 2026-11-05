@@ -17,6 +17,7 @@ export const LIMITS = {
   demo: 10,
   execute: 20,
   read: 120,
+  write: 20,
 } as const;
 
 /** Returns a 429 response when this IP has used up `group`'s allowance for the last minute, otherwise null. */
