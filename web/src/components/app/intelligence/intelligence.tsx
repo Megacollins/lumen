@@ -81,7 +81,7 @@ function AskLumen() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg tracking-[-0.015em]">Ask Lumen</h2>
         <span className="border border-hairline px-1.5 py-0.5 text-[11px] uppercase tracking-[0.08em] text-ink-45">
-          Not switched on yet
+          Coming soon
         </span>
       </div>
       <p className="mt-2 max-w-[640px] text-sm leading-relaxed text-ink-60">
