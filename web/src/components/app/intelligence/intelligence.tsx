@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fromBaseUnits } from "@/lib/markets";
 import type { Filing, Headline, Underlying } from "@/lib/server/market-intel";
@@ -55,10 +56,13 @@ export function Intelligence() {
         choose. Every figure names where it came from. Informational only, not investment advice.
       </p>
 
+      {data && <KeyInsights data={data} />}
       <AskLumen />
       <Portfolio insights={data} />
 
-      <h2 className="mt-12 text-xl tracking-[-0.015em]">Market insights</h2>
+      <h2 id="markets" className="mt-12 scroll-mt-24 text-xl tracking-[-0.015em]">
+        Market insights
+      </h2>
       {error && <p className="mt-3 text-sm text-down">{error}</p>}
       {!data && !error && (
         <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -74,15 +78,96 @@ export function Intelligence() {
   );
 }
 
+/** Four headline facts, each computed from the data below and linking to it. */
+function KeyInsights({ data }: { data: Insights }) {
+  const [best, setBest] = useState<StrategyCard | null | undefined>(undefined);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/strategies", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : { strategies: [] }))
+      .then((d: { strategies: StrategyCard[] }) => {
+        // Only strategies with at least a day of recorded prices count as a track record.
+        const ranked = (d.strategies ?? [])
+          .filter((s) => s.ret != null && s.points.length >= 2 && Date.now() - new Date(s.createdAt).getTime() >= 86_400_000)
+          .sort((a, b) => b.ret! - a.ret!);
+        if (alive) setBest(ranked[0] ?? null);
+      })
+      .catch(() => alive && setBest(null));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const priced = data.assets.filter((a) => a.underlying?.change1d != null);
+  const mover = [...priced].sort((a, b) => Math.abs(b.underlying!.change1d!) - Math.abs(a.underlying!.change1d!))[0];
+  const up = priced.filter((a) => a.underlying!.change1d! > 0).length;
+  const metal = (sym: string) => data.assets.find((a) => a.symbol === sym)?.underlying?.change5d ?? null;
+  const card = "flex min-h-[132px] flex-col justify-between border border-hairline bg-paper p-4 transition-colors hover:bg-mist";
+  const label = "text-[11px] uppercase tracking-[0.08em] text-ink-45";
+
+  return (
+    <section className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Key insights">
+      {mover && (
+        <Link href={`/app/invest/${mover.symbol}`} className={card}>
+          <span className={label}>Biggest move</span>
+          <span>
+            <span className="block text-[15px] leading-snug">{mover.name}</span>
+            <span className={`tabular text-2xl tracking-[-0.02em] ${signed(mover.underlying!.change1d)}`}>
+              {pct(mover.underlying!.change1d, 1)}
+            </span>
+          </span>
+          <span className="text-[11px] text-ink-45">Last session · Yahoo Finance</span>
+        </Link>
+      )}
+      <Link href="/app/invest/GLD" className={card}>
+        <span className={label}>Gold &amp; silver, 5 days</span>
+        <span className="flex flex-col gap-0.5 text-[15px]">
+          <span className="flex justify-between gap-2">
+            Gold <span className={`tabular ${signed(metal("GLD"))}`}>{pct(metal("GLD"), 1)}</span>
+          </span>
+          <span className="flex justify-between gap-2">
+            Silver <span className={`tabular ${signed(metal("SLV"))}`}>{pct(metal("SLV"), 1)}</span>
+          </span>
+        </span>
+        <span className="text-[11px] text-ink-45">GLD and SLV · Yahoo Finance</span>
+      </Link>
+      <a href="#markets" className={card}>
+        <span className={label}>Market breadth</span>
+        <span className="text-[15px] leading-snug">
+          <span className="tabular text-2xl tracking-[-0.02em]">
+            {up} of {priced.length}
+          </span>
+          <span className="block">Lumen assets rose in the last session</span>
+        </span>
+        <span className="text-[11px] text-ink-45">Underlying closes</span>
+      </a>
+      <Link href={best ? `/app/invest/strategies/${best.id}` : "/app/invest/strategies"} className={card}>
+        <span className={label}>Top strategy</span>
+        {best ? (
+          <span>
+            <span className="block truncate text-[15px] leading-snug">{best.name}</span>
+            <span className={`tabular text-2xl tracking-[-0.02em] ${signed(best.ret)}`}>{pct(best.ret, 1)}</span>
+          </span>
+        ) : (
+          <span className="text-[15px] leading-snug text-ink-60">
+            {best === undefined ? "Loading…" : "None with a day of track record yet"}
+          </span>
+        )}
+        <span className="text-[11px] text-ink-45">
+          {best ? `Since ${dateLabel(best.createdAt)} · model return` : "Publish or browse strategies"}
+        </span>
+      </Link>
+    </section>
+  );
+}
+
 /** Not switched on: Lumen only sends questions to NEAR AI models in attested TEEs, and that needs NEAR AI Cloud credits. */
 function AskLumen() {
   return (
     <section className="mt-8 border border-hairline bg-paper p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg tracking-[-0.015em]">Ask Lumen</h2>
-        <span className="border border-hairline px-1.5 py-0.5 text-[11px] uppercase tracking-[0.08em] text-ink-45">
-          Coming soon
-        </span>
+        <span className="border border-hairline px-1.5 py-0.5 text-[11px] uppercase tracking-[0.08em] text-ink-45">Coming soon</span>
       </div>
       <p className="mt-2 max-w-[640px] text-sm leading-relaxed text-ink-60">
         An assistant for researching stocks, gold and strategies, answering only from the sources on this page. It will run on NEAR AI Cloud
@@ -386,7 +471,7 @@ function Alerts() {
   const unseen = state?.events.filter((e) => !e.seen).length ?? 0;
 
   return (
-    <section className="mt-12">
+    <section id="alerts" className="mt-12 scroll-mt-24">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl tracking-[-0.015em]">
           Smart alerts{unseen > 0 && <span className="ml-2 align-middle text-sm text-gold">{unseen} new</span>}

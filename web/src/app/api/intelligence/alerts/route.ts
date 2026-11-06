@@ -29,6 +29,14 @@ export async function GET(req: Request) {
   const { s, error } = await account(req, "read");
   if (error) return error;
   try {
+    // ?count=1 is the header bell: just the unread number, without re-checking markets on every page.
+    if (new URL(req.url).searchParams.get("count") === "1") {
+      const sql = await db();
+      const [{ n }] = (await sql`select count(*)::int as n from alert_events where signer_id = ${s.signerId} and not seen`) as {
+        n: number;
+      }[];
+      return Response.json({ unseen: n });
+    }
     await evaluateAlerts(s.signerId);
     return Response.json(await state(s.signerId));
   } catch (e) {

@@ -55,7 +55,7 @@ const expect = (label, ok, detail = "") => {
 const anon = client();
 const m = await anon("/api/intelligence/markets");
 const assets = m.body?.assets ?? [];
-expect("market insights load for all five assets", m.status === 200 && assets.length === 5);
+expect("market insights load for all 16 assets", m.status === 200 && assets.length === 16);
 expect(
   "every asset has a sourced price history",
   assets.every((a) => a.underlying && a.underlying.closes.length > 5 && a.underlying.source?.url),
@@ -106,6 +106,9 @@ expect(
 );
 a1 = await follower.call("/api/intelligence/alerts");
 expect("same move isn't alerted twice", a1.body.events.filter((e) => e.title.includes(mover.name)).length === 1);
+const bell = await follower.call("/api/intelligence/alerts?count=1");
+expect("bell shows the unread count", bell.status === 200 && bell.body.unseen >= 1, `unseen=${bell.body?.unseen}`);
+expect("bell needs sign-in", (await anon("/api/intelligence/alerts?count=1")).status === 401);
 
 const pub = await creator.call("/api/strategies", {
   handle: "sim_" + creator.accountId.slice(0, 8),
@@ -127,6 +130,7 @@ const sev = a2.body.events.find((e) => e.title.includes("Test: alerts") && e.tit
 expect("strategy change raises an alert with the note", sev?.detail === "Testing alerts.", sev?.title);
 const seen = await follower.call("/api/intelligence/alerts", { seen: true }, "DELETE");
 expect("mark all read", seen.status === 200 && seen.body.events.every((e) => e.seen));
+expect("bell count drops to 0 after reading", (await follower.call("/api/intelligence/alerts?count=1")).body?.unseen === 0);
 const del = await follower.call("/api/intelligence/alerts", { kind: "asset", target: mover.symbol }, "DELETE");
 expect("rule removed", del.status === 200 && !del.body.rules.some((r) => r.target === mover.symbol));
 

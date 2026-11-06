@@ -26,6 +26,7 @@ import {
   type Receipt,
 } from "@/lib/demo-ledger";
 import { signOutWallet } from "@/lib/wallet-client";
+import { AlertsBell } from "./alerts-bell";
 import { WalletSignIn } from "./wallet-sign-in";
 
 export type Account = {
@@ -169,8 +170,8 @@ function Shell({
       {demo && (
         <div className="flex items-center justify-center gap-3 bg-ink px-4 py-2 text-center text-[13px] text-white">
           <span>
-            <b className="font-medium">Demo.</b> Simulated balances<span className="hidden sm:inline"> and transactions</span>, real
-            prices and quotes.
+            <b className="font-medium">Demo.</b> Simulated balances<span className="hidden sm:inline"> and transactions</span>, real prices
+            and quotes.
           </span>
           <button type="button" onClick={onResetDemo} className="flex-none underline underline-offset-4 hover:opacity-70">
             Reset
@@ -195,10 +196,15 @@ function Shell({
             ))}
           </nav>
           <div className="flex items-center gap-3 text-sm">
+            {!demo && <AlertsBell />}
             <span className="tabular hidden text-ink-60 sm:inline" title={signerId}>
               {demo ? "Demo account" : `${signerId.slice(0, 6)}…${signerId.slice(-4)}`}
             </span>
-            <button type="button" onClick={onSignOut} className="border border-hairline bg-paper px-3 py-1.5 transition-opacity hover:opacity-70">
+            <button
+              type="button"
+              onClick={onSignOut}
+              className="border border-hairline bg-paper px-3 py-1.5 transition-opacity hover:opacity-70"
+            >
               {demo ? "Exit demo" : "Sign out"}
             </button>
           </div>
@@ -250,7 +256,11 @@ function SignIn({ onSignedIn }: { onSignedIn: () => void }) {
   return (
     <div className="flex flex-1 flex-col bg-studio md:items-center md:justify-center md:py-16">
       <div className="relative flex flex-1 items-center justify-center overflow-hidden py-16 md:hidden">
-        <div aria-hidden className="absolute h-[360px] w-[360px] rounded-full" style={{ background: "radial-gradient(circle, rgba(240,223,174,0.85) 0%, rgba(236,235,232,0) 68%)" }} />
+        <div
+          aria-hidden
+          className="absolute h-[360px] w-[360px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(240,223,174,0.85) 0%, rgba(236,235,232,0) 68%)" }}
+        />
         <Mark size={104} className="relative" />
       </div>
       <div className="flex flex-col gap-3 border-t border-hairline bg-paper px-6 pb-9 pt-8 md:w-[440px] md:border md:p-10">
@@ -261,7 +271,9 @@ function SignIn({ onSignedIn }: { onSignedIn: () => void }) {
           Your money, off the <i>public</i> record.
         </h1>
         <p className="mb-3 text-[15px] leading-relaxed text-ink-60">
-          {stored ? "Welcome back. Sign in with the passkey on this device." : "Create a passkey to open your private account. No seed phrase, no password."}
+          {stored
+            ? "Welcome back. Sign in with the passkey on this device."
+            : "Create a passkey to open your private account. No seed phrase, no password."}
         </p>
 
         {!supported ? (
