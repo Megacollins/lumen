@@ -11,8 +11,19 @@ export const UNDERLYING: Record<string, { name: string; news: string; cik: strin
   NVDA: { name: "NVIDIA", news: "NVIDIA stock", cik: "1045810" },
   TSLA: { name: "Tesla", news: "Tesla stock", cik: "1318605" },
   AAPL: { name: "Apple", news: "Apple stock", cik: "320193" },
+  MSFT: { name: "Microsoft", news: "Microsoft stock", cik: "789019" },
+  AMZN: { name: "Amazon", news: "Amazon stock", cik: "1018724" },
+  GOOGL: { name: "Alphabet (Google)", news: "Alphabet stock", cik: "1652044" },
+  META: { name: "Meta", news: "Meta Platforms stock", cik: "1326801" },
+  INTC: { name: "Intel", news: "Intel stock", cik: "50863" },
+  MRVL: { name: "Marvell", news: "Marvell Technology stock", cik: "1835632" },
+  CRCL: { name: "Circle", news: "Circle Internet Group stock", cik: "1876042" },
+  HOOD: { name: "Robinhood", news: "Robinhood stock", cik: "1783879" },
   QQQ: { name: "Invesco QQQ", news: "Nasdaq 100 OR Invesco QQQ", cik: "1067839" },
+  SPY: { name: "SPDR S&P 500", news: "S&P 500", cik: "884394" },
   GLD: { name: "SPDR Gold Shares", news: "gold price", cik: "1222333" },
+  IAU: { name: "iShares Gold Trust", news: "gold price OR gold ETF", cik: "1278680" },
+  SLV: { name: "iShares Silver Trust", news: "silver price", cik: "1330568" },
 };
 
 export type Underlying = {

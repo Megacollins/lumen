@@ -1,6 +1,6 @@
 import { Reveal } from "@/components/motion/reveal";
 import { SwapIcon } from "@/components/brand/icons";
-import { CANDIDATE_ASSETS, getMarketRows, MIN_ORDER_USD } from "@/lib/markets";
+import { CANDIDATE_ASSETS, FEATURED_SYMBOLS, getMarketRows, MIN_ORDER_USD } from "@/lib/markets";
 
 function Card({ symbol, kind, name, price, status }: { symbol: string; kind: string; name: string; price: string; status: string }) {
   return (
@@ -38,8 +38,12 @@ const time = (iso: string) =>
   new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + " UTC";
 
 /** Indicative prices and listing status from NEAR Intents. Streams in behind <MarketGridFallback/>. */
+const featured = (symbol: string) => (FEATURED_SYMBOLS as readonly string[]).includes(symbol);
+const others = CANDIDATE_ASSETS.filter((a) => !featured(a.symbol)).map((a) => a.name);
+
 export async function MarketGrid() {
-  const { rows, live, updatedAt } = await getMarketRows();
+  const { rows: all, live, updatedAt } = await getMarketRows();
+  const rows = all.filter((r) => featured(r.symbol));
   return (
     <>
       <div className={ROW}>
@@ -69,7 +73,7 @@ export async function MarketGrid() {
           ? `Indicative prices from the NEAR Intents token list${updatedAt ? `, last updated ${time(updatedAt)}` : ""}. Outside stock market hours they may not move. `
           : "Prices can't be loaded from NEAR Intents right now. "}
         The price you pay comes from a live quote when you order. Orders open per asset after a verified test trade on mainnet; until then
-        Lumen shows quotes only.
+        Lumen shows quotes only. Also in the app: {others.slice(0, -1).join(", ")} and {others.at(-1)}.
       </p>
     </>
   );
@@ -78,7 +82,7 @@ export async function MarketGrid() {
 export function MarketGridFallback() {
   return (
     <div className={ROW}>
-      {CANDIDATE_ASSETS.map((a) => (
+      {CANDIDATE_ASSETS.filter((a) => featured(a.symbol)).map((a) => (
         <div key={a.symbol} className={ITEM}>
           <Card {...a} price="—" status="Loading price…" />
         </div>

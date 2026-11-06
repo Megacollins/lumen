@@ -85,7 +85,11 @@ export default function Home() {
                   title: "Send",
                   text: "Pay any NEAR Intents account. The amount and recipient stay off the public ledger.",
                 },
-                { Art: StepInvest, title: "Invest", text: "Buy tokenized stocks and ETFs, including a gold ETF, from the same balance." },
+                {
+                  Art: StepInvest,
+                  title: "Invest",
+                  text: "Buy tokenized stocks and ETFs, including gold and silver, from the same balance.",
+                },
               ].map(({ Art, title, text }, i) => (
                 <Reveal key={title} delay={i * 0.06}>
                   <div className="flex h-full flex-col items-center gap-3 border border-hairline bg-paper px-8 pb-10 pt-12 text-center">

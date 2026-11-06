@@ -3,8 +3,7 @@
 import { useId, useState, type ReactNode } from "react";
 import { CANDIDATE_ASSETS, MIN_ORDER_USD } from "@/lib/markets";
 
-const list = (names: string[]) => `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
-const assets = list(CANDIDATE_ASSETS.map((a) => (a.kind === "Gold ETF" ? `${a.name} (a gold ETF)` : a.name)));
+const assets = `${CANDIDATE_ASSETS.length} tokenized assets: US stocks such as NVIDIA, Apple, Microsoft and Tesla, the Nasdaq 100 and S&P 500 ETFs, and gold and silver ETFs`;
 
 // Answers describe what the app does today; keep them in step with the privacy table and README.
 const QUESTIONS: { q: string; a: ReactNode }[] = [
@@ -46,9 +45,9 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
     q: "What can I invest in?",
     a: (
       <>
-        {assets}, as tokens issued by Ondo Global Markets. Each token tracks its underlying asset and gives economic exposure only: no
-        voting rights and no direct ownership. The minimum order is ${MIN_ORDER_USD}, and they aren&apos;t available to US persons or in
-        restricted jurisdictions. Prices can fall as well as rise.
+        {assets}, all issued by Ondo Global Markets. Each token tracks its underlying asset and gives economic exposure only: no voting
+        rights and no direct ownership. The minimum order is ${MIN_ORDER_USD}, and they aren&apos;t available to US persons or in restricted
+        jurisdictions. Prices can fall as well as rise.
       </>
     ),
   },

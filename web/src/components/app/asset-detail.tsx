@@ -92,9 +92,11 @@ export function AssetDetail({ symbol }: { symbol: string }) {
               {asset.symbol}on is a token issued by Ondo Global Markets that tracks the price of {asset.name}
               {asset.kind === "Gold ETF"
                 ? " (an exchange-traded fund that holds gold; the token is not physical gold)"
-                : asset.kind === "ETF"
-                  ? " (an exchange-traded fund)"
-                  : ""}
+                : asset.kind === "Silver ETF"
+                  ? " (an exchange-traded fund that holds silver; the token is not physical silver)"
+                  : asset.kind === "ETF"
+                    ? " (an exchange-traded fund)"
+                    : ""}
               . It gives economic exposure only: no voting rights and no direct ownership of the underlying asset. The token lives on BNB
               Chain and is held in your NEAR Intents account.
             </p>

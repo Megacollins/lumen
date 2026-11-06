@@ -42,7 +42,7 @@ On a public blockchain, every payment, balance and trade is visible to anyone, f
 | Order details (asset, amount, recipient) | Seen by Lumen's server and the 1Click API when quoting. |
 | Blurred balances in the app | A screen-privacy feature only, not cryptography. |
 
-Ondo tokens give economic exposure to the underlying stock or fund. They are not direct share ownership, and the gold token tracks SPDR Gold Shares (GLD), an ETF that holds gold, not physical gold. Not available to US persons.
+Lumen offers 16 Ondo tokens, each confirmed on the NEAR Intents token list with a real $30 dry-run quote: 11 US stocks (NVIDIA, Tesla, Apple, Microsoft, Amazon, Alphabet, Meta, Intel, Marvell, Circle, Robinhood), the Nasdaq 100 (QQQ) and S&P 500 (SPY) ETFs, two gold ETFs (GLD, IAU) and a silver ETF (SLV). Ondo tokens give economic exposure to the underlying stock or fund. They are not direct share ownership, and the gold and silver tokens track ETFs that hold the metal, not physical metal. Not available to US persons.
 
 ## Repository layout
 
