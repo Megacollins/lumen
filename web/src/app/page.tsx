@@ -12,6 +12,7 @@ import { PrivateIcon, StatementIcon, PasskeyIcon } from "@/components/brand/icon
 import { StepAdd, StepInvest, StepSend } from "@/components/landing/illustrations";
 import { LumenBox } from "@/components/landing/lumen-box";
 import { Faq } from "@/components/landing/faq";
+import { IntelligencePreview, IntelligencePreviewFallback, StrategiesPreview } from "@/components/landing/features";
 
 const H2 = "text-[clamp(32px,4.2vw,60px)] font-normal leading-[1.08] tracking-[-0.035em]";
 const BODY = "text-base leading-relaxed text-ink-70";
@@ -171,6 +172,56 @@ export default function Home() {
             </div>
           </section>
         </div>
+
+        {/* Strategies and Intelligence (Invest → Strategies, Invest → Intelligence) */}
+        <section id="strategies" className="scroll-mt-20 bg-paper px-4 py-[clamp(48px,5vw,80px)] sm:px-8">
+          <div className="mx-auto max-w-[1280px]">
+            <Reveal className="mx-auto max-w-[760px] text-center">
+              <p className="text-[13px] tracking-[0.12em] text-ink-45">STRATEGIES AND INTELLIGENCE</p>
+              <h2 className={`${H2} mt-4`}>
+                Invest together. Research <i>with sources</i>.
+              </h2>
+            </Reveal>
+            <div className="mt-10 grid gap-10 lg:grid-cols-2 lg:gap-12">
+              <Reveal className="flex flex-col">
+                <h3 className="text-[26px] font-normal tracking-[-0.02em]">Lumen Strategies</h3>
+                <p className={`${BODY} mt-3 max-w-[520px]`}>
+                  Browse model allocations that other Lumen investors publish across stocks, ETFs and gold. Each one&apos;s track record
+                  starts the day it&apos;s published, priced from NEAR Intents. Follow a strategy to get its updates, or copy its
+                  allocation: every buy is still yours to review and sign. Publish your own and choose what you share.
+                </p>
+                <div className="mt-6 flex-1">
+                  <StrategiesPreview />
+                </div>
+                <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+                  <ButtonLink href="/demo?next=/app/invest/strategies">Explore strategies</ButtonLink>
+                  <Link href="/app/invest/strategies" className="text-sm text-ink-60 underline underline-offset-4 hover:opacity-70">
+                    Signed in? Open Strategies
+                  </Link>
+                </div>
+              </Reveal>
+              <Reveal className="flex flex-col" delay={0.1}>
+                <h3 className="text-[26px] font-normal tracking-[-0.02em]">Lumen Intelligence</h3>
+                <p className={`${BODY} mt-3 max-w-[520px]`}>
+                  Real price moves, headlines and SEC filings for every Lumen asset, each with its source and time. Analyse your own
+                  allocation in your browser and set alerts for the moves you care about. A private AI assistant, running on NEAR AI&apos;s
+                  attested hardware, is coming next.
+                </p>
+                <div className="mt-6 flex-1">
+                  <Suspense fallback={<IntelligencePreviewFallback />}>
+                    <IntelligencePreview />
+                  </Suspense>
+                </div>
+                <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+                  <ButtonLink href="/demo?next=/app/invest/intelligence">Open Intelligence</ButtonLink>
+                  <Link href="/app/invest/intelligence" className="text-sm text-ink-60 underline underline-offset-4 hover:opacity-70">
+                    Signed in? Open Intelligence
+                  </Link>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
 
         {/* Unified portfolio */}
         <section className="bg-mist px-4 py-[clamp(48px,5vw,80px)] sm:px-8">
@@ -359,6 +410,14 @@ export default function Home() {
                 ["Savers in high-inflation economies", "Hold dollars and a gold ETF without broadcasting what you have."],
                 ["Founders and small teams", "Pay contractors and suppliers without exposing your runway."],
                 ["Investors", "Build positions without your wallet being tracked or copy-traded."],
+                [
+                  "Investors who want to share",
+                  "Publish a strategy others can follow, and choose what it reveals: the allocation, and only if you opt in, a holdings check.",
+                ],
+                [
+                  "People who do their own research",
+                  "Price moves, headlines and SEC filings for every asset, each with its source, plus alerts you set.",
+                ],
               ].map(([title, text], i) => (
                 <Reveal key={title} delay={i * 0.05}>
                   <div className="h-full border border-hairline bg-paper p-8">

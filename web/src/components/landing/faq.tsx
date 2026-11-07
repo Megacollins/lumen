@@ -52,6 +52,28 @@ const QUESTIONS: { q: string; a: ReactNode }[] = [
     ),
   },
   {
+    q: "What are Lumen Strategies?",
+    a: (
+      <>
+        Model allocations that Lumen investors publish across stocks, ETFs and gold. Each shows its return since publishing, calculated from
+        prices Lumen records from NEAR Intents (a model, not the creator&apos;s actual trades, and without fees), and the prices are
+        downloadable so anyone can check it. Creators choose what they share beyond the allocation. Following a strategy only sends you its
+        updates: it never trades for you, and copying an allocation opens a normal order for each asset that you review and sign yourself.
+      </>
+    ),
+  },
+  {
+    q: "What is Lumen Intelligence?",
+    a: (
+      <>
+        Research for every Lumen asset: recent price moves, headlines and SEC filings, each with its source and time, plus an analysis of
+        your own allocation that runs in your browser, and alerts you set. It is informational, not advice, and it never places orders. Ask
+        Lumen, an AI assistant that will run on NEAR AI models inside attested hardware, is coming next; until then there are no
+        AI-generated answers.
+      </>
+    ),
+  },
+  {
     q: "How are my funds secured?",
     a: (
       <>
@@ -104,7 +126,7 @@ function Item({ q, a }: { q: string; a: ReactNode }) {
   );
 }
 
-/** Five questions in a quiet accordion; each opens on its own. */
+/** Questions in a quiet accordion; each opens on its own. */
 export function Faq() {
   return (
     <div className="border-t border-hairline">

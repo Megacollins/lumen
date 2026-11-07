@@ -8,14 +8,20 @@ import { Mark } from "@/components/brand/logo";
 const start = (confirm: boolean) =>
   fetch("/api/demo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirm }) });
 
-// Shareable entry point for judges: starts a demo session and opens the app. If a real account is signed in here,
-// it asks before switching, so a link can't silently sign anyone out.
+/** `?next=` may only point inside the app (e.g. /app/invest/strategies), so the link can't send anyone elsewhere. */
+function nextPath() {
+  const next = new URLSearchParams(window.location.search).get("next") ?? "";
+  return /^\/app(\/[A-Za-z0-9/_-]*)?$/.test(next) ? next : "/app";
+}
+
+// Shareable entry point for judges: starts a demo session and opens the app (or the page in ?next=). If a real
+// account is signed in here, it asks before switching, so a link can't silently sign anyone out.
 export default function DemoPage() {
   const router = useRouter();
   const [ask, setAsk] = useState(false);
 
   useEffect(() => {
-    start(false).then((r) => (r.status === 409 ? setAsk(true) : router.replace("/app")));
+    start(false).then((r) => (r.status === 409 ? setAsk(true) : router.replace(nextPath())));
   }, [router]);
 
   if (ask)
@@ -26,12 +32,15 @@ export default function DemoPage() {
           You&apos;re signed in to your Lumen account. Opening the demo signs you out of it on this device.
         </p>
         <div className="flex gap-2">
-          <Link href="/app" className="flex h-11 items-center border border-hairline bg-paper px-5 text-sm font-medium transition-opacity hover:opacity-70">
+          <Link
+            href="/app"
+            className="flex h-11 items-center border border-hairline bg-paper px-5 text-sm font-medium transition-opacity hover:opacity-70"
+          >
             Back to my account
           </Link>
           <button
             type="button"
-            onClick={() => start(true).then(() => router.replace("/app"))}
+            onClick={() => start(true).then(() => router.replace(nextPath()))}
             className="h-11 bg-ink px-5 text-sm font-medium text-white transition-opacity hover:opacity-70"
           >
             Open the demo
