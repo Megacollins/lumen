@@ -324,8 +324,8 @@ function MarketInsights({ data }: { data: Insights }) {
       </div>
       <p className="mt-4 text-xs leading-relaxed text-ink-45">
         Underlying prices: Yahoo Finance daily closes (its public chart service, not an official API). Lumen prices: the NEAR Intents token
-        list. Headlines: Google News search, linking to each publisher. Filings: SEC EDGAR. Fetched {ago(data.fetchedAt)}, refreshed every
-        15 minutes.
+        list. Headlines: Google News search, limited to established outlets and linking to each article. Filings: SEC EDGAR. Fetched{" "}
+        {ago(data.fetchedAt)}, refreshed every 15 minutes.
       </p>
     </>
   );
@@ -383,7 +383,7 @@ function AssetCard({ a, token, tokenAt }: { a: Insight; token: number | null; to
 
       <div className="mt-4 text-[11px] uppercase tracking-[0.08em] text-ink-45">Headlines</div>
       {a.headlines.length === 0 ? (
-        <p className="mt-1 text-xs text-ink-45">No headlines found this week.</p>
+        <p className="mt-1 text-xs text-ink-45">No headlines from major outlets this week.</p>
       ) : (
         <ul className="mt-1 flex flex-col">
           {a.headlines.map((h) => (

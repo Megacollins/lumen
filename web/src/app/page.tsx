@@ -194,10 +194,7 @@ export default function Home() {
                   <StrategiesPreview />
                 </div>
                 <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
-                  <ButtonLink href="/demo?next=/app/invest/strategies">Explore strategies</ButtonLink>
-                  <Link href="/app/invest/strategies" className="text-sm text-ink-60 underline underline-offset-4 hover:opacity-70">
-                    Signed in? Open Strategies
-                  </Link>
+                  <ButtonLink href="/app/invest/strategies">Explore strategies</ButtonLink>
                 </div>
               </Reveal>
               <Reveal className="flex flex-col" delay={0.1}>
@@ -213,10 +210,7 @@ export default function Home() {
                   </Suspense>
                 </div>
                 <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
-                  <ButtonLink href="/demo?next=/app/invest/intelligence">Open Intelligence</ButtonLink>
-                  <Link href="/app/invest/intelligence" className="text-sm text-ink-60 underline underline-offset-4 hover:opacity-70">
-                    Signed in? Open Intelligence
-                  </Link>
+                  <ButtonLink href="/app/invest/intelligence">Open Intelligence</ButtonLink>
                 </div>
               </Reveal>
             </div>

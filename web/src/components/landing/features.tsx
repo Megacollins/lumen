@@ -83,7 +83,7 @@ export async function IntelligencePreview() {
       </div>
       <div className="mt-4 grid grid-cols-3 gap-2">
         <div className="border border-hairline p-3">
-          <div className={label}>Biggest move</div>
+          <div className={label}>Top mover, 1 day</div>
           <div className="mt-2 truncate text-[13px]">{UNDERLYING[mover.symbol].name}</div>
           <div className={`tabular text-lg ${tone(mover.change1d)}`}>{pct(mover.change1d)}</div>
         </div>
@@ -93,10 +93,10 @@ export async function IntelligencePreview() {
           <div className={`tabular text-lg ${tone(five("GLD"))}`}>{pct(five("GLD"))}</div>
         </div>
         <div className="border border-hairline p-3">
-          <div className={label}>Breadth</div>
-          <div className="mt-2 text-[13px]">rose</div>
+          <div className={label}>Assets up, 1 day</div>
+          <div className="mt-2 text-[13px]">Lumen assets</div>
           <div className="tabular text-lg">
-            {up}/{priced.length}
+            {up} of {priced.length}
           </div>
         </div>
       </div>

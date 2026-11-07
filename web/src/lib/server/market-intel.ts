@@ -84,7 +84,48 @@ const decode = (s: string) =>
     .trim();
 const tag = (item: string, name: string) => item.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`))?.[1];
 
-/** The newest headlines from the past week, via Google News search RSS (each links to the publisher's article). */
+/**
+ * Established financial and general news outlets. Google News search returns any site that matches the words (local
+ * gold-shop prices, press-release mills), so headlines from anyone else are left out.
+ */
+const OUTLETS = [
+  "Reuters",
+  "Bloomberg",
+  "CNBC",
+  "MarketWatch",
+  "The Wall Street Journal",
+  "WSJ",
+  "Financial Times",
+  "Barron's",
+  "Yahoo Finance",
+  "Investing.com",
+  "Kitco",
+  "Morningstar",
+  "Forbes",
+  "Fortune",
+  "Business Insider",
+  "Associated Press",
+  "AP News",
+  "The Motley Fool",
+  "Seeking Alpha",
+  "Nasdaq",
+  "TheStreet",
+  "Benzinga",
+  "Axios",
+  "The Economist",
+  "BBC",
+  "CNN",
+  "The New York Times",
+  "The Guardian",
+  "Fox Business",
+  "Investopedia",
+  "TechCrunch",
+  "The Verge",
+];
+const established = (publisher: string) =>
+  OUTLETS.some((o) => publisher.toLowerCase() === o.toLowerCase() || publisher.toLowerCase().startsWith(o.toLowerCase() + " "));
+
+/** The newest headlines from established outlets in the past week, via Google News search RSS (each links to the article). */
 export async function getHeadlines(query: string, limit = 4): Promise<Headline[]> {
   try {
     const q = encodeURIComponent(`${query} when:7d`);
@@ -103,7 +144,7 @@ export async function getHeadlines(query: string, limit = 4): Promise<Headline[]
           publishedAt: new Date(tag(item, "pubDate") ?? "").toISOString(),
         };
       })
-      .filter((h) => h.title && h.url.startsWith("https://") && !Number.isNaN(Date.parse(h.publishedAt)))
+      .filter((h) => h.title && h.url.startsWith("https://") && !Number.isNaN(Date.parse(h.publishedAt)) && established(h.publisher))
       .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
       .slice(0, limit);
   } catch {
