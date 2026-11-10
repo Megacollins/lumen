@@ -1,10 +1,14 @@
 import { evaluateAlerts } from "@/lib/server/alerts";
+import { rateLimit } from "@/lib/server/ratelimit";
 import { recordPrices } from "@/lib/server/strategies";
 import { dbError } from "@/lib/server/strategy-views";
 
 // Daily snapshot (vercel.json) so performance keeps a data point even on days nobody opens Strategies.
 // Opening Strategies also records one when the last is over 30 minutes old. Also checks every account's Smart Alerts.
 export async function GET(req: Request) {
+  // Vercel sends CRON_SECRET when it is set; without it, a rate limit keeps the endpoint from being hammered.
+  const limited = rateLimit(req, "demo");
+  if (limited) return limited;
   const secret = process.env.CRON_SECRET;
   if (secret && req.headers.get("authorization") !== `Bearer ${secret}`) return new Response("Unauthorized", { status: 401 });
   try {

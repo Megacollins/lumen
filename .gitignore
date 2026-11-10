@@ -9,3 +9,7 @@ out/
 spikes/.passkey.json
 spikes/.session-*.json
 .vercel
+
+# Demo video assets (published on X, not in the repo)
+*.mp4
+demo-shots/

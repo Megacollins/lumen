@@ -134,5 +134,10 @@ d = await follower.call(`/api/strategies/${id}`);
 expect("unfollowed", d.body.strategy?.following === false && d.body.strategy?.followers === 0);
 expect("unknown strategy 404", (await anon("/api/strategies/doesnotexist")).status === 404);
 
+// Spam guard: a creator can hold at most 5 strategies (one already published above).
+for (let k = 2; k <= 5; k++) await creator.call("/api/strategies", { ...spec, name: `Test: cap ${k}` });
+const sixth = await creator.call("/api/strategies", { ...spec, name: "Test: cap 6" });
+expect("sixth strategy refused", sixth.status === 409, sixth.body?.error);
+
 console.log(`\nstrategy ${id}  creator @${handle}  ${fails ? fails + " FAILED" : "all passed"}`);
 process.exit(fails ? 1 : 0);

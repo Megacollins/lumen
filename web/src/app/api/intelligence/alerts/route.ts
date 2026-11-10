@@ -8,6 +8,7 @@ import { dbError } from "@/lib/server/strategy-views";
 import { jsonObject, str } from "@/lib/server/validate";
 
 // Smart Alerts are per account and stored server-side, so they need a real (non-demo) sign-in.
+const MAX_RULES = 40;
 async function account(req: Request, group: "read" | "write"): Promise<{ s: Session; error?: never } | { s?: never; error: Response }> {
   const limited = rateLimit(req, group);
   if (limited) return { error: limited };
@@ -70,6 +71,9 @@ export async function POST(req: Request) {
       lastVersion = allocs.at(-1)!.version;
       lastRet = (await performance(allocs.map((a) => ({ ...a, at: new Date(a.at).toISOString() })) as Allocation[])).ret;
     }
+    const [{ n: rules }] = (await sql`select count(*)::int as n from alert_rules
+      where signer_id = ${s.signerId} and not (kind = ${kind} and target = ${target})`) as { n: number }[];
+    if (rules >= MAX_RULES) return Response.json({ error: `You can have up to ${MAX_RULES} alerts. Turn one off first.` }, { status: 409 });
     // A new rule starts from the current state, so it only reports what changes after it was set.
     await sql`insert into alert_rules (signer_id, kind, target, threshold, last_version, last_ret)
       values (${s.signerId}, ${kind}, ${target}, ${threshold}, ${lastVersion}, ${lastRet})

@@ -6,7 +6,7 @@ Built for the NEAR Hackathon (Nov 1–14, 2026). Tracks: `privacy`, `realworld`,
 
 **Live:** https://lumen-near.vercel.app · **Try the demo (no sign-up):** https://lumen-near.vercel.app/demo
 
-> **Status: in development.** This README is updated as each part lands. Sections marked *(planned)* are not built yet.
+> **Status: live preview on NEAR mainnet.** Balances, quotes, Strategies, Intelligence and Alerts work with real data. Orders and payments are built and tested up to settlement, but stay in preview until a funded live test passes; Ask Lumen (AI) is coming soon. Every "Working" claim below says how it was tested.
 
 ## The problem
 
@@ -67,21 +67,28 @@ Deploy: from `web/` (not the repo root), `vercel --prod`. `web/vercel.json` pins
 Open `/app` and create a passkey (Chrome, Safari or Edge; passkeys need HTTPS or localhost).
 `node scripts/sim-passkey.mjs http://localhost:3000` runs the whole sign-in with a software authenticator.
 `node scripts/sim-wallet.mjs http://localhost:3000 nep413|erc191 [order]` does the same with a software NEAR or EVM wallet.
+`node scripts/sim-strategies.mjs http://localhost:3000` walks Strategies end to end (publish, holdings check, follow, update, unfollow, CSV, permissions) with two fresh NEAR test accounts; `node scripts/sim-intelligence.mjs http://localhost:3000` does the same for Intelligence and Smart Alerts. Both write to the configured database and use accounts whose creator names start with `sim_`, so they're easy to delete.
 `node scripts/sim-order.mjs http://localhost:3000 send|buy` runs a real order through the execution pipeline on mainnet with a fresh, empty account (start the dev server with `LUMEN_DEV_EXECUTION=1`; NEAR Intents should accept the signed intent and then mark it FAILED, since nothing is funded).
 
 **Execution safety.** Real orders run only for flows that passed a funded mainnet test (`EXECUTION_VERIFIED`, `CASH_VERIFIED`) and only with Confidential Intents. The server re-quotes live, checks the balance before asking the passkey to sign (1Click intents stay valid for days), accepts only the exact payload it handed out within 5 minutes, refuses replays, and refuses intents for any other account. Before signing, the app shows the live quote and the full recipient for review; named NEAR recipients must exist, and USDC's own token contracts are refused as destinations. Orders placed from a browser are listed in Activity ("Your orders on this device"), bound to the account that placed them.
 
-**Abuse protection.** Every API route has a per-IP rate limit and identical quotes share one NEAR Intents call for 5 seconds (in memory per server instance; a shared store would make the limit global). Security headers forbid framing (clickjacking) and restrict plugins, `<base>` and form targets; scripts and connections aren't restricted, because the NEAR wallet SDKs load from their own domains.
+**Abuse protection.** Every API route has a per-IP rate limit, a creator can publish at most 5 strategies and an account can keep at most 40 alerts, and identical quotes share one NEAR Intents call for 5 seconds (in memory per server instance; a shared store would make the limit global). Security headers forbid framing (clickjacking) and restrict plugins, `<base>` and form targets; scripts and connections aren't restricted, because the NEAR wallet SDKs load from their own domains.
 
 ## Try it as a judge
 
-1. Open `/demo` (or click **Try the demo** on the landing page or sign-in screen). No passkey or funds needed. A black banner marks demo mode.
-2. **Overview** shows a simulated net worth split between cash and investments. Click **Reveal balances** to un-blur.
-3. **Invest → NVIDIA → Buy**, enter $30 or more. The quote comes live from NEAR Intents. Click **Simulate buying NVDA** and see the holding and receipt update.
-4. **Cash → Send**, enter any account id (e.g. `0x055f2e87d74ffda9e7bc2646ba76a5938d75679b`) and an amount. Simulate it and see it in Recent activity.
-5. **Exit demo** clears everything.
+About five minutes, no sign-up or funds:
 
-Outside demo mode, the same screens show real balances from NEAR Intents and say "Preview only" until each flow has passed a live mainnet test.
+1. Open https://lumen-near.vercel.app/demo. A black banner marks demo mode: balances are simulated, prices and quotes are real.
+2. **Overview** shows a simulated net worth split between cash and investments. Click **Reveal balances** to un-blur.
+3. **Invest → Markets** lists 16 Ondo assets with live NEAR Intents prices. Open **NVIDIA → Buy**, enter $30 or more: the quote comes live from NEAR Intents. **Simulate buying NVDA** updates the holding and receipt.
+4. **Invest → Strategies** lists strategies published by Lumen investors, each with a return computed only from prices Lumen recorded since publishing (**Download the prices** to recompute it). **Copy allocation** opens a normal buy sheet per asset, each with its own quote. Publishing and following need a real sign-in.
+5. **Invest → Intelligence** shows key insights, each asset's real price moves, headlines from established outlets and SEC filings, all with source and time. **Analyse my portfolio** explains the (demo) allocation in the browser. **Ask Lumen** (AI) is marked "Coming soon".
+6. **Cash → Send**, enter any account id (e.g. `0x055f2e87d74ffda9e7bc2646ba76a5938d75679b`) and an amount. Simulate it and see it in Recent activity.
+7. **Exit demo** clears everything.
+
+Direct links: [`/demo?next=/app/invest/strategies`](https://lumen-near.vercel.app/demo?next=/app/invest/strategies) and [`/demo?next=/app/invest/intelligence`](https://lumen-near.vercel.app/demo?next=/app/invest/intelligence) open the demo on those tabs.
+
+Outside demo mode, the same screens show real balances from NEAR Intents and say "Preview only" until each flow has passed a live mainnet test. Smart Alerts, publishing and following need a passkey or wallet sign-in, since they're saved per account.
 
 ## Known limitations
 

@@ -21,6 +21,8 @@ export async function GET(req: Request) {
 }
 
 const HANDLE = /^[a-z0-9_]{3,20}$/;
+/** Per creator, so one free account can't flood the list. */
+const MAX_STRATEGIES = 5;
 const text = (v: unknown, min: number, max: number) => {
   const t = str(v)?.trim() ?? "";
   return t.length >= min && t.length <= max ? t : null;
@@ -61,6 +63,13 @@ export async function POST(req: Request) {
       if (taken.length) return Response.json({ error: "That creator name is taken." }, { status: 409 });
       await sql`insert into creators (signer_id, handle, bio, show_account) values (${s.signerId}, ${handle}, ${bio}, ${b?.showAccount === true})`;
     }
+
+    const [{ n: published }] = (await sql`select count(*)::int as n from strategies where creator = ${s.signerId}`) as { n: number }[];
+    if (published >= MAX_STRATEGIES)
+      return Response.json(
+        { error: `You can publish up to ${MAX_STRATEGIES} strategies. Update an existing one instead.` },
+        { status: 409 },
+      );
 
     const snap = await recordPrices(0);
     if (!snap || Date.now() - new Date(snap.at).getTime() > 60 * 60_000)
