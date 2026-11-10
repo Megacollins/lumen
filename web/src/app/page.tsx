@@ -12,6 +12,7 @@ import { PrivateIcon, StatementIcon, PasskeyIcon } from "@/components/brand/icon
 import { StepAdd, StepInvest, StepSend } from "@/components/landing/illustrations";
 import { LumenBox } from "@/components/landing/lumen-box";
 import { Faq } from "@/components/landing/faq";
+import { CANDIDATE_ASSETS } from "@/lib/markets";
 import { IntelligencePreview, IntelligencePreviewFallback, StrategiesPreview } from "@/components/landing/features";
 
 const H2 = "text-[clamp(30px,2.4vw_+_12px,44px)] font-normal leading-[1.1] tracking-[-0.03em]";
@@ -155,14 +156,30 @@ export default function Home() {
                   Tokenized US stocks and ETFs from Ondo Global Markets, bought from your private cash through NEAR Intents. Each token
                   tracks its underlying asset and gives economic exposure only: no voting rights, and no direct ownership of shares or gold.
                 </p>
-                <Image
-                  src="/images/certificate.jpg"
-                  alt="A blank certificate with an engraved border under a pane of glass"
-                  width={1448}
-                  height={1086}
-                  sizes="(min-width: 768px) 380px, 100vw"
-                  className="mt-10 h-auto w-full max-w-[380px]"
-                />
+                {/* The certificate's lettering is HTML over the photo (crisp, and only true statements: no company or share count) */}
+                <div className="@container relative mt-10 w-full max-w-[380px]">
+                  <Image
+                    src="/images/certificate.jpg"
+                    alt={`A certificate under a pane of glass, engraved "lumen" and "Tokenized by Ondo Global Markets, via NEAR Intents"`}
+                    width={1448}
+                    height={1086}
+                    sizes="(min-width: 768px) 380px, 100vw"
+                    className="h-auto w-full"
+                  />
+                  <div
+                    aria-hidden
+                    className="absolute left-[17%] right-[17%] top-[28%] bottom-[30%] flex flex-col items-center justify-center text-center text-[#8a6f2e] opacity-75 mix-blend-multiply"
+                  >
+                    <span className="text-[3cqw] uppercase tracking-[0.3em]">{CANDIDATE_ASSETS.length} tokenized assets</span>
+                    <span className="mt-[2cqw] text-[11cqw] leading-none tracking-[-0.04em]">lumen</span>
+                    <span className="mt-[2.5cqw] h-px w-[30cqw] bg-current opacity-60" />
+                    <span className="mt-[2.5cqw] whitespace-nowrap text-[3.2cqw] leading-[1.5] tracking-[0.04em]">
+                      Tokenized by Ondo Global Markets
+                      <br />
+                      via NEAR Intents
+                    </span>
+                  </div>
+                </div>
               </Reveal>
               <div className="min-w-0 flex-[2_1_560px]">
                 <Suspense fallback={<MarketGridFallback />}>
