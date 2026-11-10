@@ -6,7 +6,11 @@ import { useRef, useState, useSyncExternalStore, type PointerEvent } from "react
 /** The studio series, "lit from within": money, privacy, clarity. */
 const SLIDES = [
   { src: "/images/gold-bar.jpg", pos: "50% 50%", alt: "A gold bar resting on a stone plinth, lit by a single warm light" },
-  { src: "/images/case-lumen.jpg", pos: "50% 55%", alt: "A closed dark box marked lumen, with warm golden light glowing from the seam of its lid" },
+  {
+    src: "/images/case-lumen.jpg",
+    pos: "50% 55%",
+    alt: "A closed dark box marked lumen, with warm golden light glowing from the seam of its lid",
+  },
   { src: "/images/glass-wide.jpg", pos: "50% 50%", alt: "A frosted glass block with a line of warm golden light glowing inside it" },
 ];
 
@@ -17,7 +21,7 @@ const canTilt = () => window.matchMedia("(hover: hover) and (pointer: fine)").ma
 /**
  * Hero photo series: crossfades every 6s, timed by the active progress bar (globals.css .hero-progress), so pausing
  * on hover or focus freezes the bar and resumes where it left off. No autoplay with reduced motion.
- * Swipe (touch) or drag (mouse) sideways to change photo; arrow keys work on the progress bars. Vertical swipes
+ * Tap or click the photo for the next one, or swipe (touch) / drag (mouse) sideways; arrow keys work on the progress bars. Vertical swipes
  * still scroll the page. On devices with a mouse, the photo tilts a few degrees toward the pointer.
  */
 export function HeroSlides({ className }: { className?: string }) {
@@ -28,7 +32,11 @@ export function HeroSlides({ className }: { className?: string }) {
   const swipe = useRef<{ x: number; y: number } | null>(null);
   // The progress bar (which advances the slides) only starts once React is listening: started from the server HTML,
   // it could finish before hydration on a slow phone and the slideshow would never move.
-  const hydrated = useSyncExternalStore(noop, () => true, () => false);
+  const hydrated = useSyncExternalStore(
+    noop,
+    () => true,
+    () => false,
+  );
   const paused = hovered || reduced;
 
   const go = (step: number) => setIndex((n) => (n + step + SLIDES.length) % SLIDES.length);
@@ -46,6 +54,8 @@ export function HeroSlides({ className }: { className?: string }) {
     const dy = e.clientY - start.y;
     // Mostly sideways and far enough to be deliberate; the new slide's progress bar restarts the 6s timer.
     if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) go(dx < 0 ? 1 : -1);
+    // A tap or click (barely moved) shows the next photo. Swipes need 40px, so one gesture is never both.
+    else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) go(1);
   }
 
   function onMove(e: PointerEvent<HTMLDivElement>) {
@@ -68,7 +78,7 @@ export function HeroSlides({ className }: { className?: string }) {
   return (
     <div className={className}>
       <div
-        className="relative h-[300px] touch-pan-y select-none overflow-hidden bg-studio [perspective:1200px] sm:h-auto sm:aspect-[1672/941]"
+        className="relative h-[300px] cursor-pointer touch-pan-y select-none overflow-hidden bg-studio [perspective:1200px] sm:h-auto sm:aspect-[1672/941]"
         onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
         onPointerDown={onDown}
         onPointerUp={onUp}
