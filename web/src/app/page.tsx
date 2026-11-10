@@ -14,8 +14,8 @@ import { LumenBox } from "@/components/landing/lumen-box";
 import { Faq } from "@/components/landing/faq";
 import { IntelligencePreview, IntelligencePreviewFallback, StrategiesPreview } from "@/components/landing/features";
 
-const H2 = "text-[clamp(32px,4.2vw,60px)] font-normal leading-[1.08] tracking-[-0.035em]";
-const BODY = "text-base leading-relaxed text-ink-70";
+const H2 = "text-[clamp(30px,2.4vw_+_12px,44px)] font-normal leading-[1.1] tracking-[-0.03em]";
+const BODY = "text-[16px] leading-relaxed text-ink-70 md:text-[17px]";
 
 export default function Home() {
   return (
@@ -31,10 +31,10 @@ export default function Home() {
                 <AccountPreview />
               </Reveal>
               <Reveal className="max-w-[640px] text-center lg:pb-2 lg:pt-12 lg:text-left">
-                <h1 className="text-[clamp(38px,5.2vw,68px)] font-normal leading-[1.05] tracking-[-0.04em]">
+                <h1 className="text-[clamp(38px,5vw,64px)] font-normal leading-[1.05] tracking-[-0.04em]">
                   Private money. Private <i>markets</i>.
                 </h1>
-                <p className="mt-6 text-lg leading-relaxed text-ink-70">
+                <p className="mt-6 text-[16px] leading-relaxed text-ink-70 md:text-[18px]">
                   A self-custodial account on NEAR for your dollars and your investments. Hold USDC, pay people and buy tokenized stocks and
                   ETFs, with balances and payments kept off the public ledger.
                 </p>
@@ -44,7 +44,7 @@ export default function Home() {
                     Try the demo
                   </ButtonLink>
                 </div>
-                <p className="mt-6 max-w-[560px] text-[13px] leading-relaxed text-ink-45 max-lg:mx-auto">
+                <p className="mt-6 max-w-[560px] text-[13px] leading-relaxed text-ink-45 max-lg:mx-auto md:text-[14px]">
                   Early preview on NEAR mainnet. Balances, prices and quotes are real; payments and orders switch on one by one after each
                   passes a live test. The demo needs no sign-up.
                 </p>
@@ -61,8 +61,8 @@ export default function Home() {
             style={{ background: "radial-gradient(circle, rgba(233,217,168,0.5) 0%, rgba(233,217,168,0) 65%)" }}
           />
           <Reveal className="relative mx-auto max-w-[860px]">
-            <p className="text-[13px] tracking-[0.12em] text-ink-45">THE PROBLEM</p>
-            <p className="mt-5 text-[clamp(24px,3vw,36px)] leading-[1.35] tracking-[-0.02em]">
+            <p className="text-[12px] tracking-[0.12em] text-ink-45">THE PROBLEM</p>
+            <p className="mt-5 text-[clamp(22px,1.6vw_+_10px,32px)] leading-[1.4] tracking-[-0.02em]">
               On a public blockchain, every payment is permanent and searchable. Anyone who learns your address can see what you earn, what
               you hold and every trade you make. Lumen keeps the self-custody of crypto and takes your finances off the <i>public record</i>
               .
@@ -95,8 +95,8 @@ export default function Home() {
                 <Reveal key={title} delay={i * 0.06}>
                   <div className="flex h-full flex-col items-center gap-3 border border-hairline bg-paper px-8 pb-10 pt-12 text-center">
                     <Art />
-                    <h3 className="mt-4 text-[26px] font-normal tracking-[-0.02em]">{title}</h3>
-                    <p className="max-w-[280px] text-[15px] leading-relaxed text-ink-60">{text}</p>
+                    <h3 className="mt-4 text-[21px] font-normal tracking-[-0.02em] md:text-[24px]">{title}</h3>
+                    <p className="max-w-[280px] text-[14px] leading-relaxed text-ink-60 md:text-[15px]">{text}</p>
                   </div>
                 </Reveal>
               ))}
@@ -109,8 +109,8 @@ export default function Home() {
           <section className="px-4 py-[clamp(48px,5vw,80px)] sm:px-8">
             <div className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-10 lg:gap-16">
               <Reveal className="min-w-0 flex-[1_1_380px]">
-                <p className="text-[13px] tracking-[0.12em] text-ink-45">PRIVATE CASH</p>
-                <h2 className={`${H2} mt-4 text-[clamp(32px,3.6vw,48px)]`}>
+                <p className="text-[12px] tracking-[0.12em] text-ink-45">PRIVATE CASH</p>
+                <h2 className={`${H2} mt-4`}>
                   Money that stays <i>yours</i>.
                 </h2>
                 <p className={`${BODY} mt-5 max-w-[460px]`}>
@@ -147,7 +147,7 @@ export default function Home() {
           <section id="invest" className="scroll-mt-20 px-4 pb-[clamp(48px,5vw,80px)] pt-0 sm:px-8">
             <div className="mx-auto flex max-w-[1280px] flex-wrap items-start gap-10 lg:gap-16">
               <Reveal className="min-w-0 flex-[1_1_320px]">
-                <p className="text-[13px] tracking-[0.12em] text-ink-45">CONFIDENTIAL INVESTMENTS</p>
+                <p className="text-[12px] tracking-[0.12em] text-ink-45">CONFIDENTIAL INVESTMENTS</p>
                 <h2 className={`${H2} mt-4`}>
                   Wall Street, <i>discreetly</i>.
                 </h2>
@@ -177,14 +177,14 @@ export default function Home() {
         <section id="strategies" className="scroll-mt-20 bg-paper px-4 py-[clamp(48px,5vw,80px)] sm:px-8">
           <div className="mx-auto max-w-[1280px]">
             <Reveal className="mx-auto max-w-[760px] text-center">
-              <p className="text-[13px] tracking-[0.12em] text-ink-45">STRATEGIES AND INTELLIGENCE</p>
+              <p className="text-[12px] tracking-[0.12em] text-ink-45">STRATEGIES AND INTELLIGENCE</p>
               <h2 className={`${H2} mt-4`}>
                 Invest together. Research <i>with sources</i>.
               </h2>
             </Reveal>
             <div className="mt-10 grid gap-10 lg:grid-cols-2 lg:gap-12">
               <Reveal className="flex flex-col">
-                <h3 className="text-[26px] font-normal tracking-[-0.02em]">Lumen Strategies</h3>
+                <h3 className="text-[21px] font-normal tracking-[-0.02em] md:text-[24px]">Lumen Strategies</h3>
                 <p className={`${BODY} mt-3 max-w-[520px]`}>
                   Browse model allocations that other Lumen investors publish across stocks, ETFs and gold. Each one&apos;s track record
                   starts the day it&apos;s published, priced from NEAR Intents. Follow a strategy to get its updates, or copy its
@@ -198,7 +198,7 @@ export default function Home() {
                 </div>
               </Reveal>
               <Reveal className="flex flex-col" delay={0.1}>
-                <h3 className="text-[26px] font-normal tracking-[-0.02em]">Lumen Intelligence</h3>
+                <h3 className="text-[21px] font-normal tracking-[-0.02em] md:text-[24px]">Lumen Intelligence</h3>
                 <p className={`${BODY} mt-3 max-w-[520px]`}>
                   Real price moves, headlines and SEC filings for every Lumen asset, each with its source and time. Analyse your own
                   allocation in your browser and set alerts for the moves you care about. A private AI assistant, running on NEAR AI&apos;s
@@ -224,7 +224,7 @@ export default function Home() {
               <h2 className={`${H2} text-center`}>
                 One account. The <i>whole</i> picture.
               </h2>
-              <p className="mx-auto mt-5 max-w-[560px] text-center text-[17px] leading-relaxed text-ink-60">
+              <p className="mx-auto mt-5 max-w-[560px] text-center text-[16px] leading-relaxed text-ink-60 md:text-[17px]">
                 Cash and investments in one place, valued at current prices. You pay from the same balance you invest from.
               </p>
             </Reveal>
@@ -298,14 +298,14 @@ export default function Home() {
           <div className="mx-auto flex max-w-[1280px] flex-wrap gap-10 lg:gap-16">
             <Reveal className="min-w-0 flex-[1_1_360px]">
               <LumenBox className="mb-10 w-full max-w-[420px]" />
-              <h2 className={`${H2} text-[clamp(32px,3.6vw,48px)]`}>
+              <h2 className={`${H2}`}>
                 Private, not <i>hidden</i>.
               </h2>
               <p className={`${BODY} mt-5 max-w-[420px]`}>
                 Privacy you can explain to your accountant. Here is exactly what stays confidential, what is still public, and who else sees
                 your details.
               </p>
-              <ul className="mt-8 flex flex-col gap-4 text-[15px] leading-relaxed text-ink-70">
+              <ul className="mt-8 flex flex-col gap-4 text-[14px] leading-relaxed text-ink-70 md:text-[15px]">
                 <li className="flex gap-3">
                   <PasskeyIcon size={20} className="mt-0.5 flex-none" />
                   <span>
@@ -381,7 +381,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <p className="mt-4 text-xs leading-relaxed text-ink-45">
+              <p className="mt-4 text-[13px] leading-relaxed text-ink-45">
                 Confidential Intents relies on trusted hardware and NEAR&apos;s permissioned validators. It is not zero-knowledge
                 cryptography. In this preview, Lumen reads real balances and quotes; confidential payments and orders switch on after each
                 passes a live test on mainnet.
@@ -415,8 +415,8 @@ export default function Home() {
               ].map(([title, text], i) => (
                 <Reveal key={title} delay={i * 0.05}>
                   <div className="h-full border border-hairline bg-paper p-8">
-                    <div className="text-xl tracking-[-0.015em]">{title}</div>
-                    <div className="mt-2 text-[15px] leading-relaxed text-ink-60">{text}</div>
+                    <div className="text-[20px] tracking-[-0.015em] md:text-[22px]">{title}</div>
+                    <div className="mt-2 text-[14px] leading-relaxed text-ink-60 md:text-[15px]">{text}</div>
                   </div>
                 </Reveal>
               ))}
@@ -457,7 +457,7 @@ export default function Home() {
             <h2 className={`${H2} mt-4`}>
               Your finances, finally <i>yours</i>.
             </h2>
-            <p className="mt-4 text-[17px] text-ink-60">
+            <p className="mt-4 text-[16px] leading-relaxed text-ink-60 md:text-[17px]">
               Create a passkey on your device and you&apos;re in. No seed phrase, nothing to install.
             </p>
             <div className="mt-9 flex flex-wrap justify-center gap-3">
@@ -488,7 +488,7 @@ export default function Home() {
             </Link>
           </nav>
         </div>
-        <p className="mx-auto mt-6 max-w-[1280px] text-xs leading-relaxed text-ink-45">
+        <p className="mx-auto mt-6 max-w-[1280px] text-[13px] leading-relaxed text-ink-45">
           Tokenized stocks and ETFs are issued by Ondo Global Markets, give economic exposure only, and are not available to US persons or
           in restricted jurisdictions. Prices can fall as well as rise. Lumen does not provide investment advice and never holds your funds.
         </p>

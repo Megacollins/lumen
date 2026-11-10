@@ -97,7 +97,7 @@ function Item({ q, a }: { q: string; a: ReactNode }) {
           aria-expanded={open}
           aria-controls={id}
           onClick={() => setOpen((o) => !o)}
-          className="flex w-full items-center justify-between gap-6 py-6 text-left text-[clamp(18px,1.6vw,21px)] tracking-[-0.015em] transition-opacity hover:opacity-70"
+          className="flex w-full items-center justify-between gap-6 py-6 text-left text-[18px] tracking-[-0.015em] md:text-[20px] transition-opacity hover:opacity-70"
         >
           {q}
           <span aria-hidden className="relative h-3.5 w-3.5 flex-none">
@@ -119,7 +119,7 @@ function Item({ q, a }: { q: string; a: ReactNode }) {
         }`}
       >
         <div className="overflow-hidden">
-          <p className="max-w-[620px] pb-7 text-[15px] leading-relaxed text-ink-60">{a}</p>
+          <p className="max-w-[620px] pb-7 text-[15px] leading-relaxed text-ink-60 md:text-[16px]">{a}</p>
         </div>
       </div>
     </div>

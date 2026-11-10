@@ -68,7 +68,7 @@ export async function MarketGrid() {
           <SolverCard />
         </Reveal>
       </div>
-      <p className="mt-4 text-xs leading-relaxed text-ink-45">
+      <p className="mt-4 text-[13px] leading-relaxed text-ink-45">
         {live
           ? `Indicative prices from the NEAR Intents token list${updatedAt ? `, last updated ${time(updatedAt)}` : ""}. Outside stock market hours they may not move. `
           : "Prices can't be loaded from NEAR Intents right now. "}
