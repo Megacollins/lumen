@@ -90,14 +90,14 @@ function Item({ q, a }: { q: string; a: ReactNode }) {
   const id = useId();
 
   return (
-    <div className="border-b border-hairline">
+    <div className="border-b border-sand">
       <h3>
         <button
           type="button"
           aria-expanded={open}
           aria-controls={id}
           onClick={() => setOpen((o) => !o)}
-          className="flex w-full items-center justify-between gap-6 py-6 text-left text-[18px] tracking-[-0.015em] md:text-[20px] transition-opacity hover:opacity-70"
+          className="flex w-full items-center justify-between gap-6 py-5 text-left font-serif text-[21px] leading-snug text-[#141413] md:text-[24px] transition-opacity hover:opacity-70"
         >
           {q}
           <span aria-hidden className="relative h-3.5 w-3.5 flex-none">
@@ -129,7 +129,7 @@ function Item({ q, a }: { q: string; a: ReactNode }) {
 /** Questions in a quiet accordion; each opens on its own. */
 export function Faq() {
   return (
-    <div className="border-t border-hairline">
+    <div className="border-t border-sand">
       {QUESTIONS.map((item) => (
         <Item key={item.q} {...item} />
       ))}

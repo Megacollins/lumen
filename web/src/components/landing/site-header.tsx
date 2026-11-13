@@ -3,6 +3,14 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/brand/logo";
+import { ArrowRight } from "@/components/landing/ui";
+
+const LINKS = [
+  ["Invest", "#invest"],
+  ["Strategies", "#strategies"],
+  ["Intelligence", "#intelligence"],
+  ["About", "#about"],
+] as const;
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -16,21 +24,33 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-50 flex h-[72px] items-center justify-between px-4 backdrop-blur-[6px] transition-[border-color,background-color] duration-200 sm:px-8 ${
-        scrolled ? "border-b border-hairline bg-mist/80" : "border-b border-transparent bg-mist/40"
+      className={`sticky top-0 z-50 backdrop-blur-[8px] transition-[border-color,background-color] duration-200 ${
+        scrolled ? "border-b border-sand bg-ivory/85" : "border-b border-transparent bg-ivory/40"
       }`}
     >
-      <Link href="/" aria-label="Lumen home">
-        <Logo size={22} />
-      </Link>
-      <nav className="flex items-center gap-6 text-sm">
-        <a href="#how" className="hidden hover:opacity-70 md:inline">How it works</a>
-        <a href="#invest" className="hidden hover:opacity-70 md:inline">Invest</a>
-        <a href="#privacy" className="hidden hover:opacity-70 md:inline">Privacy</a>
-        <Link href="/app" className="bg-ink px-4 py-2.5 font-medium text-white transition-opacity duration-200 hover:opacity-70">
-          Open Lumen
+      <div className="mx-auto flex h-[72px] max-w-[1200px] items-center justify-between px-4 sm:px-8">
+        <Link href="/" aria-label="Lumen home">
+          <Logo size={22} />
         </Link>
-      </nav>
+        <nav aria-label="Sections" className="hidden items-center gap-9 text-[15px] text-[#141413] md:flex">
+          {LINKS.map(([label, href]) => (
+            <a
+              key={href}
+              href={href}
+              className="relative py-1 after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-gold after:transition-transform after:duration-300 hover:after:scale-x-100"
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+        <Link
+          href="/app"
+          className="group inline-flex h-10 items-center gap-2 rounded-full bg-ink px-5 text-sm font-medium text-white transition-colors duration-200 hover:bg-ink-soft"
+        >
+          Launch App
+          <ArrowRight className="transition-transform duration-200 group-hover:translate-x-0.5" />
+        </Link>
+      </div>
     </header>
   );
 }

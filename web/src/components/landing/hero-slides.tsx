@@ -78,7 +78,7 @@ export function HeroSlides({ className }: { className?: string }) {
   return (
     <div className={className}>
       <div
-        className="relative h-[300px] cursor-pointer touch-pan-y select-none overflow-hidden bg-studio [perspective:1200px] sm:h-auto sm:aspect-[1672/941]"
+        className="relative aspect-[1672/941] cursor-pointer touch-pan-y select-none overflow-hidden rounded-[28px] border border-sand bg-cream shadow-[0_40px_80px_-50px_rgba(20,20,19,0.5)] [perspective:1200px] sm:rounded-[36px]"
         onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
         onPointerDown={onDown}
         onPointerUp={onUp}
@@ -99,7 +99,7 @@ export function HeroSlides({ className }: { className?: string }) {
               fill
               draggable={false}
               priority={i === 0}
-              sizes="(min-width: 1212px) 1180px, 100vw"
+              sizes="(min-width: 1024px) 680px, 100vw"
               style={{ objectPosition: s.pos }}
               className={`object-cover transition-opacity duration-[1100ms] ease-out ${i === index ? "opacity-100" : "opacity-0"}`}
             />
@@ -107,7 +107,7 @@ export function HeroSlides({ className }: { className?: string }) {
           <span aria-hidden className="hero-glint absolute inset-0" />
         </div>
         <div
-          className="absolute bottom-3 left-4 z-10 flex items-center gap-2 sm:bottom-5 sm:left-6"
+          className="absolute bottom-3 left-5 z-10 flex items-center gap-2 sm:bottom-5 sm:left-7"
           onFocus={() => setHovered(true)}
           onBlur={() => setHovered(false)}
           onKeyDown={(e) => {
@@ -127,7 +127,7 @@ export function HeroSlides({ className }: { className?: string }) {
               aria-current={i === index}
               className="flex h-6 w-10 items-center sm:w-14"
             >
-              <span className="relative block h-[2px] w-full overflow-hidden bg-ink/25">
+              <span className="relative block h-[2px] w-full overflow-hidden rounded-full bg-ink/20">
                 {i === index &&
                   hydrated &&
                   (reduced ? (

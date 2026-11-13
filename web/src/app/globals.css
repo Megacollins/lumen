@@ -7,15 +7,23 @@
   --ink-60: rgba(20, 20, 19, 0.66);
   --ink-45: rgba(20, 20, 19, 0.6);
   --hairline: rgba(20, 20, 19, 0.1);
-  --paper: #ffffff;
-  --mist: #f5f5f4;
-  --studio: #ecebe8;
-  --stone: #d8d6d0;
+  --paper: #fffdf8;
+  --mist: #f7f2e9;
+  --studio: #efe7d8;
+  --stone: #ddd3c1;
   --gold: #c9a24a;
   --gold-light: #e2c374;
   --glow: #f0dfae;
   --up: #2f7d5b;
   --down: #a9472f;
+  /* Landing page extras: ivory, cream, sand and a softer black for hovers. The app shares the warm neutrals above. */
+  --ivory: #f7f2e9;
+  --cream: #fbf8f2;
+  --sand: #e6dac4;
+  --ink-soft: #2e2d2a;
+  --ink-deep: #0b0b0a;
+  --gold-ink: #85631f;
+  --gold-soft: #f1e5c8;
   --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -34,6 +42,14 @@
   --color-glow: var(--glow);
   --color-up: var(--up);
   --color-down: var(--down);
+  --color-ivory: var(--ivory);
+  --color-cream: var(--cream);
+  --color-sand: var(--sand);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-deep: var(--ink-deep);
+  --color-gold-ink: var(--gold-ink);
+  --color-gold-soft: var(--gold-soft);
+  --font-serif: var(--font-instrument-serif), Georgia, serif;
   --font-sans: var(--font-inter-tight), system-ui, sans-serif;
   --radius-*: initial;
   --radius-none: 0;
