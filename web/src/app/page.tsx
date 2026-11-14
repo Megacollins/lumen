@@ -366,6 +366,13 @@ export default function Home() {
           Tokenized stocks and ETFs are issued by Ondo Global Markets, give economic exposure only, and are not available to US persons or
           in restricted jurisdictions. Prices can fall as well as rise. Lumen does not provide investment advice and never holds your funds.
         </p>
+        {/* Brand signature: the logo's wordmark. Spans the width on phones and tablets (cqw); capped on wide screens so it
+            stays a quiet sign-off rather than the loudest thing on the page. */}
+        <div aria-hidden className="@container mx-auto mt-10 max-w-[1200px] select-none overflow-x-clip sm:mt-12">
+          <div className="whitespace-nowrap text-center text-[min(40.5cqw,190px)] font-medium leading-[0.78] tracking-[-0.06em] text-ink/[0.055]">
+            lumen
+          </div>
+        </div>
       </footer>
     </div>
   );
